@@ -1,0 +1,24 @@
+Env:
+	HOST=localhost
+	PORT=3333
+	STORAGE=./avatars/
+
+	## Database Config -> v
+	DATABASE_HOST=localhost
+	DATABASE_PORT=5432
+	DATABASE_USER=
+	DATABASE_PASSWORD=
+	DATABASE_TYPE=
+	DATABASE_NAME=
+
+	## Intra API -> v
+	FORTYTWO_CLIENT_ID=
+	FORTYTWO_CLIENT_SECRET=
+	FORTYTWO_CALLBACK_URL=<http://localhost:<port>>
+
+	## Access token secret -> v
+	ACCESS_TOKEN_SECRET=<random>
+	ACCESS_TOKEN_EXPIRATION='<temps>'
+
+	## Access token tfa -> v
+	TWO_FACTOR_AUTHENTICATION_APP_NAME=<random>

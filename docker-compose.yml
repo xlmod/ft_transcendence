@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:alpine3.14
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=transcendence
+    ports:
+      - "5432"
+    networks:
+      - web
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - web
+
+  backapi:
+    build:
+      context: ./backapi
+      dockerfile: Dockerfile.back
+    restart: always
+    depends_on:
+      - "db"
+    ports:
+      - "3333:3333"
+    volumes:
+      - "./backapi:/backend"
+    networks:
+      - web
+
+  frontapi:
+    build:
+      context: ./frontapi
+      dockerfile: Dockerfile.front
+    restart: always
+    depends_on:
+      - "backapi"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./frontapi:/frontend"
+    networks:
+      - web
+    
+networks:
+  web:
+    # driver: "bridge" -> default

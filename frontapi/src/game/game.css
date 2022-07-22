@@ -1,0 +1,50 @@
+@import "../globals.css";
+
+#gameSection
+{
+	position: absolute;
+	left: 0;
+	margin-top: 120px;
+	width: 100vw;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	border: red 1px solid;
+}
+
+#game
+{
+	position: relative;
+	width: 90vw;
+	height: 45vw;
+
+	border: blue 1px solid;
+}
+
+#game canvas
+{
+	position: relative;
+	width: 100%;
+	height: 100%;
+
+	border: yellow 1px solid;
+}
+
+@media only screen and ( min-width: 1220px )
+{
+	#gameSection
+	{
+		margin-top: 30px;
+
+		flex-direction: row;
+		justify-content: space-around;
+	}
+
+	#game
+	{
+		width: 60vw;
+		height: 30vw;
+	}
+}

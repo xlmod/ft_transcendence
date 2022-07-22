@@ -1,0 +1,18 @@
+@font-face
+{
+	font-family: Skwar;
+	src: url( Skwar.ttf );
+}
+
+:root
+{
+	--cBackground: black;
+	--cNeon: #59A80F; /* green */
+	--cNeonLight: #9ED54C; /* light green */
+	--cNeonBis: #59A80F; /* not used */
+}
+
+body
+{
+	background-color: var( --cBackground );
+}

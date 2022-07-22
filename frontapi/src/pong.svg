@@ -1,0 +1,7 @@
+			<svg height="50px" width="50px">
+				<line x1="25" y1="0" x2="25" y2="50" style="stroke:#59A80F;stroke-width:2;" />
+				<rect x="3" y="30" width="3" height="18" style="stroke:#59A80F;stroke-width:2;" />
+				<rect x="46" y="15" width="3" height="18" style="stroke:#59A80F;stroke-width:2;" />
+				<circle cx="38" cy="26" r="3" style="fill:#59A80F" />
+			</svg>
+

@@ -1,0 +1,42 @@
+import { Controller, Get, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
+
+
+@Controller('auth')
+export class AuthController {
+	constructor(
+		private authService: AuthService,
+		private jwtService: JwtService,
+	) {}
+
+	@Get('42')
+	@UseGuards(AuthGuard('42'))
+	intra42auth(@Req() req) {}
+
+	@Get('42/callback')
+	@UseGuards(AuthGuard('42'))
+	async intra42authRedirect(
+		@Req() req,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		const user = await this.authService.login(req.user);
+		if (user === undefined)
+			throw new UnauthorizedException();		// maybe remove later
+		console.log(user);
+		const jtoken = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuth });
+
+		res.cookie('access_token', jtoken, {
+			httpOnly: true,
+		});
+		console.log(req.cookies);
+		return user;
+	}
+
+	@Get('logout')
+	async logout(@Res({ passthrough: true }) res: Response) {
+		res.clearCookie('access_token');
+	}
+}
