@@ -1,0 +1,1 @@
+{"ast":null,"code":"import './gameChat.css';","map":{"version":3,"names":[],"sources":["/home/mahavishnu/work/42/ft_transcendence/frontend/pong/src/game/gameChat.tsx"],"sourcesContent":["import React from 'react';\nimport './gameChat.css';\n"],"mappings":"AACA,OAAO,gBAAP"},"metadata":{},"sourceType":"module"}
