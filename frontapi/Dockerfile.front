@@ -3,12 +3,10 @@ FROM node:lts-alpine3.14
 ENV TZ='Europe/Paris'
 
 RUN apk update && apk add --no-cache npm
+RUN npm install -g http-server
 
 WORKDIR /frontend
 
-RUN npm install -g create-react-app@latestt
-RUN npm install -D react-router-dom@latest
-
 EXPOSE 3000
 
-ENTRYPOINT npm run build && npm run start
+ENTRYPOINT http-server ./build -p 3000
