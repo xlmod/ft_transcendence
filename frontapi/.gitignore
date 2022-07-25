@@ -1,6 +1,6 @@
 # compiled output
-/build
-/node_modules
+./build
+./node_modules
 .env
 
 # Logs

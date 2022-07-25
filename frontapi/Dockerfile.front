@@ -9,4 +9,4 @@ WORKDIR /frontend
 
 EXPOSE 3000
 
-ENTRYPOINT http-server ./build -p 3000
+ENTRYPOINT npm install && npm run build && http-server ./build -p 3000
