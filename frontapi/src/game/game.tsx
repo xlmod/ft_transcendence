@@ -2,6 +2,7 @@ import React from 'react';
 import { Header } from '../header/header';
 import { Navbar } from '../navbar/navbar';
 import { GameChat } from './gameChat';
+import { GameCanvas } from './gameCanvas';
 import './game.css';
 
 export function Game()
@@ -12,11 +13,7 @@ export function Game()
 			<Header />
 			<Navbar />
 			<section id="gameSection">
-				<div id="game">
-					<canvas>
-					</canvas>
-				</div>
-				<GameChat />
+				<GameCanvas />
 			</section>
 		</main>
 	);
