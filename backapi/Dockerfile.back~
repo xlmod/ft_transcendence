@@ -1,0 +1,12 @@
+FROM node:lts-alpine3.14
+# https://hub.docker.com/layers/node/library/node/16-alpine3.14/images/sha256-8da648aad7e8fd08e4392659e22047145ed9f81ea4c8e00d162b490b05c9a61b?context=explore
+
+ENV TZ='Europe/Paris'
+
+WORKDIR /backend
+
+RUN npm i -g @nestjs/cli
+
+EXPOSE 3333
+
+ENTRYPOINT npm install --force && npm run start:dev

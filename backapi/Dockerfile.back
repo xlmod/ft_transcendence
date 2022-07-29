@@ -5,7 +5,7 @@ ENV TZ='Europe/Paris'
 
 WORKDIR /backend
 
-RUN npm i -g @nestjs/cli
+RUN npm i --location=global @nestjs/cli
 
 EXPOSE 3333
 
