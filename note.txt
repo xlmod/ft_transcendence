@@ -1,6 +1,7 @@
 Env:
 	HOST=localhost
-	PORT=3333
+	PORT=
+	FRONT_PORT=
 	STORAGE=./avatars/
 
 	## Database Config -> v
