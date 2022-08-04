@@ -2,17 +2,13 @@ import {BASE_HEIGHT, BASE_WIDTH} from "./gameTypes/base";
 import { Board } from "./gameTypes/Board"
 import {GAME_SETTINGS} from "./gameTypes/GameSettings";
 
-export function GameEngine(canvas: HTMLCanvasElement) {
+export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => void, incRight: () => void, newGame: () => void}) {
 	const ctx = canvas.getContext('2d');
 	if (ctx) {
 		
 		const board: Board = new Board();
 		var reqanim: any = true;
-		canvas.width = 1000;
-		canvas.height = 500;
 		GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-		console.log(canvas.width);
-		console.log(canvas.height);
 
 
 		const setup_key = () => {
@@ -42,6 +38,8 @@ export function GameEngine(canvas: HTMLCanvasElement) {
 			
 			if (reqanim)
 				reqanim = requestAnimationFrame(renderLoop);
+			else
+				props.newGame();
 		}
 
 		const stopLoop = () => {
@@ -49,6 +47,13 @@ export function GameEngine(canvas: HTMLCanvasElement) {
 			{
 				cancelAnimationFrame(reqanim);
 				reqanim = undefined;
+				if (board.get_winner() == 1) {
+					props.incLeft();
+					console.log('left');
+				} else {
+					props.incRight();
+					console.log('right');
+				}
 			}
 		}
 
