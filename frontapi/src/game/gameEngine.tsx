@@ -1,8 +1,8 @@
-import {BASE_HEIGHT, BASE_WIDTH} from "./gameTypes/base";
+import { BASE_WIDTH} from "./gameTypes/base";
 import { Board } from "./gameTypes/Board"
 import {GAME_SETTINGS} from "./gameTypes/GameSettings";
 
-export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => void, incRight: () => void, newGame: () => void}) {
+export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => void, incRight: () => void}) {
 	const ctx = canvas.getContext('2d');
 	if (ctx) {
 		
@@ -38,8 +38,6 @@ export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => voi
 			
 			if (reqanim)
 				reqanim = requestAnimationFrame(renderLoop);
-			else
-				props.newGame();
 		}
 
 		const stopLoop = () => {
@@ -47,7 +45,7 @@ export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => voi
 			{
 				cancelAnimationFrame(reqanim);
 				reqanim = undefined;
-				if (board.get_winner() == 1) {
+				if (board.get_winner() === 1) {
 					props.incLeft();
 					console.log('left');
 				} else {

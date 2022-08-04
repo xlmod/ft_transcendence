@@ -1,7 +1,6 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import { Header } from '../header/header';
 import { Navbar } from '../navbar/navbar';
-import { GameChat } from './gameChat';
 import { GameCanvas } from './gameCanvas';
 import './game.css';
 
