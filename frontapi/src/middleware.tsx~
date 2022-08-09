@@ -15,7 +15,7 @@ export function getToken()
 
 export function updateUser( value :string, key :( string | number | boolean ) )
 {
-	axios.patch( 'http://localhost:3333/user', { value: key }, { withCredentials: true } );
+	axios.patch( 'http://localhost:3333/user', { value: key }, { withCredientials: true } );
 }
 
 export function generateQR()

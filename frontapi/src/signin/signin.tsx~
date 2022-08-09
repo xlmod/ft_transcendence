@@ -10,9 +10,10 @@ export function Signin()
 		<main>
 			<Header />
 			<section id="sectionSignin">
-				<button id="signin" onClick={ getToken }>
+				{/* <button id="signin" onClick={ getToken }>
 					<p>Sign in</p>
-				</button>
+				</button> */}
+			<a id="signin" href="http://localhost:3333/auth/42/callback"> Signin</a>
 			</section>
 		</main>
 	);

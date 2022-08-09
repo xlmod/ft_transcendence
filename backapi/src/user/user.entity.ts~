@@ -16,10 +16,10 @@ export class User {
 	email: string
 
 	@Column({ nullable: true, default: null, unique: true })
-	pseudo: string
+	pseudo?: string
 
 	@Column({ nullable: true, default: null})
-	avatar: string
+	avatar?: string
 
 	// @Column({ nullable: false, })		// Maybe change  hash to password
 	// password: string

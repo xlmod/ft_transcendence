@@ -26,6 +26,45 @@ export class TwoFactorAuthenticationController {
 		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);
 	}
 
+	// @Post('turn-on')
+	// @HttpCode(200)
+	// // @UseGuards(JwtAuthenticationGuard)
+	// async turnOnTwoFactorAuthentication(
+	// 	@Req() req,
+	// 	@Body() { twoFactorAuthenticationCode }: TwoFactorAuthenticationDto,
+	// 	@Res({ passthrough: true }) res: Response
+	// ) {
+	// 	console.log('hello', req);
+	// 	const user = await this.userService.findById(req.res.locals.id);
+	// 	const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(
+	// 		twoFactorAuthenticationCode,
+	// 		req.user
+	// 	);
+	// 	if (!isCodeValid) {
+	// 		throw new UnauthorizedException('Wrong authentication code');
+	// 	}
+	// 	await this.userService.turnTwoFactorAuthentication(req.res.locals.uuid, true);
+	// }
+
+	// @Post('turn-off')
+	// @HttpCode(200)
+	// // @UseGuards(JwtAuthenticationGuard)
+	// async turnOnTwoFactorAuthentication(
+	// 	@Req() req,
+	// 	@Body() { twoFactorAuthenticationCode }: TwoFactorAuthenticationDto,
+	// 	@Res({ passthrough: true }) res: Response
+	// ) {
+	// 	// const user = await this.userService.findById(req.res.locals.id);
+	// 	const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(
+	// 		twoFactorAuthenticationCode,
+	// 		req.user
+	// 	);
+	// 	if (!isCodeValid) {
+	// 		throw new UnauthorizedException('Wrong authentication code');
+	// 	}
+	// 	await this.userService.turnTwoFactorAuthentication(req.res.locals.uuid, false); // or req.user.id
+	// }
+
 	@Post('authenticate')
 	@HttpCode(200)
 	@UseGuards(AuthGuard('jwt-two-factor'))
