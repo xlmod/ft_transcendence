@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 
 export function getToken()
@@ -15,10 +14,28 @@ export function getToken()
 
 export function updateUser( value :string, key :( string | number | boolean ) )
 {
-	axios.patch( 'http://localhost:3333/user', { value: key }, { withCredientials: true } );
+	axios.patch( 'http://localhost:3333/user', { value: key }, { withCredentials: true } );
 }
 
-export function generateQR()
+export function generateQR() /* Move this to backend */
 {
 	axios.post( 'http://localhost:3333/tfa/generate', Request, { withCredentials: true } );
+}
+
+export function authenticateQR()
+{
+	axios.post( 'http://localhost:3333/tfa/authenticate', { withCredentials: true } );
+}
+
+export function amIAuthorized()
+: boolean
+{
+	let auth = false;
+
+	axios.get( 'http://localhost:3333/getme', { withCredentials: true } )
+	.then( response => {
+		auth = response.data;
+	} )
+
+	return auth;
 }

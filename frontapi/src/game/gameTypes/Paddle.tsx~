@@ -71,7 +71,7 @@ export class Paddle {
 
 	public move() {
 		const nextpos: Vec = this.dir.mul(this.speed).add_vec(this.pos);
-		if (this.collision(nextpos) === false)
+		if (this.collision(nextpos) == false)
 			this.pos = nextpos;
 	}
 

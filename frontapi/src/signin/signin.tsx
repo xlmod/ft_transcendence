@@ -1,6 +1,5 @@
 import React from 'react';
 import { Header } from '../header/header';
-import { getToken } from '../middleware';
 import './signin.css';
 
 export function Signin()

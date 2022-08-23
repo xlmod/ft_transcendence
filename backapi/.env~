@@ -1,0 +1,24 @@
+Env:
+	HOST=localhost
+	PORT=3333
+	STORAGE=./avatars/
+
+	## Database Config -> v
+	DATABASE_HOST=localhost
+	DATABASE_PORT=5432
+	DATABASE_USER=admin
+	DATABASE_PASSWORD=pass
+	DATABASE_TYPE=postgresql
+	DATABASE_NAME=ahbon
+
+	## Intra API -> v
+	FORTYTWO_CLIENT_ID='dba356e9d019fb560804a72e2448112febf9e973e35ccc0ba17010f2df409bf0'
+	FORTYTWO_CLIENT_SECRET='e301ff58008858c8d9654e401cff0361afb86624592ca7048f535bd3e50fdebf'
+	FORTYTWO_CALLBACK_URL='http://localhost:3333'
+
+	## Access token secret -> v
+	ACCESS_TOKEN_SECRET='ahbon'
+	ACCESS_TOKEN_EXPIRATION='3h'
+
+	## Access token tfa -> v
+	TWO_FACTOR_AUTHENTICATION_APP_NAME='ahbon'

@@ -3,12 +3,11 @@ FROM node:lts-alpine3.14
 ENV TZ='Europe/Paris'
 
 RUN apk update && apk add --no-cache npm
-RUN npm install -g http-server
+#RUN npm install -g http-server
 
 WORKDIR /frontend
 
 EXPOSE 3000
 
-#ENTRYPOINT serve -s ./build
-ENTRYPOINT npm install && npm run build && http-server ./build -p 3000
-#ENTRYPOINT npm install && npm start
+#ENTRYPOINT npm install && npm run build && http-server -p 3000 --proxy http://localhost:3000? ./build
+ENTRYPOINT npm install && npm start

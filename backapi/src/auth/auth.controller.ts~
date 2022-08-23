@@ -31,10 +31,8 @@ export class AuthController {
 		res.cookie('access_token', jtoken, {
 			httpOnly: true,
 		});
-//		console.log(req.cookies);
-//		return user;
-		
-		res.redirect( 'http://localhost:3000/game' );
+
+		res.redirect( 'http://localhost:3000#game' );
 	}
 
 	@Get('logout')

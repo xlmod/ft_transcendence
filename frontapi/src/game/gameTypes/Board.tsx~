@@ -54,7 +54,7 @@ export class Board {
 	}
 
 	public is_won(): boolean {
-		return this.winner !== 0;
+		return this.winner != 0;
 	}
 
 	public get_winner(): number {

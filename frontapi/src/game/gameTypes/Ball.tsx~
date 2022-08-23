@@ -90,25 +90,25 @@ export class Ball {
 
 	public move(left: Paddle, right: Paddle) {
 		const nextpos: Vec = this.dir.mul(this.speed).add_vec(this.pos);
-		if (this.collision_paddle_left(left, nextpos) !== undefined)
+		if (this.collision_paddle_left(left, nextpos) != undefined)
 			this.apply_modifier(left);
-		else if (this.collision_paddle_right(right, nextpos) !== undefined)
+		else if (this.collision_paddle_right(right, nextpos) != undefined)
 			this.apply_modifier(right);
-		else if (this.collision_wall(nextpos) === undefined)
+		else if (this.collision_wall(nextpos) == undefined)
 			this.pos = nextpos;
 	}
 
 	public apply_modifier(paddle: Paddle) {
 		const reduce: number | undefined = GAME_SETTINGS.get_modifier("reduce");
-		if (reduce !== undefined)
+		if (reduce != undefined)
 			paddle.reduce(reduce);
 
 		const accelerate_ball: number | undefined = GAME_SETTINGS.get_modifier("accelerate_ball");
-		if (accelerate_ball !== undefined)
+		if (accelerate_ball != undefined)
 			this.speed += accelerate_ball;
 
 		const accelerate_paddle: number | undefined = GAME_SETTINGS.get_modifier("accelerate_paddle");
-		if (accelerate_paddle !== undefined)
+		if (accelerate_paddle != undefined)
 			paddle.add_speed(accelerate_paddle);
 	}
 

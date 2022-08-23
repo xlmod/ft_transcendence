@@ -1,3 +1,4 @@
+import {Vec} from "./Vec";
 
 class GameSettings {
 
