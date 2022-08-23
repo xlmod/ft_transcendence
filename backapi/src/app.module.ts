@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { AppMiddleware } from './middleware/app.middleware';
+import { GameModule } from './game/game.module';
 
 @Module({
 	imports: [
@@ -13,6 +14,7 @@ import { AppMiddleware } from './middleware/app.middleware';
 		ConfigModule.forRoot({ isGlobal: true }),
 		UserModule,
 		AuthModule,
+		GameModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

@@ -21,6 +21,7 @@ export class Intra42Strategy extends PassportStrategy(Strategy, '42') {
 		const { name, emails, photos, username } = profile;
 		const user = {
 			pseudo: username,
+			// pseudo42: username,
 			avatar: photos[0].value,
 			email: emails[0].value,
 			firstName: name.givenName,

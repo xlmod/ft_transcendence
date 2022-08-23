@@ -52,7 +52,6 @@ services:
     
 networks:
   web:
-    # driver: "bridge" -> default
 
 volumes:
   postgres:
