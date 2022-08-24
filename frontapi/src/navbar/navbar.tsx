@@ -1,4 +1,6 @@
 import React from 'react';
+import { NavLink } from "react-router-dom";
+
 import './navbar.css';
 
 export function Navbar()
@@ -6,8 +8,8 @@ export function Navbar()
 {
 	return (
 		<div>
-		<div id="navbarIcon">
-			<div className="navbarIcon" id="iconGame">
+		<nav id="navbarIcon">
+			<NavLink className="navbarIcon" id="iconGame" to="/game">
 				<svg height="50px" width="50px">
 					<text x="12" y="10" font-size="0.7em">4</text>
 					<text x="31" y="10" font-size="0.7em">2</text>
@@ -16,9 +18,9 @@ export function Navbar()
 					<rect x="46" y="15" width="3" height="16" />
 					<circle cx="38" cy="26" r="2" />
 				</svg>
-			</div>
+			</NavLink>
 
-			<div className="navbarIcon" id="iconLeaderboard">
+			<NavLink className="navbarIcon" id="iconLeaderboard" to="/leaderboard">
 				<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
 					width="50px" height="50px" viewBox="0 0 485 485">
 					<g>
@@ -31,9 +33,9 @@ export function Navbar()
 					</g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g>
 					</g><g></g><g></g><g></g><g></g>
 				</svg>
-			</div>
+			</NavLink>
 
-			<div className="navbarIcon" id="iconChat">
+			<NavLink className="navbarIcon" id="iconChat" to="/chat">
 				<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
 	 				width="50px" height="50px" viewBox="0 0 512 512">
 					<g><g>
@@ -47,23 +49,23 @@ export function Navbar()
 					</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g>
 					</g><g></g><g></g><g></g><g></g>
 				</svg>
-			</div>
+			</NavLink>
 
-			<div className="navbarIcon" id="iconUser">
+			<NavLink className="navbarIcon" id="iconUser" to="/user">
 				<svg width="50px" height="50px" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg">
 					<g transform="translate( -50, -50 ) scale( 1.4 1.4 )">
 					<path d="M208,36H48A12.01375,12.01375,0,0,0,36,48V208a12.01375,12.01375,0,0,0,12,12H198.20093l.01147.001.00879-.001H208a12.01375,12.01375,0,0,0,12-12V48A12.01375,12.01375,0,0,0,208,36ZM63.00146,212a68.00818,68.00818,0,0,1,129.99708,0ZM212,208a4.00458,4.00458,0,0,1-4,4h-6.66211a75.907,75.907,0,0,0-52.74878-53.13037,44,44,0,1,0-41.17822,0A75.907,75.907,0,0,0,54.66211,212H48a4.00458,4.00458,0,0,1-4-4V48a4.00458,4.00458,0,0,1,4-4H208a4.00458,4.00458,0,0,1,4,4Zm-84-52a36,36,0,1,1,36-36A36.04061,36.04061,0,0,1,128,156Z"/>
 					</g>
 				</svg>
-			</div>
-		</div>
+			</NavLink>
+		</nav>
 
-		<div id="navbarText">
-			<div id="buttonGame">Game</div>
-			<div id="buttonLeaderboard">Leaderboard</div>
-			<div id="buttonChat">Chat</div>
-			<div id="buttonUser">User</div>
-		</div>
+		<nav id="navbarText">
+			<NavLink id="buttonGame" to="/game">Game</NavLink>
+			<NavLink id="buttonLeaderboard" to="/leaderboard">Leaderboard</NavLink>
+			<NavLink id="buttonChat" to="/chat">Chat</NavLink>
+			<NavLink id="buttonUser" to="/user">User</NavLink>
+		</nav>
 		</div>
 	);
 }

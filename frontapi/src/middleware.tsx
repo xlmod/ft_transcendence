@@ -37,5 +37,6 @@ export function amIAuthorized()
 		auth = response.data;
 	} )
 
+	return true;
 	return auth;
 }

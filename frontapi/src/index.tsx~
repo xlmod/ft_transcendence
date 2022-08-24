@@ -26,7 +26,10 @@ class Main extends React.Component {
 					amIAuthorized()
 					? ( <Navigate replace to="/game" /> ) 
 					: ( <Signin /> ) } />
-				<Route path="game" element={ <Game /> } />
+				<Route path="game" element={
+					amIAuthorized()
+					? ( <Game /> )
+					: ( <Navigate replace to="/signin" /> ) } />
 			</Routes>
 		</BrowserRouter>
 		);
