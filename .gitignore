@@ -40,4 +40,6 @@ lerna-debug.log*
 
 # VIM
 *~
+.*~
 *.swp
+.*.swp
