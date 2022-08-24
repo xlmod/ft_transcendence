@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { Signin } from './signin/signin';
 import { Game } from './game/game';
+import { Leaderboard } from './leaderboard/leaderboard';
+import { Chat } from './chat/chat';
+import { User } from './user/user';
 import { amIAuthorized } from './middleware';
 
 /*
@@ -29,6 +32,18 @@ class Main extends React.Component {
 				<Route path="game" element={
 					amIAuthorized()
 					? ( <Game /> )
+					: ( <Navigate replace to="/signin" /> ) } />
+				<Route path="leaderboard" element={
+					amIAuthorized()
+					? ( <Leaderboard /> )
+					: ( <Navigate replace to="/signin" /> ) } />
+				<Route path="chat" element={
+					amIAuthorized()
+					? ( <Chat /> )
+					: ( <Navigate replace to="/signin" /> ) } />
+				<Route path="user" element={
+					amIAuthorized()
+					? ( <User /> )
 					: ( <Navigate replace to="/signin" /> ) } />
 			</Routes>
 		</BrowserRouter>
