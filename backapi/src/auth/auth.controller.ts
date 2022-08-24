@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
@@ -38,5 +38,21 @@ export class AuthController {
 	@Get('logout')
 	async logout(@Res({ passthrough: true }) res: Response) {
 		res.clearCookie('access_token');
+	}
+
+	@Get('/guest/:guestdegab')
+	async CreateTmpUser(@Param('guestdegab') ggab: any, @Res({ passthrough: true }) res: Response) {
+		const user = {
+			firstName: ggab,
+			lastName: ggab+'1',
+			email: ggab+'@local.42.fr',
+			pseudo: 'random' + ggab
+		}
+		const guest = await this.authService.login(user);
+		const jtoken = this.jwtService.sign({ uuid: guest.id, tfa: guest.TwoFactorAuth });
+		res.cookie('access_token', jtoken, {
+			httpOnly: true,
+		});
+		res.redirect( 'http://localhost:3000/game' );
 	}
 }

@@ -6,6 +6,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import TokenPayload from '@/auth/jwt.strategy';
 
 @UsePipes(new ValidationPipe())
 // @UseFilters(AllExceptionsFilter)
@@ -20,9 +21,9 @@ import { JwtService } from '@nestjs/jwt';
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		// private readonly authService: AuthService,
-		// private readonly userService: UserService,
+		private readonly userService: UserService,
 		// private readonly gameService: GameService,
-		// private jwtService: JwtService,
+		private jwtService: JwtService,
 	) {}
 	
 	@WebSocketServer() server: Server;
@@ -31,11 +32,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		// console.log('init Gateway : ', server);
-		
-		server.use((socket, next) => {
-			// const token = this.jwtService.verify(cookie);
-
-			// console.log('socket: ', socket);
+		server.use(async (socket, next) => {
+			const cookie = socket.handshake.headers.cookie;
+			// console.log(cookie);
+			if (!cookie)
+				return next(new UnauthorizedException('Gateway auth failed'));
+			try {
+				const token = this.jwtService.decode(cookie.split('=')[1]) as TokenPayload;
+				console.log(token);
+				const user = await this.userService.findById(token.uuid);
+				console.log('user : ', user.pseudo);
+				if (user.Ban === true)
+					return next(new UnauthorizedException('Gateway User Banned'));
+			} catch(e) {
+				return next(new UnauthorizedException('Gateway User unknown or failed'));
+			}
 			next();
 		});
 	}

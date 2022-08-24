@@ -10,8 +10,6 @@ export class Intra42Strategy extends PassportStrategy(Strategy, '42') {
 			clientID: process.env.FORTYTWO_CLIENT_ID,
 			clientSecret: process.env.FORTYTWO_CLIENT_SECRET,
 			callbackURL: `${process.env.FORTYTWO_CALLBACK_URL}/auth/42/callback`,
-			// passReqToCallback: true,
-			// proxy: true,
 			scope: [ 'public' ],
 			redirect_uri: `${process.env.FORTYTWO_CALLBACK_URL}`,
 		});
