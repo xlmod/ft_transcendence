@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import { readdirSync } from 'fs';
 
 @Injectable()
 export class AppMiddleware implements NestMiddleware {
@@ -13,12 +14,11 @@ export class AppMiddleware implements NestMiddleware {
 				const dtoken = this.jwtService.decode(req.cookies['access_token']); // I dont know why verify doesnt work some time but decode is fine
 				res.locals.uuid = dtoken['uuid'];
 				// req.user = this.userService.findById(dtoken['uuid']);	// Maybe...
-				// console.log('middle : ', req);
 			} catch (error) {
-				throw new UnauthorizedException('middleware');	// To change
+				throw new UnauthorizedException();
 			}
 		}
-		console.log('req.user', req.user);
+		// console.log('req.user', req.user);
 		console.log('mi', res.locals.uuid, '->', req.cookies);
 		// console.log('mid', req.cookies['access_token']);
 		next();

@@ -10,12 +10,12 @@ export class JwtAuthGuard implements CanActivate {
 	) {}
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const req = context.switchToHttp().getRequest();
-		const reqe: Request = context.switchToHttp().getRequest();
-		const test = reqe.headers['authorization'].split(' ')[1];
+		// const reqe: Request = context.switchToHttp().getRequest();
+		// const test = reqe.headers['authorization'].split(' ')[1];
 		// console.log(req.cookies);
 		try {
-			const token = this.jwtService.verify(test);				// keep it for locals test the true method's below
-			// const token = this.jwtService.verify(req.cookies['access_token']);
+			// const token = this.jwtService.verify(test);				// keep it for locals test the true method's below
+			const token = this.jwtService.verify(req.cookies['access_token']);
 			// console.log('jwtguard', token);
 			const user = await this.userService.findById(token.uuid);
 			// console.log(user);

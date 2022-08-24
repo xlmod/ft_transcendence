@@ -18,7 +18,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -53,13 +53,18 @@ export const MFileOptions = {
 }
 
 @Controller('user')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UserController {
 	constructor(private userService: UserService) {}
 
 	@Get()
 	async AllUsers(): Promise<User[]> {
 		return await this.userService.GetUsers();
+	}
+
+	@Get('/me')
+	async GetCurrenlyUser(@Res({ passthrough: true }) res): Promise<UserDto> {
+		return new UserDto(await this.userService.findById(res.locals.uuid));
 	}
 
 	@Get(':id')
