@@ -1,9 +1,11 @@
 import { useRef, useEffect } from "react";
+import {game_socket} from "../socket";
 import { GameEngine } from "./gameEngine"
 
 export function GameCanvas(props: {incLeft: () => void, incRight: () => void, left: number, right: number}): JSX.Element {
 
 	let canvasRef = useRef<HTMLCanvasElement | null>(null);
+
 
 	useEffect(() => {
 		if (props.left === 10)

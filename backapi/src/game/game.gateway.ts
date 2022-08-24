@@ -27,15 +27,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('GameGateway');
+	private id_ready: string = "";
 
 	afterInit(server: Server) {
 		// console.log('init Gateway : ', server);
 		
 		server.use((socket, next) => {
-			const cookie = socket.handshake.headers.cookie;
-			console.log(cookie['access_token']);
-			if (!cookie)
-				return next(new UnauthorizedException('Gateway auth failed'));
 			// const token = this.jwtService.verify(cookie);
 
 			// console.log('socket: ', socket);
@@ -46,14 +43,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleConnection(client: Socket) {
 		// console.log(client);
 		// client.on('room',);
-		console.log(client.handshake.headers.cookie);
 		this.logger.log(`Client connected: ${client.id}`);
 		// all client
 		client.broadcast.emit('echo', client.id);
 		// all client except me
 		client.emit('echo', 'testg');
-		client.on('score', (score) => {
-			client.broadcast.emit('score', score)
+
+		client.on('ready', () => {
+			if (this.id_ready === "") {
+				this.id_ready = client.id;
+				client.join(client.id);
+				console.log(`${this.id_ready} ready!`);
+			} else {
+				client.join(this.id_ready);
+				console.log(`${client.id} join ${this.id_ready}!`);
+				this.server.to(this.id_ready).emit('start');
+				this.id_ready = "";
+			}
+			for (const v of client.rooms.entries()) {
+				console.log(`value: ${v}`);
+			}
 		});
 
 	}

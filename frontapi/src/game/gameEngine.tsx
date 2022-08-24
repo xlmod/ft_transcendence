@@ -1,3 +1,4 @@
+import {game_socket} from "../socket";
 import { BASE_WIDTH} from "./gameTypes/base";
 import { Board } from "./gameTypes/Board"
 import {GAME_SETTINGS} from "./gameTypes/GameSettings";
@@ -75,9 +76,12 @@ export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => voi
 		}
 
 
-		setup();
-		start();
-
+		game_socket.on('start', () => {
+			console.log('start');
+			setup();
+			start();
+		});
+		game_socket.emit('ready');
 
 	}
 }
