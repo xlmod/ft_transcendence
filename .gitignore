@@ -39,5 +39,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # VIM
-.*~
-.*.swp
+*~
+*.swp

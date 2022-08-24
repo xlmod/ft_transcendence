@@ -4,9 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { Signin } from './signin/signin';
 import { Game } from './game/game';
-import { Leaderboard } from './leaderboard/leaderboard';
-import { Chat } from './chat/chat';
-import { User } from './user/user';
 import { amIAuthorized } from './middleware';
 
 /*
