@@ -1,18 +1,25 @@
 
-import {useNavigate} from 'react-router';
-import { io } from 'socket.io-client';
-
-export const game_socket = io('http://localhost:3333', { transports: ['websocket']});
+import { io, Socket } from 'socket.io-client';
 
 
-export function game_socket_init() { 
-	game_socket.on('connect', () => {
-		console.log(game_socket.id);
-	});
-	game_socket.on('disconnect', () => {
-		console.log(game_socket.id);
-	});
-	game_socket.on('echo', (data) => {
-		console.log('echo data: ', data);
-	});
+class GameSocket {
+
+	socket: Socket;
+	
+	constructor() {
+		this.socket = io('http://localhost:3333', { transports: ['websocket']});
+		this.socket.on("connect", () => {
+		});
+		this.socket.on("disconnect", () => {
+		});
+		this.socket.on("echo", (data) => {
+			console.log(`echo : ${data}`);
+		});
+	}
+
+	get_ready() {
+		this.socket.emit("ready");
+	}
 }
+
+export const game_socket = new GameSocket();

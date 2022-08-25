@@ -2,40 +2,19 @@ import {game_socket} from "../socket";
 import { BASE_WIDTH} from "./gameTypes/base";
 import { Board } from "./gameTypes/Board"
 import {GAME_SETTINGS} from "./gameTypes/GameSettings";
-
-export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => void, incRight: () => void}) {
+/*
+export function GameEngine(canvas: HTMLCanvasElement) {
 	const ctx = canvas.getContext('2d');
 	if (ctx) {
 		
-		const board: Board = new Board();
 		var reqanim: any = true;
 		GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
 
-
-		const setup_key = () => {
-			document.addEventListener('keydown', (e) => {
-				if (e.key === "ArrowUp")
-					board.set_right_dir(0, -1);
-				else if (e.key === "ArrowDown")
-					board.set_right_dir(0, 1);
-				else if (e.key === "w")
-					board.set_left_dir(0, -1);
-				else if (e.key === "s")
-					board.set_left_dir(0, 1);
-			});
-			document.addEventListener('keyup', (e) => {
-				if (e.key === "ArrowUp" || e.key === "ArrowDown")
-					board.set_right_dir(0, 0);
-				else if (e.key === "w" || e.key === "s")
-					board.set_left_dir(0, 0);
-			});
-		}
-
+/*
 		const renderLoop = () => {
-			const ret: boolean = board.tick();
-			if (ret)
-				stopLoop();
-			drawPong();
+			ctx.beginPath();
+			board.draw(ctx, GAME_SETTINGS.ratio);
+			ctx.stroke();
 			
 			if (reqanim)
 				reqanim = requestAnimationFrame(renderLoop);
@@ -76,12 +55,24 @@ export function GameEngine(canvas: HTMLCanvasElement, props: {incLeft: () => voi
 		}
 
 
-		game_socket.on('start', () => {
+		game_socket.socket.on('start', () => {
 			console.log('start');
 			setup();
 			start();
 		});
-		game_socket.emit('ready');
+		game_socket.socket.emit('ready');
+		game_socket.socket.emit('echo', "READY");
 
 	}
 }
+
+
+const renderLoop = (ctx: CanvasRenderingContext2D, board: Board, reqanim: any) => {
+	ctx.beginPath();
+	board.draw(ctx, GAME_SETTINGS.ratio);
+	ctx.stroke();
+	
+	if (reqanim)
+		reqanim = requestAnimationFrame(renderLoop);
+}
+*/
