@@ -21,7 +21,7 @@ class Main extends React.Component {
 		return (
 			<BrowserRouter>
 				<Routes>
-					<Route path="/" element={ <Game /> } />
+					<Route path="/" element={ <Navigate replace to="/game" /> } />
 					<Route path="signin" element={ <Signin /> } />
 					<Route path="game" element={ <Game /> } />
 					<Route path="leaderboard" element={ <Leaderboard /> } />

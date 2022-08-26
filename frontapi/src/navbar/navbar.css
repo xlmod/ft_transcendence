@@ -11,9 +11,11 @@
 	align-items: center;
 	justify-content: space-between;
 
+	/*
 	border-style: solid;
 	border-color: blue;
 	border-width: 1px;
+	*/
 }
 
 .navbarIcon
@@ -22,9 +24,11 @@
 	height: 60px;
 	cursor: pointer;
 
+	/*
 	border-style: solid;
 	border-color: yellow;
 	border-width: 1px;
+	*/
 }
 
 .navbarIcon path
@@ -72,16 +76,23 @@
 #iconUser
 {
 	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
+	transform: translate( -10, -10 );
 }
 
-#iconUser
+#iconLogout
 {
-	transform: translate( -10, -10 );
+	background-color: var( --cBackground );
+	border: none;
+}
+
+#iconLogout path
+{
+	filter: drop-shadow(0px 0px 5px var( --cNeonLight ) );
 }
 
 #navbarText
 {
-	margin-top: 90px;
+	margin-top: 80px;
 	margin-left: 25%;
 	width: 50%;
 
@@ -129,6 +140,7 @@
 
 @media only screen and ( min-width: 1220px )
 {
-	#navbarIcon { display: none; }
+	.navbarIcon:not(#iconLogout) { display: none; }
+	#iconLogout { position: absolute; top: 10px; right: 10px; }
 	#navbarText { display: flex; }
 }

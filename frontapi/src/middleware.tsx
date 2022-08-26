@@ -13,6 +13,11 @@ export function getToken()
 	// </a>
 }
 
+export function logout()
+{
+	axios.post( 'http://localhost:3333/auth/logout', { withCredentials: true } );
+}
+
 export function updateUser( value :string, key :( string | number | boolean ) )
 {
 	axios.patch( 'http://localhost:3333/user', { value: key }, { withCredentials: true } );
@@ -50,6 +55,6 @@ export function amIAuthorized()
 	.catch( error => { console.log( 'inside error' ); return false } )
 
 	console.log( auth );
-*
+*/
 	return true;
 }
