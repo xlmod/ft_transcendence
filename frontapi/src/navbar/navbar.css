@@ -101,9 +101,11 @@
 	align-items: center;
 	justify-content: space-between;
 
+	/*
 	border-style: solid;
 	border-color: blue;
 	border-width: 1px;
+	*/
 
 }
 
