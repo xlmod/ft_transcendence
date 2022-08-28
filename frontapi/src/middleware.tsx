@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useState } from "react";
 
 export function getToken()
 {
@@ -10,6 +11,11 @@ export function getToken()
 	// <a href="http://localhost:3001/api/account/linkedin">SSSSS
     	// {/* <button>SSSSSS</button> */}
 	// </a>
+}
+
+export function logout()
+{
+	axios.post( 'http://localhost:3333/auth/logout', { withCredentials: true } );
 }
 
 export function updateUser( value :string, key :( string | number | boolean ) )
@@ -30,13 +36,25 @@ export function authenticateQR()
 export function amIAuthorized()
 : boolean
 {
-	let auth = false;
+/*
+	const ax = async () => {
+		const auth = await axios.get( 'http://localhost:3333/user/me', { withCredentials: true } )
+		.then( response => { console.log( 'inside response' ); return true; } )
+		.catch( error => { console.log( 'inside error' ); return false } );
+		return auth;
+	};
 
-	axios.get( 'http://localhost:3333/getme', { withCredentials: true } )
-	.then( response => {
-		auth = response.data;
-	} )
+	await ax();
+*/
 
+/*
+	const [ auth, setAuth ] = useState<boolean>(false);
+
+	axios.get( 'http://localhost:3333/user/me', { withCredentials: true } )
+	.then( response => { setAuth(true); console.log( 'inside response' ); } )
+	.catch( error => { console.log( 'inside error' ); return false } )
+
+	console.log( auth );
+*/
 	return true;
-	return auth;
 }
