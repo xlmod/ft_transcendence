@@ -7,7 +7,7 @@ class GameSocket {
 	socket: Socket;
 	
 	constructor() {
-		this.socket = io('http://localhost:3333', { transports: ['websocket']});
+		this.socket = io('http://localhost:3333/game', { transports: ['websocket']});
 		this.socket.on("connect", () => {
 		});
 		this.socket.on("disconnect", () => {
@@ -15,10 +15,6 @@ class GameSocket {
 		this.socket.on("echo", (data) => {
 			console.log(`echo : ${data}`);
 		});
-	}
-
-	get_ready() {
-		this.socket.emit("ready");
 	}
 }
 
