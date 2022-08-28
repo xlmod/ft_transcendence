@@ -13,8 +13,7 @@ import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
 
 const API_URL = "http://localhost:3333/";
-class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkLogin:any}> {
-
+class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkLogin:any, logout:any}> {
 	checkLogin = () => {
 		
 		return axios
@@ -40,13 +39,21 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 				return false;
 			});
 	};
+	logout = () => {
+		// How a user is considered logged out ? clear cookie ? The backend is responsable of handling this or finding another solution
+		this.setState({
+			userData: {},
+			isLoggedIn : false
+		});
+	}
 	constructor(props)
 	{
 		super(props);
 		this.state = {
 			userData : {},
 			isLoggedIn : false,
-			checkLogin : this.checkLogin
+			checkLogin : this.checkLogin,
+			logout: this.logout
 		}
 	};
 	
@@ -62,6 +69,7 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 					<Route path="leaderboard" element={!this.state.isLoggedIn ? <Navigate to="/signin" /> : <Leaderboard />} />
 					<Route path="chat" element={!this.state.isLoggedIn ? <Navigate to="/signin" /> : <Chat />}/>
 					<Route path="user"element={!this.state.isLoggedIn ? <Navigate to="/signin" /> : <User />}/>
+					<Route path="*" element={<section id="navbarText" ><h1>404 Page not found</h1></section>}/>{/* we need to add a 404 route/page */}
 				</Routes>
 			</AuthContext.Provider>
 		);

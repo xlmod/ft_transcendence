@@ -10,7 +10,7 @@ import { AuthContext } from '../../services/auth.service';
 export function Game()
 :  JSX.Element
 {
-	const {checkLogin} = useContext(AuthContext)
+	const {checkLogin} = useContext(AuthContext);
 	checkLogin();
 	const [left, setLeft] = useState<number>(0);
 	const [right, setRight] = useState<number>(0);

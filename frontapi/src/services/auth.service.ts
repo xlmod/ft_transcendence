@@ -8,7 +8,8 @@ const API_URL = "http://localhost:3333/";
 export interface AuthState {
 	userData : {},
 	isLoggedIn : boolean,
-	checkLogin : any
+	checkLogin : any,
+	logout : any
 }
 
 export const AuthContext = React.createContext<AuthState>({} as AuthState);
