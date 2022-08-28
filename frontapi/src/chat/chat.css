@@ -13,10 +13,19 @@
 
 }
 
-#friends
+#users
 {
 	width: 25vw;
 	height: 70vh;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+#friends
+{
+	height: 48%;
 	border: 1px solid var( --cNeon );
 	border-radius: 1px;
 
@@ -25,7 +34,7 @@
 	align-items: flex-start;
 }
 
-#friends li
+#friends li, #members li
 {
 	color: var( --cNeonLight );
 	font-family: Skwar;
@@ -35,7 +44,7 @@
 	list-style: none;
 }
 
-#friends li::before
+#friends li::before, #members li::before
 {
 	content: "\2022";
 	font-weight: bold;
@@ -44,14 +53,30 @@
 	margin-left: -1em;
 }
 
-#friends li:nth-child(1)::before
+.away::before
 {
 	color: red;
 }
 
-#friends li:nth-child(2)::before
+.playing::before
 {
 	color: orange;
+}
+
+.connected::before
+{
+	color: var( --cNeon );
+}
+
+#members
+{
+	height: 48%;
+	border: 1px solid var( --cNeon );
+	border-radius: 1px;
+
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 
 #chatParent
@@ -71,8 +96,8 @@
 	border: var( --cNeon ) 0.1em solid;
 	border-radius: 0.125em;
 	box-shadow:
-		inset 0 0 0.6em var( --cNeonLight ),
-		0 0 0.5em var( --cNeonLight );
+		inset 0 0 0.5em var( --cNeon ),
+		0 0 0.5em var( --cNeon );
 
 	display: flex;
 	flex-direction: column;
@@ -91,8 +116,8 @@
 	margin-right: 1em;
 
 	font-family: Skwar;
-	font-weight: 250;
-	font-size: 0.9em;
+	font-weight: 270;
+	font-size: 0.85em;
 }
 
 #chat .body
@@ -125,9 +150,9 @@
 {
 	cursor: pointer;
 	background-color: var( --cBackground );
-	color: var( --cNeonLight );
+	color: var( --cNeon );
 	width: 15%;
-	border: 2px solid var( --cNeon );
+	border: 2px groove var( --cNeon );
 	font-family: Skwar;
 }
 
@@ -159,7 +184,7 @@
 	list-style-type: square;
 }
 
-#friends li:hover, #channels li:hover
+#friends li:hover, #members li:hover, #channels li:hover
 {
 	color: var( --cBackground );
 	background-color: var( --cNeon );

@@ -11,14 +11,22 @@ export function Chat()
 			<Header />
 			<Navbar />
 			<section id="chatSection">
+			<div id="users">
 				<div id="friends">
 					<h1>Friends</h1>
 					<ul>
-						<li>Yoda</li>
-						<li>Anakin Skywalker</li>
-						<li>Princess Leïa</li>
+						<li className="away">Yoda</li>
+						<li className="playing">Anakin Skywalker</li>
+						<li className="connected">Princess Leïa</li>
 					</ul>
 				</div>
+				<div id="members">
+					<h1>Room members</h1>
+					<ul>
+						<li className="connected">Princess Leïa</li>
+					</ul>
+				</div>
+			</div>
 				<div id="chatParent">
 					<div id="chat">
 					<div id="messages">
