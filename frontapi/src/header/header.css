@@ -19,7 +19,9 @@ header
 	justify-content: space-between;
 */
 
+	/*
 	border: red 1px solid;
+	*/
 }
 
 #logo
@@ -34,7 +36,9 @@ header
 	align-items: flex-start;
 	justify-content: space-between;
 
+	/*
 	border: blue 1px solid;
+	*/
 }
 
 #P, #O, #N, #G
@@ -45,9 +49,11 @@ header
 	font-size: 2em;
 	font-family: Skwar;
 	font-weight: 200;
-	color: white;
+	color: var( --cNeonLight );
 
+	/*
 	border: yellow 1px solid;
+	*/
 }
 
 #logo:hover #P

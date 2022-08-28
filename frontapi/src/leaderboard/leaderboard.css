@@ -1,0 +1,93 @@
+@import "../globals.css";
+
+#leaderboardSection
+{
+	position: absolute;
+	left: 0;
+	margin-top: 120px;
+	width: 100vw;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#leaderboard
+{
+	width: 70vw;
+	border-spacing: 0em;
+	
+	font-family: Skwar;
+}
+
+#leaderboard th
+{
+	/*
+	background-color: var( --cNeonLight );
+	*/
+	text-align: center;
+	opacity: 100%;
+	/*
+	border: 1px solid var( --cNeon );
+	border-radius: 10px;
+	*/
+	color: var( --cNeonLight );
+
+	font-size: 1.7rem;
+	font-weight: 400;
+	padding: 0.8rem 0.8rem;
+}
+
+#leaderboard th:nth-child(2)
+{
+	border: 1px solid var( --cNeon );
+}
+
+#leaderboard th:nth-child(1)
+{
+	border: 1px solid var( --cNeon);
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+#leaderboard th:nth-child(3)
+{
+	border: 1px solid var( --cNeon);
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+#leaderboard td
+{
+	color: var( --cNeon );
+	text-align: center;
+	padding: 0.4rem 0rem;
+}
+
+#leaderboard tr:nth-child(odd) td:nth-child(2)
+{
+	border: 1px dashed var( --cNeon );
+}
+
+#leaderboard tr:nth-child(odd) td:nth-child(1)
+{
+	border-top: 1px dashed var( --cNeon );
+	border-left: 1px dashed var( --cNeon );
+	border-bottom: 1px dashed var( --cNeon );
+	border-top-left-radius: 1px;
+	border-bottom-left-radius: 1px;
+}
+
+#leaderboard tr:nth-child(odd) td:nth-child(3)
+{
+	border-top: 1px dashed var( --cNeon );
+	border-right: 1px dashed var( --cNeon );
+	border-bottom: 1px dashed var( --cNeon );
+	border-top-right-radius: 1px;
+	border-bottom-right-radius: 1px;
+}
+
+@media only screen and ( min-width: 1220px )
+{
+	#leaderboardSection { margin-top: 50px; }
+}

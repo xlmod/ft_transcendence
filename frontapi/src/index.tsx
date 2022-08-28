@@ -19,6 +19,20 @@ class Main extends React.Component {
 	render()
 	{
 		return (
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={ <Navigate replace to="/game" /> } />
+					<Route path="signin" element={ <Signin /> } />
+					<Route path="game" element={ <Game /> } />
+					<Route path="leaderboard" element={ <Leaderboard /> } />
+					<Route path="chat" element={ <Chat /> } />
+					<Route path="user"element={ <User /> } />
+				</Routes>
+			</BrowserRouter>
+		);
+
+/*
+		return (
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={
@@ -48,6 +62,7 @@ class Main extends React.Component {
 			</Routes>
 		</BrowserRouter>
 		);
+*/
 	}
 }
 
