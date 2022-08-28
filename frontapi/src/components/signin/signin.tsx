@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { AuthContext } from '../../services/auth.service';
 import { Header } from '../header/header';
 import './signin.css';
 
-export function Signin()
-:  JSX.Element
+export const Signin = () =>
 {
+	const {checkLogin} = useContext(AuthContext)
+	checkLogin();
+	const user = useContext(AuthContext); 
 	return (
 		<main>
-			<Header />
 			<section id="sectionSignin">
 				{/* <button id="signin" onClick={ getToken }>
 					<p>Sign in</p>

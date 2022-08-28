@@ -6,8 +6,6 @@ export function User()
 {
 	return (
 		<main>
-			<Header />
-			<Navbar />
 		</main>
 	);
 }

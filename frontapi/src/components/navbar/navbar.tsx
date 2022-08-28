@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from "react-router-dom";
 
-import { logout } from '../middleware';
+import { AuthContext } from '../../services/auth.service';
 import './navbar.css';
 
 export function Navbar()
 :  JSX.Element
 {
+	const {logout} = useContext(AuthContext);
 	return (
 		<div>
 		<nav id="navbarIcon">

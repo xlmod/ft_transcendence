@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { AuthContext } from '../../services/auth.service';
 import { Header } from '../header/header';
 import { Navbar } from '../navbar/navbar';
 
@@ -6,10 +8,10 @@ import './leaderboard.css';
 export function Leaderboard()
 : JSX.Element
 {
+	const {checkLogin} = useContext(AuthContext);
+	checkLogin();
 	return (
 		<main>
-			<Header />
-			<Navbar />
 			<section id="leaderboardSection">
 			<table id="leaderboard">
 				<tr>
