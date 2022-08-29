@@ -4,6 +4,7 @@ import { Board } from "./gameTypes/Board";
 import {GAME_SETTINGS} from "./gameTypes/GameSettings";
 import { game_socket } from "../../socket";
 
+import { Button } from '../utils/button';
 import './game.css';
 import {Vec} from "./gameTypes/Vec";
 
@@ -145,7 +146,7 @@ export function GameCanvas(): JSX.Element {
 				{leftplayer} {left} - {right} {rightplayer}
 			</div>}
 			{ state === "" && <div>
-				<button onClick={emit_join_room}>Start</button>
+				{ Button( "Start", 1.2, emit_join_room ) }
 			</div>}
 			<canvas ref={canvasRef} id="game"></canvas>
 		</section>

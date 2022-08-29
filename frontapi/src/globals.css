@@ -16,3 +16,15 @@ body
 {
 	background-color: var( --cBackground );
 }
+
+.genericButtons
+{
+	background-color: var( --cBackground );
+	color: var( --cNeon );
+}
+
+.genericButtons:hover
+{
+	background-color: var( --cNeon );
+	color: var( --cBackground );
+}
