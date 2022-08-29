@@ -41,6 +41,7 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 	};
 	logout = () => {
 		// How a user is considered logged out ? clear cookie ? The backend is responsable of handling this or finding another solution
+		axios.get( 'http://localhost:3333/auth/logout', { withCredentials: true } );
 		this.setState({
 			userData: {},
 			isLoggedIn : false
