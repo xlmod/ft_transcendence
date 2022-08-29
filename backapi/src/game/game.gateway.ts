@@ -17,12 +17,10 @@ import {
 	SubscribeMessage,
 	WebSocketGateway,
 	WebSocketServer,
-	WsResponse,
 } from '@nestjs/websockets';
 
 import { Socket, Server } from 'socket.io';
 import {Vec} from './gameTypes/Vec';
-import {time} from 'console';
 
 @UsePipes(new ValidationPipe())
 // @UseFilters(AllExceptionsFilter)
@@ -74,7 +72,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleDisconnect(client: Socket) {
 		let room: Room | null = this.getRoomFromClientId(client.id)
 		if (room != null) {
-			// TODO: remove the client from room.
+			if (room.full) {
+				if (room.player_left === client.id)
+					this.setWinner(room, "right");
+				else
+					this.setWinner(room, "left");
+				clearInterval(room.interval);
+				clearInterval(room.update);
+				this.server.to(room.id).emit("reset_game");
+				this.joined.delete(room.player_left);
+				this.joined.delete(room.player_right);
+				this.rooms.delete(room.id);
+			} else {
+				this.joined.delete(client.id);
+				this.rooms.delete(room.id);
+			}
 		}
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
@@ -118,20 +130,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody("paddle_dir") paddle_dir: Vec,
 		@MessageBody("side") side: string,
 	) {
-		console.log("IN PADDLE");
 		let room: Room | null = this.getRoomFromClientId(client.id);
-		console.log(room);
 		if (room == null)
 			return ;
-		console.log(room);
 		if (!room.full)
 			return ;
-		console.log(room.full);
 		if (!((side === "left" && room.player_left === client.id) || (side === "right" && room.player_right === client.id)))
 			return ;
-			console.log(side);
-			console.log(paddle_pos);
-			console.log(paddle_dir);
 
 		const dx = paddle_dir.x;
 		const dy = paddle_dir.y;
@@ -148,8 +153,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	startGame(room: Room) {
-		this.server.to(room.id).emit("update_score", room.score_left, room.score_right);
-		this.server.to(room.id).emit("start_render");
 		room.board.reset();
 		room.board.set_ball_dir(-1, 0);
 		this.server.to(room.id).emit("ball_dir", room.board.get_ball_dir());
@@ -164,7 +167,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(r.interval);
 				clearInterval(r.update);
 				this.server.to(r.id).emit("reset_game");
-				this.startGame(r);
+				this.server.to(room.id).emit("update_score", room.score_left, room.score_right);
+				if (r.score_right == 10)
+					this.setWinner(r, "right");
+				else if (r.score_left == 10)
+					this.setWinner(r, "left");
+				else
+					this.startGame(r);
 			}
 		}, 16, room);
 		room.update = setInterval((r) => {
@@ -182,6 +191,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 		return room; 
+	}
+
+	setWinner(room: Room, side: string) {
+		this.server.to(room.id).emit("echo", `${side} WINNER`);
 	}
 
 }
