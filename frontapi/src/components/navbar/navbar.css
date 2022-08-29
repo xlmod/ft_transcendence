@@ -3,7 +3,7 @@
 #navbarIcon
 {
 	float: right;
-	width: 300px;
+	width: 330px;
 	height: 66px;
 
 	align-self: end;
@@ -81,6 +81,7 @@
 
 #iconLogout
 {
+	position: relative;
 	background-color: var( --cBackground );
 	border: none;
 }

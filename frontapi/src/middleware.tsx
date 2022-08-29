@@ -15,7 +15,7 @@ export function getToken()
 
 export function logout()
 {
-	axios.post( 'http://localhost:3333/auth/logout', { withCredentials: true } );
+	axios.get( 'http://localhost:3333/auth/logout', { withCredentials: true } );
 }
 
 export function updateUser( value :string, key :( string | number | boolean ) )
