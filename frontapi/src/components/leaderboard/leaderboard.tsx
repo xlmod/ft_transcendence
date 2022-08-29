@@ -1,7 +1,5 @@
 import { useContext } from 'react';
 import { AuthContext } from '../../services/auth.service';
-import { Header } from '../header/header';
-import { Navbar } from '../navbar/navbar';
 
 import './leaderboard.css';
 

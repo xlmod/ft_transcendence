@@ -28,8 +28,6 @@ export function GameCanvas(): JSX.Element {
 	const [rightplayer, setRightplayer] = useState<string>("");
 	const [state, setState] = useState<string>("");
 
-	var side: string = "";
-	var game_interval: any = null;
 
 
 	const board = new Board();
@@ -75,7 +73,8 @@ export function GameCanvas(): JSX.Element {
 	};
 
 	useEffect(() => {
-
+		var side: string = "";
+		var game_interval: any = null;
 		game_socket.socket.on("room_player_joined", (data: string) => {
 			side = data;
 			setup_key(side);
