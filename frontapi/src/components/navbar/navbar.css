@@ -147,3 +147,17 @@
 	#iconLogout { position: absolute; top: 10px; right: 10px; }
 	#navbarText { display: flex; }
 }
+
+@media only screen and ( max-width: 500px )
+{
+	#navbarIcon
+	{
+		display: inline-block;
+		width: 220px;
+		height: 115px;
+	}
+	.navbarIcon
+	{
+		margin-left: 18px;
+	}
+}
