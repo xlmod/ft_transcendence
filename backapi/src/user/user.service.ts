@@ -38,8 +38,6 @@ export class UserService {
 
 	//	Create a new user
 	async create(data: CreateUserDto): Promise<void> {
-		data['Admin'] = true;
-		console.log(data);
 		const user = this.userRepository.create(data);
         await this.userRepository.save(data);
 	}

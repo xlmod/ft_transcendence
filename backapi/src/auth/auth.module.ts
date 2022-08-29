@@ -8,6 +8,7 @@ import { Intra42Strategy } from './intra42.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { TwoFactorAuthenticationService } from './tfa/tfa.service';
 import { TwoFactorAuthenticationController } from './tfa/tfa.controller';
+import { JwtTwoFactorStrategy } from './tfa/tfa.strategy';
 
 @Module({
 	imports: [
@@ -23,8 +24,12 @@ import { TwoFactorAuthenticationController } from './tfa/tfa.controller';
 		Intra42Strategy,
 		JwtAuthGuard,
 		TwoFactorAuthenticationService,
+		JwtTwoFactorStrategy,
 	],
-	controllers: [ AuthController, TwoFactorAuthenticationController ],
+	controllers: [
+		AuthController,
+		TwoFactorAuthenticationController
+	],
 	exports: [
 		AuthService,
 		//	Need in Guard and Extern Controller

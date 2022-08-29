@@ -39,6 +39,9 @@ export class UserDto {
 	avatar?: string;
 
 	@IsNumber()
+	elo: Number
+
+	@IsNumber()
 	win: number;
 
 	@IsNumber()
@@ -50,12 +53,6 @@ export class UserDto {
 	@IsString()
 	TwoFactorAuth?: string;
 
-	@IsBoolean()
-	Ban: boolean;
-
-	@IsBoolean()
-	Admin: boolean
-
 	@IsDate()
 	CreatedAt: Date
 
@@ -64,18 +61,12 @@ export class UserDto {
 
 	constructor(user: User) {
 		this.id = user.id,
-		this.firstName = user.firstName,
-		this.lastName = user.lastName,
 		this.pseudo = user.pseudo,
 		this.avatar = user.avatar,
-		this.win = user.win,
-		this.lose = user.lose,
-		this.Admin = user.Admin,
-		this.TwoFactorAuthToggle = user.TwoFactorAuthToggle,
-		this.CreatedAt = user.CreatedAt
+		this.TwoFactorAuthToggle = user.TwoFactorAuthToggle
 	}
 }
 
 export class UpdateUserDto extends PartialType(
-	OmitType(UserDto, ['id', 'Ban', 'Admin' as const]), 
+	OmitType(UserDto, ['id' as const]), 
 ) {}

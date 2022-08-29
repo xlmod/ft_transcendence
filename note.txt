@@ -15,7 +15,7 @@ Env:
 	## Intra API -> v
 	FORTYTWO_CLIENT_ID=
 	FORTYTWO_CLIENT_SECRET=
-	FORTYTWO_CALLBACK_URL=<http://localhost:<port>>
+	FORTYTWO_CALLBACK_URL=http://localhost:<port>
 
 	## Access token secret -> v
 	ACCESS_TOKEN_SECRET=<random>

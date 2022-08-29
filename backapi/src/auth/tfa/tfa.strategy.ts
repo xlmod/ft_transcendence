@@ -8,22 +8,21 @@ import { UserService } from 'src/user/user.service';
 
 
 @Injectable()
-export class JwtTwoFactorStrategy extends PassportStrategy(Strategy,'jwt-two-factor') {
+export class JwtTwoFactorStrategy extends PassportStrategy(Strategy, 'jwt-two-factor') {
 	constructor(
-		private readonly configService: ConfigService,
 		private readonly userService: UserService,
 	) {
 		super({
-			jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-			return request?.cookies?.Authentication;
+			jwtFromRequest: ExtractJwt.fromExtractors([(request: any) => {
+				return request.cookies['access_token'];
 			}]),
-			secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET,
+			secretOrKey: process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME,
 		});
-		}
+	}
 
-		async validate(payload: TokenPayload) {
+	async validate(payload: TokenPayload) {
 		const user = await this.userService.findById(payload.uuid);
-		if (!user.TwoFactorAuthToggle) {
+		if (user.TwoFactorAuthToggle) {
 			return user;
 		}
 		if (payload.tfa) {
