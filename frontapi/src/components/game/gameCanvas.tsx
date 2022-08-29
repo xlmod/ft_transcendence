@@ -29,10 +29,6 @@ export function GameCanvas(): JSX.Element {
 	const [rightplayer, setRightplayer] = useState<string>("");
 	const [state, setState] = useState<string>("");
 
-	var side: string = "";
-	var game_interval: any = null;
-
-
 	const board = new Board();
 	board.reset();
 	board.set_ball_dir(-1, 0);
@@ -71,11 +67,11 @@ export function GameCanvas(): JSX.Element {
 		});
 	};
 
-	const emit_join_room = () => {
-		game_socket.socket.emit("join_room");
-	};
-
 	useEffect(() => {
+
+		var side: string = "";
+		var game_interval: any = null;
+
 
 		game_socket.socket.on("room_player_joined", (data: string) => {
 			side = data;
@@ -128,7 +124,7 @@ export function GameCanvas(): JSX.Element {
 			if (side === "left" && s === "right") {
 				board.set_right_dir(paddle_dir.x, paddle_dir.y);
 				board.set_right_pos(paddle_pos.x, paddle_pos.y);
-			} else if (side === "right" && s == "left") {
+			} else if (side === "right" && s === "left") {
 				board.set_left_dir(paddle_dir.x, paddle_dir.y);
 				board.set_left_pos(paddle_pos.x, paddle_pos.y);
 			}
@@ -142,12 +138,12 @@ export function GameCanvas(): JSX.Element {
 
 	return (
 		<section id="gameSection">
-			{ state !== "" && <div id="gameScore">
+			{ state !== "" ? <div id="gameScore">
 				{leftplayer} {left} - {right} {rightplayer}
-			</div>}
-			{ state === "" && <div>
-				{ Button( "Start", 1.2, emit_join_room ) }
-			</div>}
+			</div>
+			: <div>
+				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
+			</div> }
 			<canvas ref={canvasRef} id="game"></canvas>
 		</section>
 	);
