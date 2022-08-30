@@ -10,14 +10,13 @@ import { User } from "src/user/user.entity";
 // Maybe move interface
 export default interface TokenPayload {
 	uuid: string;
-	tfa?: string
+	tfa: boolean;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
-		// private readonly configService: ConfigService,
-		private readonly userService: UserService,
+		private readonly userService: UserService
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => {
@@ -32,7 +31,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		const user = await this.userService.findById(payload.uuid);
 		if (!user) {
 			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-			// throw new UnauthorizedException();
 		}
 		return user;
 	}

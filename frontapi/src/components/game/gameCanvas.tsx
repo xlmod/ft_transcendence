@@ -72,7 +72,6 @@ export function GameCanvas(): JSX.Element {
 		var side: string = "";
 		var game_interval: any = null;
 
-
 		game_socket.socket.on("room_player_joined", (data: string) => {
 			side = data;
 			setup_key(side);

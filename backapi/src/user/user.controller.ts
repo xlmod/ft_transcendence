@@ -63,8 +63,9 @@ export class UserController {
 	}
 
 	@Get('/me')
-	async GetCurrenlyUser(@Res({ passthrough: true }) res): Promise<UserDto> {
-		return new UserDto(await this.userService.findById(res.locals.uuid));
+	async GetCurrenlyUser(@Res({ passthrough: true }) res) {
+		return {uid: (await this.userService.findById(res.locals.uuid)).id};
+		// return new UserDto(await this.userService.findById(res.locals.uuid));
 	}
 
 	@Get(':id')

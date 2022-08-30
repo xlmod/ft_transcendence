@@ -1,13 +1,11 @@
 import React from 'react';
 import { AuthContext } from './services/auth.service';
-import { AuthState } from './services/auth.service';
 import { Signin } from './components/signin/signin';
 import { Game } from './components/game/game';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
 import axios from "axios";
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
@@ -15,7 +13,6 @@ import { Navbar } from './components/navbar/navbar';
 const API_URL = "http://localhost:3333/";
 class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkLogin:any, logout:any}> {
 	checkLogin = () => {
-		
 		return axios
 			.get(API_URL + "user/me", {withCredentials: true})
 			.then((response) => {
@@ -40,7 +37,6 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 			});
 	};
 	logout = () => {
-		// How a user is considered logged out ? clear cookie ? The backend is responsable of handling this or finding another solution
 		axios.get( 'http://localhost:3333/auth/logout', { withCredentials: true } );
 		this.setState({
 			userData: {},

@@ -34,10 +34,8 @@ import {Vec} from './gameTypes/Vec';
 
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
-		// private readonly authService: AuthService,
-		private readonly userService: UserService,
-		// private readonly gameService: GameService,
-		private jwtService: JwtService,
+		private readonly authService: AuthService,
+		// // private readonly gameService: GameService,
 	) {}
 	
 	@WebSocketServer() server: Server;
@@ -53,12 +51,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (!cookie)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-				const token = this.jwtService.decode(cookie.split('=')[1]) as TokenPayload;
-			//	console.log(token);
-				const user = await this.userService.findById(token.uuid);
-			//	console.log('user : ', user.pseudo);
-				if (user.Ban === true)
-					return next(new UnauthorizedException('Gateway User Banned'));
+			// 	const token = this.jwtService.decode(cookie.split('=')[1]) as TokenPayload;
+			// //	console.log(token);
+			// 	const user = await this.userService.findById(token.uuid);
+				const user = await this.authService.JwtVerify(cookie.split('=')[1]);
+				console.log('user : ', user.pseudo);
+				// if (user.Ban === true)
+				// 	return next(new UnauthorizedException('Gateway User Banned'));
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}

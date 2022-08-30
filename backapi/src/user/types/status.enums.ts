@@ -9,4 +9,4 @@ export enum UserStatus {
 	offline = 'offline',
 	away = 'away',
 	gaming = 'gaming',
-}	// implements StatusGuard later
+}

@@ -17,12 +17,12 @@ export class TwoFactorAuthenticationController {
 
 	@Post('generate')
 	async register(@Res() res: Response, @Req() req) {
-		// console.log(req.user);
+		console.log(res.locals.uuid);
 		const user = await this.userService.findById(res.locals.uuid);
-		// if (!user)
-		// 	throw new NotFoundException();
+		if (!user)
+			throw new NotFoundException();
 		const { otpauthUrl } = await
-			this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(req.user);
+			this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user);
 		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);
 	}
 
@@ -31,17 +31,20 @@ export class TwoFactorAuthenticationController {
 	@UseGuards(AuthGuard('jwt-two-factor'))
 	async authenticate(
 		@Req() req,
-		@Body() { twoFactorAuthenticationCode } : TwoFactorAuthenticationDto,
-		@Res({ passthrough: true }) res: Response
+		@Body() tfadto: TwoFactorAuthenticationDto,
+		@Res({ passthrough: true }) res: Response,
 	) {
-		const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(twoFactorAuthenticationCode, req.user);
+
+		const user = await this.userService.findById(res.locals.uuid)
+		const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(tfadto.twoFactorAuthenticationCode, user);
+		console.log(isCodeValid, 'ttest');
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
 
-		const access_token = this.jwtService.sign({ uuid: req.user.id, tfa: req.user.TwoFactorAuth });
+		const access_token = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
 		res.cookie('access_token', access_token, { httpOnly: true });
-		// const accessTokenCookie = this.authenticationService.getCookieWithJwtAccessToken(req.user.id, true);
-		// req.res.setHeader('Set-Cookie', [accessTokenCookie]);
-		return req.user;
+		// const accessTokenCookie = this.authenticationService.getCookieWithJwtAccessToken(user.id, true);
+		// res.setHeader('Set-Cookie', [accessTokenCookie]);
+		return user;
 	}
 }

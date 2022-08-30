@@ -28,17 +28,14 @@ export class User {
 	// 	this.password = crypto.createHmac('sha256', this.password).digest('hex');
 	// }
 
-	@Column({nullable: false, default: 0 })
+	@Column({ nullable: false, default: 0.0 })
+	elo: Number
+
+	@Column({ nullable: false, default: 0 })
 	win: number
 
 	@Column({ nullable: false, default: 0 })
 	lose: number
-
-	@Column({ default: false })
-	Ban: boolean
-
-	@Column({ default: false })
-	Admin: boolean
 
 	@Column({ default: false })
 	public TwoFactorAuthToggle: boolean
