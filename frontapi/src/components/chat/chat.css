@@ -34,6 +34,7 @@
 	align-items: flex-start;
 }
 
+
 #friends li, #members li
 {
 	color: var( --cNeonLight );
@@ -79,10 +80,7 @@
 	align-items: flex-start;
 }
 
-#members li
-{
-	margin-bottom: -0.125em;
-}
+
 
 #chatParent
 {
@@ -108,6 +106,12 @@
 	flex-direction: column;
 /*	align-items: flex-start;*/
 	justify-content: space-between;
+}
+
+#messages
+{
+	height: 80%;
+	overflow-y: scroll;
 }
 
 #chat .messages
@@ -137,6 +141,7 @@
 	display: flex;
 	flex-direction: horizontal;
 	justify-content: space-between;
+	height: 10%;
 }
 
 #chat form input:nth-child(1)
@@ -144,7 +149,7 @@
 	background-color: var( --cBackground );
 	color: var( --cNeonLight );
 	width: 80%;
-	height: 30px;
+/*	height: 30px;*/
 	padding: 0.4em;
 	border-radius: 2px;
 	border: 1px solid var( --cNeon );
@@ -206,6 +211,20 @@ h1
 
 	align-self: center;
 	padding: 0.7rem 0.7rem;
+	margin-bottom: 0.125em;
+
+	overflow-wrap: anywhere;
+	overflow-y: hidden;
+}
+
+ul
+{
+	overflow-y: scroll;
+}
+	
+li
+{
+	overflow-wrap: anywhere;
 }
 
 @media only screen and ( min-width: 1220px )
