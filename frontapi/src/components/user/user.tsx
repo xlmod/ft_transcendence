@@ -1,58 +1,63 @@
-import React from 'react';
-import { useContext } from 'react';
-import { AuthContext } from '../../services/auth.service';
+import React, {useContext} from 'react';
+import {Navigate} from 'react-router';
 import axios from 'axios';
-import { Header } from '../header/header';
-import { Navbar } from '../navbar/navbar';
 
 import './user.css';
+import { AuthContext } from '../../services/auth.service';
 
 const API_URL = "http://localhost:3333/";
 
-interface IProps {
-	
-}
+interface IProps {}
 
 interface IState {
-	user: any
+	user: any,
+	uid: string,
+	connected: boolean,
 }
-
-/*
-function Check()
-{
-	const { checkLogin } = useContext( AuthContext );
-	checkLogin();
-}
-*/
 
 export class User extends React.Component< IProps, IState >
 {
 	constructor(props: IProps)
 	{
+		//CheckLogin();
 		super(props);
 		this.state = {
-			user: []
+			user: [],
+			uid: "",
+			connected: true,
 		};
-		this.getData();
-	};
+	}
 
-	getData = () => {
-//		Check();
-		return axios
-			.get( API_URL + 'user/me', { withCredentials: true } )
-			.then( data => {
-				this.setState({
-					user: data.data
-				});
-				console.log( data.data );
-				return true;
-			})
-			.catch( ( error ) => {
-				return false;
-			});
-	};
+	async componentDidMount() {
+		const getUid = async () => {
+			return await axios.get( API_URL + 'user/me', { withCredentials: true } )
+				.then( (data) => {
+					return data.data.uid;
+				}).catch( () => {return ""});
+		};
+		const getUser = async (uid: string) => {
+			return await axios.get(API_URL + 'user/' + uid, {withCredentials: true})
+				.then( (data) => {
+					return  data.data;
+				}).catch(() => {return []});
+		};
+		let uid = await getUid();
+		let connected:boolean = false;
+		let user: any = {};
+		if (uid !== "") {
+			user = await getUser(uid);
+			connected = true;
+		}
+		this.setState({
+			user: user,
+			uid: uid,
+			connected: connected,
+		});
+	}
 
 	render() {
+		if (!this.state.connected)
+			return(<Navigate to="/signin" />);
 		return (
 			<main>
 				<section id="userSection">
@@ -80,4 +85,10 @@ export class User extends React.Component< IProps, IState >
 			</main>
 		);
 	}
+}
+
+const CheckLogin = () => {
+	const {checkLogin} = useContext(AuthContext);
+	checkLogin();
+	
 }
