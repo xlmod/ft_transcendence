@@ -18,12 +18,14 @@
 	width: 90vw;
 	height: 45vw;
 
-	border: var( --cNeon ) 0.13em solid;
+	border: var( --cNeon ) 0.1em solid;
+	box-shadow: 0 0 0.5em var( --cNeonDark );
 	
 }
 
 #gameScore
 {
+	position: relative;
 	width: 90vw;
 	display: flex;
 	flex-direction: row;

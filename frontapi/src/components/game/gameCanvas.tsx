@@ -27,8 +27,8 @@ export function GameCanvas(): JSX.Element {
 
 	const [left, setLeft] = useState<number>(0);
 	const [right, setRight] = useState<number>(0);
-	const [leftplayer, setLeftplayer] = useState<string>("");
-	const [rightplayer, setRightplayer] = useState<string>("");
+	const [leftplayer, setLeftplayer] = useState<string>("Player");
+	const [rightplayer, setRightplayer] = useState<string>("Player");
 	const [state, setState] = useState<string>("");
 
 	const board = new Board();
@@ -139,7 +139,6 @@ export function GameCanvas(): JSX.Element {
 
 	return (
 		<section id="gameSection">
-			{ state !== "" &&
 			<div>
 				<div id="gameScore">
 					<div id="playerLeft">
@@ -156,7 +155,6 @@ export function GameCanvas(): JSX.Element {
 					</div>
 				</div>
 			</div>
-			}
 			<canvas ref={canvasRef} id="game"></canvas>
 			{ state === "" ?
 			<div id="btnCtrl">

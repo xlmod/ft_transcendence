@@ -49,13 +49,13 @@
 	stroke-width: 4;
 }
 #iconGame:focus, #iconGame:hover{
-	filter: drop-shadow(0px 0px 3px var( --cNeonLight ) );
+	filter: drop-shadow(0px 0px 3px var( --cNeon ) );
 }
 #iconGame:focus text, #iconGame:focus circle, #iconGame:hover text, #iconGame:hover circle {
-	fill: var( --cNeonLight );
+	fill: var( --cNeon );
 }
 #iconGame:focus line, #iconGame:hover line {
-	stroke: var( --cNeonLight );
+	stroke: var( --cNeon );
 	stroke-width: 4;
 }
 
@@ -66,10 +66,10 @@
 	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
 }
 #iconLeaderboard:hover, #iconLeaderboard:focus {
-	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
+	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
 #iconLeaderboard:hover path, #iconLeaderboard:focus path {
-	fill: var( --cNeonLight );
+	fill: var( --cNeon );
 }
 
 
@@ -82,11 +82,11 @@
 	fill: var( --cNeonDark );
 }
 #iconChat:hover, #iconChat:focus {
-	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
+	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
 #iconChat:hover rect, #iconChat:focus rect,
 #iconChat:hover path, #iconChat:focus path {
-	fill: var( --cNeonLight );
+	fill: var( --cNeon );
 }
 
 
@@ -97,10 +97,10 @@
 	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
 }
 #iconUser:hover, #iconUser:focus {
-	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
+	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
 #iconUser:hover path, #iconUser:focus path {
-	fill: var( --cNeonLight );
+	fill: var( --cNeon );
 }
 
 
@@ -113,8 +113,8 @@
 	border: none;
 }
 #iconLogout:hover path {
-	filter: drop-shadow(0px 0px 5px var( --cNeonLight ) );
-	fill: var( --cNeonLight );
+	filter: drop-shadow(0px 0px 5px var( --cNeon ) );
+	fill: var( --cNeon );
 }
 
 

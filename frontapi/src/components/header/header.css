@@ -48,8 +48,11 @@ header
 
 	font-size: 2em;
 	font-family: Skwar;
-	font-weight: 200;
-	color: var( --cNeonLight );
+	font-weight: 300;
+	color: var( --cNeon );
+	text-shadow:
+		0 0 0.1em #ffffff,
+		0 0 0.5em var( --cNeon );
 
 	/*
 	border: yellow 1px solid;
