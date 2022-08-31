@@ -16,8 +16,8 @@ export function Navbar()
 					<text x="12" y="10" font-size="0.7em">4</text>
 					<text x="31" y="10" font-size="0.7em">2</text>
 					<line x1="25" y1="0" x2="25" y2="50" />
-					<rect x="3" y="30" width="3" height="16" />
-					<rect x="46" y="15" width="3" height="16" />
+					<line x1="5" y1="30" x2="5" y2="48" />
+					<line x1="44" y1="15" x2="44" y2="33" />
 					<circle cx="38" cy="26" r="2" />
 				</svg>
 			</NavLink>

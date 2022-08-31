@@ -33,64 +33,93 @@
 
 .navbarIcon path
 {
-	fill: var( --cNeon );
+	fill: var( --cNeonDark );
 }
 
-#iconGame
-{
+
+/* Icon Game */
+#iconGame{
+	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
+}
+#iconGame text, circle {
+	fill: var( --cNeonDark );
+}
+#iconGame line {
+	stroke: var( --cNeonDark );
+	stroke-width: 4;
+}
+#iconGame:focus, #iconGame:hover{
 	filter: drop-shadow(0px 0px 3px var( --cNeonLight ) );
 }
-
-#iconGame text, circle
-{
-	fill: var( --cNeon );
+#iconGame:focus text, #iconGame:focus circle, #iconGame:hover text, #iconGame:hover circle {
+	fill: var( --cNeonLight );
+}
+#iconGame:focus line, #iconGame:hover line {
+	stroke: var( --cNeonLight );
+	stroke-width: 4;
 }
 
-#iconGame line
-{
-	stroke: var( --cNeon );
-	stroke-width: 2;
-}
 
-#iconGame rect
-{
-	stroke: var( --cNeon );
-	stroke-width: 1;
-}
 
-#iconLeaderboard
-{
-	filter: drop-shadow(0px 0px 3px var( --cNeonLight ) );
+/* Icon Leaderboard */
+#iconLeaderboard {
+	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
 }
-
-#iconChat
-{
+#iconLeaderboard:hover, #iconLeaderboard:focus {
 	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
 }
-
-#iconChat rect
-{
-	fill: var( --cNeon );
+#iconLeaderboard:hover path, #iconLeaderboard:focus path {
+	fill: var( --cNeonLight );
 }
 
+
+
+/* Icon Chat */
+#iconChat {
+	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
+}
+#iconChat rect {
+	fill: var( --cNeonDark );
+}
+#iconChat:hover, #iconChat:focus {
+	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
+}
+#iconChat:hover rect, #iconChat:focus rect,
+#iconChat:hover path, #iconChat:focus path {
+	fill: var( --cNeonLight );
+}
+
+
+
+/* Icon User */
 #iconUser
 {
+	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
+}
+#iconUser:hover, #iconUser:focus {
 	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
-	transform: translate( -10, -10 );
+}
+#iconUser:hover path, #iconUser:focus path {
+	fill: var( --cNeonLight );
 }
 
-#iconLogout
-{
+
+
+
+/* Icon Logout */
+#iconLogout {
 	position: relative;
 	background-color: var( --cBackground );
 	border: none;
 }
-
-#iconLogout path
-{
+#iconLogout:hover path {
 	filter: drop-shadow(0px 0px 5px var( --cNeonLight ) );
+	fill: var( --cNeonLight );
 }
 
+
+
+/* NavText */
 #navbarText
 {
 	margin-top: 80px;
@@ -117,28 +146,49 @@
 	background-color: var( --cBackground );
 	padding: 0.7rem 0.7rem 1rem 1rem;
 
-	color: var( --cNeon );
+	color: var( --cNeonDark );
 	font-size: 1.5rem;	
 	font-family: Skwar;
 	font-weight: 450;
+	/*
 	text-shadow:
 		0 0 0.1em #ffffff,
 		0 0 0.5em var( --cNeon );
+		*/
 
-	border: var( --cNeon ) 0.1em solid;
+	border: var( --cNeonDark ) 0.1em solid;
 	border-radius: 0.2em;
+	/*
 	box-shadow:
 		inset 0 0 0.5em var( --cNeon ),
 		0 0 0.5em var( --cNeon );
+		*/
 }
 
-#navbarText *:hover,
+#navbarText *:hover{
+
+	color: var( --cNeon );
+	border: var( --cNeon ) 0.1em solid;
+	text-shadow:
+		0 0 0.1em #ffffff,
+		0 0 0.5em var( --cNeon );
+	box-shadow:
+		inset 0 0 0.5em var( --cNeon ),
+		0 0 0.5em var( --cNeon );
+	animation: neon-blink-animation 3s infinite;
+}
+
+
 #navbarText *:focus
 {
-	background-color: var( --cNeon );
-	color: var( --cBackground );
-	text-shadow: none;
-	box-shadow: 0 0 1.1em 0.1em var( --cNeon );
+	color: var( --cNeon );
+	border: var( --cNeon ) 0.1em solid;
+	text-shadow:
+		0 0 0.1em #ffffff,
+		0 0 0.5em var( --cNeon );
+	box-shadow:
+		inset 0 0 0.5em var( --cNeon ),
+		0 0 0.5em var( --cNeon );
 }
 
 @media only screen and ( min-width: 1220px )
@@ -161,3 +211,4 @@
 		margin-left: 18px;
 	}
 }
+

@@ -8,6 +8,7 @@
 {
 	--cBackground: black;
 	--cNeon: #59A80F; /* green */
+	--cNeonDark: #567539; /* green */
 	--cNeonLight: #9ED54C; /* light green */
 	--cNeonBis: #59A80F; /* not used */
 }
@@ -28,3 +29,95 @@ body
 	background-color: var( --cNeon );
 	color: var( --cBackground );
 }
+
+/* Animation */
+
+/*neon-blink-animation*/
+@keyframes neon-blink-animation {
+	9% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	10% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	11% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	19% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	20% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	21% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	25% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	26% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	27% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	43% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	44% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	45% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	46% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	59% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	65% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	66% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	67% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	68% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	69% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	70% {
+		text-shadow:none;
+		box-shadow: none;
+	}
+	71% {
+		text-shadow:0 0 0.1em #ffffff,0 0 0.5em var( --cNeon );
+		box-shadow:inset 0 0 0.5em var( --cNeon ),0 0 0.5em var( --cNeon );
+	}
+	100% {}
+}
+
