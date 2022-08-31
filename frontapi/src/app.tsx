@@ -9,6 +9,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import axios from "axios";
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
+import {game_socket} from './socket';
 
 const API_URL = "http://localhost:3333/";
 class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkLogin:any, logout:any}> {
@@ -42,6 +43,7 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 			userData: {},
 			isLoggedIn : false
 		});
+		game_socket.socket.disconnect();
 	}
 	constructor(props)
 	{

@@ -41,20 +41,40 @@ header
 	*/
 }
 
-#P, #O, #N, #G
+#P, #O, #N, #G, #under
 {
 	position: relative;
 	display: inline-block;
 
 	font-size: 2em;
 	font-family: Skwar;
-	font-weight: 200;
-	color: var( --cNeonLight );
+	font-weight: 300;
+	color: var( --cNeon );
+	text-shadow:
+		0 0 0.1em #ffffff,
+		0 0 0.5em var( --cNeon );
 
 	/*
 	border: yellow 1px solid;
 	*/
 }
+
+#under {
+	animation: blink-animation 1s steps(2, start) infinite;
+	-webkit-animation: blink-animation 1s steps(2, start) infinite;
+}
+
+@keyframes blink-animation {
+	to {
+		visibility: hidden;
+	}
+}
+@-webkit-keyframes blink-animation {
+	to {
+		visibility: hidden;
+	}
+}
+
 
 #logo:hover #P
 {

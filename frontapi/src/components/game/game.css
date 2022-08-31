@@ -10,8 +10,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-
-	border: red 1px solid;
 }
 
 #game
@@ -20,28 +18,60 @@
 	width: 90vw;
 	height: 45vw;
 
-	border: blue 1px solid;
+	border: var( --cNeon ) 0.1em solid;
+	box-shadow: 0 0 0.5em var( --cNeonDark );
+	
 }
 
 #gameScore
 {
-	color: #fff;
+	position: relative;
+	width: 90vw;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	color: var( --cNeon );
+	font-size: 1.2rem;	
+	font-family: Skwar;
+	font-weight: 450;
+	margin:1em;
+}
+
+#playerLeft{
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-right:auto;
+}
+
+#playerRight{
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	margin-left:auto;
+}
+
+#btnCtrl {
+	margin: 1em;
 }
 
 
 @media only screen and ( min-width: 1220px )
 {
-	#gameSection
-	{
+	#gameSection {
 		margin-top: 30px;
 
-		flex-direction: row;
+		flex-direction: column;
 		justify-content: space-around;
 	}
 
-	#game
-	{
+	#game {
 		width: 60vw;
 		height: 30vw;
 	}
+
+	#gameScore {
+		width: 60vw;
+	}
 }
+

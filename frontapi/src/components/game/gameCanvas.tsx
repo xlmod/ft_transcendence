@@ -16,6 +16,8 @@ type Room = {
 	score_right: number,
 	player_left: string,
 	player_right: string,
+	user_left: string,
+	user_right: string,
 	observer: Set<string>,
 }
 
@@ -25,8 +27,8 @@ export function GameCanvas(): JSX.Element {
 
 	const [left, setLeft] = useState<number>(0);
 	const [right, setRight] = useState<number>(0);
-	const [leftplayer, setLeftplayer] = useState<string>("");
-	const [rightplayer, setRightplayer] = useState<string>("");
+	const [leftplayer, setLeftplayer] = useState<string>("Player");
+	const [rightplayer, setRightplayer] = useState<string>("Player");
 	const [state, setState] = useState<string>("");
 
 	const board = new Board();
@@ -79,8 +81,8 @@ export function GameCanvas(): JSX.Element {
 		});
 
 		game_socket.socket.on("room_setting", (room: Room) => {
-			setLeftplayer(room.player_left);
-			setRightplayer(room.player_right);
+			setLeftplayer(room.user_left);
+			setRightplayer(room.user_right);
 			setLeft(room.score_left);
 			setRight(room.score_right);
 		});
@@ -137,13 +139,32 @@ export function GameCanvas(): JSX.Element {
 
 	return (
 		<section id="gameSection">
-			{ state !== "" ? <div id="gameScore">
-				{leftplayer} {left} - {right} {rightplayer}
+			<div>
+				<div id="gameScore">
+					<div id="playerLeft">
+						{leftplayer}
+						<span id="playerLeftScore">
+							{left}
+						</span>
+					</div>
+					<div id="playerRight">
+						{rightplayer}
+						<span id="playerRightScore">
+							{right}
+						</span>
+					</div>
+				</div>
 			</div>
-			: <div>
-				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
-			</div> }
 			<canvas ref={canvasRef} id="game"></canvas>
+			{ state === "" ?
+			<div id="btnCtrl">
+				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
+			</div>
+			:
+			<div id="btnCtrl">
+				{ Button( "Resign", 1.2, () => { game_socket.socket.emit("quit");} ) }
+			</div>
+			}
 		</section>
 	);
 

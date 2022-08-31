@@ -11,6 +11,7 @@ export function Header()
 				<div id="O">O</div>
 				<div id="N">N</div>
 				<div id="G">G</div>
+				<div id="under">_</div>
 			</div>
 		</header>
 	);
