@@ -98,22 +98,27 @@ export function GameCanvas(): JSX.Element {
 
 
 		game_socket.socket.on("start_game", () => {
-			if (canvasRef.current) {
-				let canvas = canvasRef.current;
-				canvas.width = 1000;
-				canvas.height = 500;
-				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-				const ctx = canvas?.getContext("2d");
-				game_interval = setInterval(() => {
-					board.tick();
-					board.draw(ctx, GAME_SETTINGS.ratio);
-				}, 16);
-			}
+			board.reset();
+			board.set_ball_dir(-1, 0);
+			game_interval = setInterval(() => {
+				board.tick();
+				board.draw();
+			}, 16);
 		});
 
 		game_socket.socket.on("reset_game", () => {
+			clearInterval(game_interval);
+			board.clear();
+		});
+
+		game_socket.socket.on("end_game", () => {
 			board.reset();
 			clearInterval(game_interval);
+			setState("");
+			setLeftplayer("Player");
+			setRightplayer("Player");
+			setLeft(0);
+			setRight(0);
 		});
 
 		game_socket.socket.on("update_ball", (pos, dir) => {
@@ -130,6 +135,15 @@ export function GameCanvas(): JSX.Element {
 				board.set_left_pos(paddle_pos.x, paddle_pos.y);
 			}
 		});
+
+		if (canvasRef.current) {
+			let canvas = canvasRef.current;
+			canvas.width = 1000;
+			canvas.height = 500;
+			GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
+			const ctx = canvas?.getContext("2d");
+			board.set_ctx(ctx, GAME_SETTINGS.ratio)
+		}
 
 		return () => {
 			clearInterval(game_interval);

@@ -28,8 +28,8 @@ export class User {
 	// 	this.password = crypto.createHmac('sha256', this.password).digest('hex');
 	// }
 
-	@Column({ nullable: false, default: 0.0 })
-	elo: Number
+	@Column({ nullable: false, default: 1600 })
+	elo: number
 
 	@Column({ nullable: false, default: 0 })
 	win: number
