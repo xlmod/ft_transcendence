@@ -1,10 +1,7 @@
 import { AuthService } from 'src/auth/auth.service';
-import { UserService } from 'src/user/user.service';
 import { GameService } from './game.service';
 import { UnauthorizedException, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import TokenPayload from '@/auth/jwt.strategy';
 
 import { Board } from 'src/game/gameTypes/Board'
 
@@ -21,6 +18,7 @@ import {
 
 import { Socket, Server } from 'socket.io';
 import {Vec} from './gameTypes/Vec';
+import {User} from '@/user/user.entity';
 
 @UsePipes(new ValidationPipe())
 // @UseFilters(AllExceptionsFilter)
@@ -35,29 +33,21 @@ import {Vec} from './gameTypes/Vec';
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly authService: AuthService,
-		// // private readonly gameService: GameService,
+		private gameService: GameService,
 	) {}
 	
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('GameGateway');
 	private rooms: Map<string, Room> = new Map();
-	private joined: Map<string, Socket> = new Map();
+	private joined: Set<string> = new Set();
 
 	afterInit(server: Server) {
-		// console.log('init Gateway : ', server);
 		server.use(async (socket, next) => {
 			const cookie = socket.handshake.headers.cookie;
-			// console.log(cookie);
 			if (!cookie)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-			// 	const token = this.jwtService.decode(cookie.split('=')[1]) as TokenPayload;
-			// //	console.log(token);
-			// 	const user = await this.userService.findById(token.uuid);
-				const user = await this.authService.JwtVerify(cookie.split('=')[1]);
-				console.log('user : ', user.pseudo);
-				// if (user.Ban === true)
-				// 	return next(new UnauthorizedException('Gateway User Banned'));
+				await this.authService.JwtVerify(cookie.split('=')[1]);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}
@@ -67,36 +57,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
+		this.gameService.AddUserWithSocket(client.id, client.handshake.headers.cookie);
 	}
 
 	async handleDisconnect(client: Socket) {
-		let room: Room | null = this.getRoomFromClientId(client.id)
-		if (room != null) {
-			if (room.full) {
-				if (room.player_left === client.id)
-					this.setWinner(room, "right");
-				else
-					this.setWinner(room, "left");
-				clearInterval(room.interval);
-				clearInterval(room.update);
-				this.server.to(room.id).emit("reset_game");
-				this.joined.delete(room.player_left);
-				this.joined.delete(room.player_right);
-				this.rooms.delete(room.id);
-			} else {
-				this.joined.delete(client.id);
-				this.rooms.delete(room.id);
-			}
-		}
+		this.playerQuit(client.id)
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
 	@SubscribeMessage("join_room")
 	handleJoinRoom(@ConnectedSocket() client: Socket) {
-		if (this.joined.has(client.id)) {
+		let user = this.gameService.GetUserBySocket(client.id);
+		if (this.joined.has(user.id)) {
 			return ;
 		} else
-			this.joined.set(client.id, client);
+			this.joined.add(user.id);
 		let room: Room | null = null;;
 		for (const [_, r] of this.rooms.entries()) {
 			if (!r.full) {
@@ -106,6 +81,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		if (room != null) {
 			room.player_right = client.id;
+			room.user_right = user.pseudo;
 			room.full = true;
 			client.join(room.id);
 			client.emit("room_player_joined", "right");
@@ -115,6 +91,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			room = new Room();
 			room.id = client.id;
 			room.player_left = client.id;
+			room.user_left = user.pseudo;
 			room.board.reset();
 			this.rooms.set(room.id, room);
 			client.join(room.id);
@@ -151,6 +128,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		this.server.to(room.id).emit("update_paddle", side, paddle_pos, paddle_dir);
 	}
+
+	@SubscribeMessage("quit")
+	handleQuit(
+		@ConnectedSocket() client: Socket,
+	) {
+		this.playerQuit(client.id);
+	}
+
 
 	startGame(room: Room) {
 		room.board.reset();
@@ -193,6 +178,30 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return room; 
 	}
 
+	playerQuit(client_id: string) {
+		let room: Room | null = this.getRoomFromClientId(client_id)
+		if (room != null) {
+			if (room.full) {
+				if (room.player_left === client_id)
+					this.setWinner(room, "right");
+				else
+					this.setWinner(room, "left");
+				clearInterval(room.interval);
+				clearInterval(room.update);
+				this.server.to(room.id).emit("reset_game");
+				let user_left = this.gameService.GetUserBySocket(room.player_left);
+				let user_right = this.gameService.GetUserBySocket(room.player_right);
+				this.joined.delete(user_left.id);
+				this.joined.delete(user_right.id);
+				this.rooms.delete(room.id);
+			} else {
+				let user = this.gameService.GetUserBySocket(client_id);
+				this.joined.delete(user.id);
+				this.rooms.delete(room.id);
+			}
+		}
+	}
+
 	setWinner(room: Room, side: string) {
 		this.server.to(room.id).emit("echo", `${side} WINNER`);
 	}
@@ -209,5 +218,7 @@ class Room {
 	score_right: number = 0;
 	player_left: string = "";
 	player_right: string = "";
+	user_left: string = "waiting...";
+	user_right: string = "waiting...";
 	observer: Set<string> = new Set();
 }
