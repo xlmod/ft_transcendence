@@ -156,15 +156,20 @@ export function GameCanvas(): JSX.Element {
 			<div>
 				<div id="gameScore">
 					<div id="playerLeft">
-						{leftplayer}
+						<span id="playerLeftName">
+							{leftplayer}
+						</span>
 						<span id="playerLeftScore">
 							{left}
 						</span>
 					</div>
+					<span id="vs">vs</span>
 					<div id="playerRight">
-						{rightplayer}
 						<span id="playerRightScore">
 							{right}
+						</span>
+						<span id="playerRightName">
+							{rightplayer}
 						</span>
 					</div>
 				</div>
