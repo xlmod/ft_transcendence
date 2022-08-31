@@ -10,12 +10,16 @@ export class Board {
 	private right: Paddle;
 	private ball: Ball;
 	private winner: number;
+	private ctx: CanvasRenderingContext2D | null;
+	private ratio: number;
 
 	public constructor() {
 		this.left = new Paddle(BASE_PADDLE_LEFT_POS_X, BASE_PADDLE_LEFT_POS_Y, 0, 0);
 		this.right = new Paddle(BASE_PADDLE_RIGHT_POS_X, BASE_PADDLE_RIGHT_POS_Y, 0, 0);
 		this.ball = new Ball(BASE_BALL_POS_X, BASE_BALL_POS_Y, 0, 0);
 		this.winner = 0;
+		this.ctx = null;
+		this.ratio = 0;
 	}
 
 	public copy(): Board {
@@ -97,25 +101,39 @@ export class Board {
 		return this.winner;
 	}
 
-	public draw(ctx: CanvasRenderingContext2D | null, ratio: number) {
-		if (ctx) {
-			ctx.fillStyle = BASE_COLOR_BOARD;
-			ctx.fillRect(
+	public draw() {
+		if (this.ctx) {
+			this.ctx.fillStyle = BASE_COLOR_BOARD;
+			this.ctx.fillRect(
 				0,
 				0,
-				BASE_WIDTH * ratio,
-				BASE_HEIGHT * ratio
+				BASE_WIDTH * this.ratio,
+				BASE_HEIGHT * this.ratio
 			);
-			ctx.shadowColor = BASE_COLOR_SHADOW;
-			ctx.shadowBlur = 20;
-			ctx.fillStyle = BASE_COLOR_FILL;
-			this.left.draw(ctx, ratio);
-			this.right.draw(ctx, ratio);
-			this.ball.draw(ctx, ratio);
-	//		ctx.strokeStyle = BASE_COLOR_FILL;
-	//		ctx.lineWidth = 2;
-	//		ctx.strokeRect(0, 0, BASE_WIDTH * ratio, BASE_HEIGHT * ratio);
+			this.ctx.shadowColor = BASE_COLOR_SHADOW;
+			this.ctx.shadowBlur = 20;
+			this.ctx.fillStyle = BASE_COLOR_FILL;
+			this.left.draw(this.ctx, this.ratio);
+			this.right.draw(this.ctx, this.ratio);
+			this.ball.draw(this.ctx, this.ratio);
 		}
+	}
+
+	public clear() {
+		if (this.ctx) {
+			this.ctx.fillStyle = BASE_COLOR_BOARD;
+			this.ctx.fillRect(
+				0,
+				0,
+				BASE_WIDTH * this.ratio,
+				BASE_HEIGHT * this.ratio
+			);
+		}
+	}
+
+	public set_ctx(ctx: CanvasRenderingContext2D | null, ratio: number) {
+		this.ctx = ctx;
+		this.ratio = ratio;
 	}
 
 	public reset() {
