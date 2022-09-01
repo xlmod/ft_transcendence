@@ -1,10 +1,11 @@
-import { Body, ClassSerializerInterceptor, Controller, HttpCode, NotFoundException, Post, Req, Res, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, NotFoundException, Post, Req, Res, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TwoFactorAuthenticationService } from './tfa.service';
 import { Response, Request } from 'express';
 import { TwoFactorAuthenticationDto } from './tfa.dto';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from '../../user/user.service';
+import { TwoFactorAuthGuard } from './tfa.guard';
 
 @Controller('tfa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -15,14 +16,22 @@ export class TwoFactorAuthenticationController {
 		private readonly jwtService: JwtService,
 	) {}
 
+	@Get()
+	@UseGuards(TwoFactorAuthGuard)
+	async Qrcb(@Res() res: Response) {
+		const user = await this.userService.findById(res.locals.uuid);
+		const otpauthUrl = 'otpauth://totp/'+process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME+':'+ user.id+'?secret='+user.TwoFactorAuth
+							+ '&period=30&digits=6&algorithm=SHA1&issuer=' + process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME;
+		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);
+	}
+
 	@Post('generate')
 	async register(@Res() res: Response, @Req() req) {
-		console.log(res.locals.uuid);
 		const user = await this.userService.findById(res.locals.uuid);
 		if (!user)
 			throw new NotFoundException();
 		const { otpauthUrl } = await
-			this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user);
+		this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user);
 		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);
 	}
 

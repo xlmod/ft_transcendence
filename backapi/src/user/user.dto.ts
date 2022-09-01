@@ -39,7 +39,7 @@ export class UserDto {
 	avatar?: string;
 
 	@IsNumber()
-	elo: Number
+	elo: number
 
 	@IsNumber()
 	win: number;
@@ -63,7 +63,11 @@ export class UserDto {
 		this.id = user.id,
 		this.pseudo = user.pseudo,
 		this.avatar = user.avatar,
-		this.TwoFactorAuthToggle = user.TwoFactorAuthToggle
+		this.win = user.win,
+		this.lose = user.lose,
+		this.elo  = user.elo,
+		this.TwoFactorAuthToggle = user.TwoFactorAuthToggle,
+		this.CreatedAt = user.CreatedAt
 	}
 }
 

@@ -1,6 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { UserService } from "src/user/user.service";
 import { AuthService } from "../auth.service";
 
 @Injectable()
@@ -15,7 +13,7 @@ export class TwoFactorAuthGuard implements CanActivate {
 			if (!user.TwoFactorAuthToggle || !user.TwoFactorAuth)
 				throw Error;
 		} catch(error) {
-			throw new UnauthorizedException();
+			throw new UnauthorizedException('2fa guard failed');
 		}
 		return true;
 	}

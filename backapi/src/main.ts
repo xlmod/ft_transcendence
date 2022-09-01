@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -13,5 +13,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   await app.listen(process.env.PORT);
+
+  new Logger('Ft_transcendence Backapi').log('Ok.');
 }
 bootstrap();

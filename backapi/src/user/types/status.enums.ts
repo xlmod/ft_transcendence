@@ -1,12 +1,17 @@
 export enum UserRole {
 	admin = 'admin',
-	user42 = 'user42',
-	guest = 'guest',
-}	// implements RolesGuard later
+	user = 'user',
+}
 
 export enum UserStatus {
 	online = 'online',
 	offline = 'offline',
-	away = 'away',
 	gaming = 'gaming',
+}
+
+export enum RelationStatus {
+	unfriend = 'nothing',
+	pending = 'pending',
+	friend = 'friend',
+	bloked = 'bloked',
 }
