@@ -29,8 +29,7 @@ h1
 {
 	font-family: Skwar;
     font-weight: 300;
-    color: var( --cNeon );
-    border: 1px dashed var( --cNeon );
+    color: var( --cNeonLight );
     border-radius: 0.125em;
 
     align-self: center;

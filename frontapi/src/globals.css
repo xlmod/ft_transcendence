@@ -1,7 +1,37 @@
 @font-face
 {
 	font-family: Skwar;
-	src: url( Skwar.ttf );
+	src: url( font/SKWARLETTERS-VAR.woff2 );
+}
+
+@font-face
+{
+	font-family: courier;
+	src: url( font/Courier.ttf );
+}
+
+@font-face
+{
+	font-family: SkwarLetter;
+	src: url( font/SKWARLETTERS-VAR.woff2 );
+}
+
+@font-face
+{
+	font-family: SkwarNumber;
+	src: url( font/SKWARNUMBERS-VAR.woff2 );
+}
+
+@font-face
+{
+	font-family: SkwarPunc;
+	src: url( font/SKWARPUNC-VAR.woff2 );
+}
+
+@font-face
+{
+	font-family: SkwarSym;
+	src: url( font/SKWARSYMBOL-VAR.woff2 );
 }
 
 :root

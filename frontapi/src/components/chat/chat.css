@@ -37,18 +37,18 @@
 
 #friends li, #members li
 {
-	color: var( --cNeonLight );
-	font-family: Skwar;
-	font-weight: 250;
+	color: var( --cNeon );
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-weight: 350;
 	margin-bottom: 0.5em;
 	cursor: pointer;
 	list-style: none;
+	font-size:0.8em;
 }
 
 #friends li::before, #members li::before
 {
 	content: "\2022";
-	font-weight: bold;
 	display: inline-block;
 	width: 1em;
 	margin-left: -1em;
@@ -94,13 +94,9 @@
 #chat
 {
 	width: 100%;
-	height: 90%;
-	padding: 0.7em;
-	border: var( --cNeon ) 0.1em solid;
-	border-radius: 0.125em;
-	box-shadow:
-		inset 0 0 0.5em var( --cNeon ),
-		0 0 0.5em var( --cNeon );
+	height: 100%;
+	padding: 0;
+	border: var( --cNeon ) 1px solid;
 
 	display: flex;
 	flex-direction: column;
@@ -112,28 +108,92 @@
 {
 	height: 80%;
 	overflow-y: scroll;
+	display: flex;
+	flex-direction: column;
+/*	align-items: flex-start;*/
+	padding-left:1.5em;
+	padding-right:1.5em;
+	
 }
 
 #chat .messages
 {
-	margin-bottom: -0.6em;
+	margin-bottom: 0.5em;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	display: flex;
+	flex-direction: column;
+	max-width:80%;
 }
+
+#messages .me {
+	align-self: flex-end;
+}
+
+.messages .sender {
+	align-self: flex-end;
+	padding-bottom:0.4em;
+}
+
+.me .body {
+	align-self: flex-end;
+	background-color: rgba(89, 168, 15, 0.2);
+	border: 1px solid rgba(89, 168, 15, 0);
+
+}
+
+.other .body {
+	border: 1px solid rgba(89, 168, 15, 0.5);
+}
+
+#messages .other {
+	align-self: flex-start;
+}
+#messages .other .sender {
+	align-self: flex-start;
+}
+
+
+
 
 #chat .sender
 {
-	color: var( --cNeonLight );
 	margin-right: 1em;
+	color: var( --cNeonLight );
 
-	font-family: Skwar;
-	font-weight: 270;
-	font-size: 0.85em;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-weight:850;
+	font-size: 0.4em;
 }
 
 #chat .body
 {
+	display:block;
 	color: var( --cNeon );
-	font-family: sans-serif;
-	font-size: 1em;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-size: 0.6em;
+	letter-spacing: 0.2em;
+	line-height: 1.8;
+	font-weight:700;
+	padding:0.6em;
+}
+
+#chat .date {
+	display:block;
+	margin-right: 1em;
+	margin-top: 2em;
+	color: rgba(89, 168, 15, 0.5);
+	padding-bottom:1em;
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-weight:850;
+	font-size: 0.7em;
+}
+
+.me .date {
+	text-align: left;
+}
+.other .date {
+	text-align: right;
 }
 
 #chat form
@@ -153,7 +213,7 @@
 	padding: 0.4em;
 	border-radius: 2px;
 	border: 1px solid var( --cNeon );
-	font-family: sans-serif;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 }
 
 #chat form input:nth-child(2)
@@ -163,7 +223,7 @@
 	color: var( --cNeon );
 	width: 15%;
 	border: 2px groove var( --cNeon );
-	font-family: Skwar;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 }
 
 #chat form input:nth-child(2):hover
@@ -186,8 +246,8 @@
 
 #channels li
 {
-	color: var( --cNeonLight );
-	font-family: Skwar;
+	color: var( --cNeon );
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	font-weight: 250;
 	margin-bottom: 0.5em;
 	list-style-type: square;
@@ -203,10 +263,9 @@
 
 h1
 {
-	font-family: Skwar;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	font-weight: 300;
 	color: var( --cNeon );
-	border: 1px dashed var( --cNeon );
 	border-radius: 0.125em;
 
 	align-self: center;
