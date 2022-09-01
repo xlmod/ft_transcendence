@@ -1,6 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import { ArgumentsHost, Catch, HttpException } from '@nestjs/common';
+import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
 
-@Catch()
-export class GameFilter<T> implements ExceptionFilter {
-  catch(exception: T, host: ArgumentsHost) {}
+@Catch(WsException, HttpException)
+export class AllExceptionsFilter extends BaseWsExceptionFilter {
+  catch(exception: WsException | HttpException, host: ArgumentsHost) {
+	super.catch(exception, host);
+  }
 }

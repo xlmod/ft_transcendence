@@ -12,7 +12,6 @@ import {
 	Req,
 	UploadedFile,
 	NotFoundException,
-	BadRequestException,
 	Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,37 +19,7 @@ import { UserService } from './user.service';
 import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { existsSync, mkdirSync } from 'fs';
-
-export const MFileOptions = {
-	// limits: {
-	// 	fieldSize: Math.pow(1024, 2) // 1MB
-	// },
-	fileFilter: (req, file, cb) => {
-		if (file.mimetype.match(/\/(jpeg|jpg|png|gif)$/)) {
-			cb(null, true);
-		} else {
-			cb(new BadRequestException(`File type not supported ${extname(file.originalname)}`), false);
-		}
-	},
-	storage: diskStorage({
-		destination: (req, file, cb) => {
-			const updest = './avatars';
-			if (!existsSync(updest)) {
-				mkdirSync(updest);
-			}
-			cb(null, updest)
-		},
-		filename: (req, file, cb) => {
-			const filename = req.res.locals.uuid;
-			// const filename = ''; // for locals testing
-			const extension = extname(file.originalname);
-			cb(null, `${filename}${extension}`);
-		}
-	}),
-}
+import { MFileOptions } from 'src/tools/download.tools';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -79,13 +48,15 @@ export class UserController {
 		return this.userService.create(createUserDto);
 	}
 
+	/*
+		Need some test, doesn't work
+	*/
 	@Post('upload/avatar')
-	// @UseGuards(JwtAuthGuard)
 	@UseInterceptors(FileInterceptor('file', MFileOptions))
 	async UploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
 		try {
-			const user = await this.userService.findById(req.res.locals.uid);
-			console.log(user);
+			const user = await this.userService.findById(req.res.locals.uuid);
+			// console.log(file);
 			await this.userService.update(user.id, { avatar: file.filename });
 			return user;
 		} catch(error) {

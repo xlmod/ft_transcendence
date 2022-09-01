@@ -36,7 +36,6 @@ export class UserService {
 		});
 	}
 
-	//	Create a new user
 	async create(data: CreateUserDto): Promise<void> {
 		const user = this.userRepository.create(data);
         await this.userRepository.save(data);
@@ -68,7 +67,7 @@ export class UserService {
 
 	async delete(id: string): Promise<DeleteResult> {
 		return await this.userRepository.delete({ id });
-	  }
+	}
 
 	// TFA
 	async setTwoFatorAuthenticationSecret(secret: string, userid: string) {

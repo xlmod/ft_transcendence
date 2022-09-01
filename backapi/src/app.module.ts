@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { AppMiddleware } from './middleware/app.middleware';
 import { GameModule } from './game/game.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
 	imports: [
@@ -15,6 +16,7 @@ import { GameModule } from './game/game.module';
 		UserModule,
 		AuthModule,
 		GameModule,
+		ChatModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
