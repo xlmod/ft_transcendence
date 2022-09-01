@@ -6,12 +6,6 @@
 
 @font-face
 {
-	font-family: courier;
-	src: url( font/Courier.ttf );
-}
-
-@font-face
-{
 	font-family: SkwarLetter;
 	src: url( font/SKWARLETTERS-VAR.woff2 );
 }
