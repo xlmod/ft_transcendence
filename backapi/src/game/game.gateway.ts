@@ -59,7 +59,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
-		this.gameService.addUserWithSocket(client.id, client.handshake.headers.cookie);
+		this.gameService.addUserWithSocketId(client);
 	}
 
 	async handleDisconnect(client: Socket) {
@@ -67,9 +67,48 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
+	@SubscribeMessage("observe_room")
+	async handleObserveRoom(@ConnectedSocket() client: Socket) {
+		let key = this.getRandomRoomId();
+		if (key === "")
+			return ;
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id)) {
+			return ;
+		} else
+			this.joined.add(user.id);
+		let room = this.rooms.get(key);
+		room.observer.add(client.id);
+		client.join(room.id);
+		client.emit("room_observer_joined");
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		if (room.full) {
+			client.emit("start_game");
+			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
+		}
+	}
+
+	@SubscribeMessage("observe_quit")
+	async handleObserveQuit(
+		@ConnectedSocket() client: Socket,
+	) {
+		let room: Room | null = this.getRoomFromClientId(client.id);
+		if (room == null)
+			return ;
+		if (room.observer.has(client.id)) {
+			client.leave(room.id);
+			room.observer.delete(client.id);
+			client.emit("reset_game");
+			client.emit("end_game");
+			let user = await this.gameService.getUserBySocketId(client.id);
+			this.joined.delete(user.id);
+		}
+	}
+
+
 	@SubscribeMessage("join_room")
-	handleJoinRoom(@ConnectedSocket() client: Socket) {
-		let user = this.gameService.getUserBySocket(client.id);
+	async handleJoinRoom(@ConnectedSocket() client: Socket) {
+		let user = await this.gameService.getUserBySocketId(client.id);
 		if (this.joined.has(user.id)) {
 			return ;
 		} else
@@ -87,7 +126,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			room.full = true;
 			client.join(room.id);
 			client.emit("room_player_joined", "right");
-			this.server.to(room.id).emit("room_setting", room);
+			this.server.to(room.id).emit("room_setting", new SerialRoom(room));
 			this.startGame(room);
 		} else {
 			room = new Room();
@@ -98,7 +137,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.rooms.set(room.id, room);
 			client.join(room.id);
 			client.emit("room_player_joined", "left");
-			this.server.to(room.id).emit("room_setting", room);
+			this.server.to(room.id).emit("room_setting", new SerialRoom(room));
 		}
 	}
 
@@ -175,12 +214,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (r.player_left === client_id || r.player_right === client_id) {
 				room = r;
 				break ;
+			} else if (r.observer.has(client_id)) {
+				room = r;
+				break ;
 			}
 		}
 		return room; 
 	}
 
-	playerQuit(client_id: string) {
+	async playerQuit(client_id: string) {
 		let room: Room | null = this.getRoomFromClientId(client_id)
 		if (room != null) {
 			if (room.full) {
@@ -191,32 +233,78 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				else
 					this.setWinner(room, "left");
 			} else {
-				let user = this.gameService.getUserBySocket(client_id);
+				this.server.to(room.id).emit("reset_game");
+				this.server.to(room.id).emit("end_game");
+				this.gameService.getSocketBySocketId(client_id).leave(room.id);
+				let user = await this.gameService.getUserBySocketId(client_id);
 				this.joined.delete(user.id);
+				for (const [id, _] of room.observer.entries()) {
+					this.gameService.getSocketBySocketId(id).leave(room.id);
+					let user = await this.gameService.getUserBySocketId(id);
+					this.joined.delete(user.id);
+				}
 				this.rooms.delete(room.id);
 			}
 		}
 	}
 
 	async setWinner(room: Room, side: string) {
-		let user_left = this.gameService.getUserBySocket(room.player_left);
-		let user_right = this.gameService.getUserBySocket(room.player_right);
+		let user_left = await this.gameService.getUserBySocketId(room.player_left);
+		let user_right = await this.gameService.getUserBySocketId(room.player_right);
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)	
-			await this.userService.update(user_left.id, {win: user_left.win++, elo: rl});
-			await this.userService.update(user_right.id, {lose: user_right.lose--, elo: rr});
+			await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
+			await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)	
 			await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
-			await this.userService.update(user_left.id, {lose: user_left.lose - 1, elo: rl});
-		}
+			await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
+		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game");
 		this.joined.delete(user_left.id);
 		this.joined.delete(user_right.id);
+		this.gameService.getSocketBySocketId(room.player_left).leave(room.id);
+		this.gameService.getSocketBySocketId(room.player_right).leave(room.id);
+		for (const [id, _] of room.observer.entries()) {
+			this.gameService.getSocketBySocketId(id).leave(room.id);
+			let user = await this.gameService.getUserBySocketId(id);
+			this.joined.delete(user.id);
+		}
 		this.rooms.delete(room.id);
 	}
 
+	getRandomRoomId(): string {
+		let keys = Array.from(this.rooms.keys());
+		if (keys.length == 0)
+			return "";
+		let key = keys[Math.floor(Math.random() * keys.length)];
+		return key;
+	}
+
+}
+
+class SerialRoom {
+	id: string;
+	full: boolean;
+	board: Board;
+	score_left: number;
+	score_right: number;
+	player_left: string;
+	player_right: string;
+	user_left: string;
+	user_right: string;
+	constructor(room:Room){
+		this.id = room.id;
+		this.full = room.full;
+		this.board = room.board;
+		this.score_left = room.score_left;
+		this.score_right = room.score_right;
+		this.player_right = room.player_right;
+		this.player_left = room.player_left;
+		this.user_left = room.user_left;
+		this.user_right = room.user_right;
+	}
 }
 
 class Room {

@@ -18,7 +18,6 @@ type Room = {
 	player_right: string,
 	user_left: string,
 	user_right: string,
-	observer: Set<string>,
 }
 
 export function GameCanvas(): JSX.Element {
@@ -80,6 +79,11 @@ export function GameCanvas(): JSX.Element {
 			setState("player");
 		});
 
+		game_socket.socket.on("room_observer_joined", () => {
+			side = "obs";
+			setState("observer");
+		});
+
 		game_socket.socket.on("room_setting", (room: Room) => {
 			setLeftplayer(room.user_left);
 			setRightplayer(room.user_right);
@@ -133,6 +137,14 @@ export function GameCanvas(): JSX.Element {
 			} else if (side === "right" && s === "left") {
 				board.set_left_dir(paddle_dir.x, paddle_dir.y);
 				board.set_left_pos(paddle_pos.x, paddle_pos.y);
+			} else if (side === "obs") {
+				if (s === "left") {
+					board.set_left_dir(paddle_dir.x, paddle_dir.y);
+					board.set_left_pos(paddle_pos.x, paddle_pos.y);
+				} else if (s === "right") {
+					board.set_right_dir(paddle_dir.x, paddle_dir.y);
+					board.set_right_pos(paddle_pos.x, paddle_pos.y);
+				}
 			}
 		});
 
@@ -156,29 +168,38 @@ export function GameCanvas(): JSX.Element {
 			<div>
 				<div id="gameScore">
 					<div id="playerLeft">
-						{leftplayer}
+						<span id="playerLeftName">
+							{leftplayer}
+						</span>
 						<span id="playerLeftScore">
 							{left}
 						</span>
 					</div>
+					<span id="vs">vs</span>
 					<div id="playerRight">
-						{rightplayer}
 						<span id="playerRightScore">
 							{right}
+						</span>
+						<span id="playerRightName">
+							{rightplayer}
 						</span>
 					</div>
 				</div>
 			</div>
 			<canvas ref={canvasRef} id="game"></canvas>
-			{ state === "" ?
+			{ state === "" &&
 			<div id="btnCtrl">
 				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
-			</div>
-			:
+				{ Button( "Observe", 1.2, () => { game_socket.socket.emit("observe_room");} ) }
+			</div>}
+			{ state === "player" &&
 			<div id="btnCtrl">
 				{ Button( "Resign", 1.2, () => { game_socket.socket.emit("quit");} ) }
-			</div>
-			}
+			</div>}
+			{ state === "observer" &&
+			<div id="btnCtrl">
+				{ Button( "Exit", 1.2, () => { game_socket.socket.emit("observe_quit");} ) }
+			</div>}
 		</section>
 	);
 
