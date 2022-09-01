@@ -67,45 +67,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
-	@SubscribeMessage("observe_room")
-	async handleObserveRoom(@ConnectedSocket() client: Socket) {
-		let key = this.getRandomRoomId();
-		if (key === "")
-			return ;
-		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id)) {
-			return ;
-		} else
-			this.joined.add(user.id);
-		let room = this.rooms.get(key);
-		room.observer.add(client.id);
-		client.join(room.id);
-		client.emit("room_observer_joined");
-		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
-		if (room.full) {
-			client.emit("start_game");
-			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
-		}
-	}
-
-	@SubscribeMessage("observe_quit")
-	async handleObserveQuit(
-		@ConnectedSocket() client: Socket,
-	) {
-		let room: Room | null = this.getRoomFromClientId(client.id);
-		if (room == null)
-			return ;
-		if (room.observer.has(client.id)) {
-			client.leave(room.id);
-			room.observer.delete(client.id);
-			client.emit("reset_game");
-			client.emit("end_game");
-			let user = await this.gameService.getUserBySocketId(client.id);
-			this.joined.delete(user.id);
-		}
-	}
-
-
 	@SubscribeMessage("join_room")
 	async handleJoinRoom(@ConnectedSocket() client: Socket) {
 		let user = await this.gameService.getUserBySocketId(client.id);
@@ -144,7 +105,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage("update_paddle")
 	handlePaddlePos(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("paddle_pos") paddle_pos: Vec,
 		@MessageBody("paddle_dir") paddle_dir: Vec,
 		@MessageBody("side") side: string,
 	) {
@@ -158,16 +118,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		const dx = paddle_dir.x;
 		const dy = paddle_dir.y;
-		const px = paddle_pos.x;
-		const py = paddle_pos.y;
 		if (side === "left") {
 			room.board.set_left_dir(dx, dy)
-			room.board.set_left_pos(px, py)
-		} else {
+			this.server.to(room.id).emit("update_paddle", side, room.board.get_left_pos() , paddle_dir);
+		} else if (side === "right") {
 			room.board.set_right_dir(dx, dy)
-			room.board.set_right_pos(px, py)
+			this.server.to(room.id).emit("update_paddle", side, room.board.get_right_pos() , paddle_dir);
 		}
-		this.server.to(room.id).emit("update_paddle", side, paddle_pos, paddle_dir);
 	}
 
 	@SubscribeMessage("quit")
@@ -176,6 +133,80 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {
 		this.playerQuit(client.id);
 	}
+
+	@SubscribeMessage("pause")
+	handlePause(
+		@ConnectedSocket() client: Socket,
+	) {
+		let room: Room | null = this.getRoomFromClientId(client.id);
+		if (room == null)
+			return ;
+		client.leave(room.id);
+	}
+
+	@SubscribeMessage("resume")
+	handleResume(
+		@ConnectedSocket() client: Socket,
+	) {
+		let room: Room | null = this.getRoomFromClientId(client.id);
+		if (room == null)
+			return ;
+		client.join(room.id);
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		if (room.full) {
+			client.emit("reset_game");
+			client.emit("start_game");
+			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
+			client.emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
+			client.emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
+			if (room.player_left === client.id)
+				client.emit("update_status", "left");
+			else if (room.player_right === client.id)
+				client.emit("update_status", "right");
+			else
+				client.emit("update_status", "obs");
+		}
+	}
+
+	@SubscribeMessage("observe_room")
+	async handleObserveRoom(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
+		console.log(data);
+		const user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id))
+			return ;
+
+		let room = this.getRoomFromUserName(data);
+		if (room == null)
+			return ;
+
+		this.joined.add(user.id);
+		room.observer.add(client.id);
+		client.join(room.id);
+		client.emit("room_observer_joined");
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		if (room.full) {
+			client.emit("start_game");
+			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
+		}
+	}
+
+	@SubscribeMessage("observe_quit")
+	async handleObserveQuit(
+		@ConnectedSocket() client: Socket,
+	) {
+		let room: Room | null = this.getRoomFromClientId(client.id);
+		if (room == null)
+			return ;
+		if (room.observer.has(client.id)) {
+			client.leave(room.id);
+			room.observer.delete(client.id);
+			client.emit("reset_game");
+			client.emit("end_game");
+			let user = await this.gameService.getUserBySocketId(client.id);
+			this.joined.delete(user.id);
+		}
+	}
+
 
 
 	startGame(room: Room) {
@@ -222,6 +253,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return room; 
 	}
 
+	getRoomFromUserName(uname: string): Room | null {
+		let room: Room | null = null;
+		for (const [_, r]of this.rooms.entries()) {
+			if (r.user_left === uname || r.user_right === uname) {
+				room = r;
+				break ;
+			}
+		}
+		return room; 
+	}
+
 	async playerQuit(client_id: string) {
 		let room: Room | null = this.getRoomFromClientId(client_id)
 		if (room != null) {
@@ -252,11 +294,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let user_left = await this.gameService.getUserBySocketId(room.player_left);
 		let user_right = await this.gameService.getUserBySocketId(room.player_right);
 		if (side === "left") {
-			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)	
+			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
 			await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
 			await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
 		} else if (side === "right") {
-			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)	
+			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
 			await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
 			await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
 		} else { return ; }
