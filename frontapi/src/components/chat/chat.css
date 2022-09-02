@@ -4,8 +4,10 @@
 {
 	position: absolute;
 	left: 0;
-	width: 100vw;
+	width: 80%;
 	margin-top: 120px;
+	margin-left:10%;
+	margin-right:10%;
 
 	display: flex;
 	flex-direction: horizontal;
@@ -16,7 +18,6 @@
 #users
 {
 	width: 25vw;
-	height: 70vh;
 
 	display: flex;
 	flex-direction: column;
@@ -25,9 +26,13 @@
 
 #friends
 {
-	height: 60%;
-	border: 1px solid var( --cNeon );
+	padding-top:5%;
+	padding-bottom:5%;
+	padding-left:10%;
+	padding-right:10%;
 	border-radius: 1px;
+	height: 50%;
+	width:80%;
 
 	display: flex;
 	flex-direction: column;
@@ -44,6 +49,7 @@
 	cursor: pointer;
 	list-style: none;
 	font-size:0.8em;
+	width:90%;
 }
 
 #friends li::before, #members li::before
@@ -71,13 +77,17 @@
 
 #members
 {
-	height: 35%;
-	border: 1px solid var( --cNeon );
+	padding-top:5%;
+	padding-bottom:5%;
+	padding-left:10%;
+	padding-right:10%;
+	height: 50%;
 	border-radius: 1px;
 
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
+	width:80%;
 }
 
 
@@ -95,28 +105,55 @@
 {
 	width: 100%;
 	height: 100%;
-	padding: 0;
-	border: var( --cNeon ) 1px solid;
 
 	display: flex;
 	flex-direction: column;
 /*	align-items: flex-start;*/
 	justify-content: space-between;
+	border: 1px solid rgba(89, 168, 15, 0.8); 
 }
 
 #messages
 {
-	height: 80%;
+	height: 93%;
 	overflow-y: scroll;
 	display: flex;
 	flex-direction: column;
 /*	align-items: flex-start;*/
 	padding-left:1.5em;
 	padding-right:1.5em;
+	padding-bottom:1em;
 	
 }
 
-#chat .messages
+/* scrollbar Firefox */
+#messages {
+	scrollbar-color: rgba(89, 168, 15, 0.5) var(--cBackground);
+}
+
+/* scrollbar Chrome */
+ /* width */
+#messages::-webkit-scrollbar {
+  width: 0.3em;
+}
+
+/* Track */
+#messages::-webkit-scrollbar-track {
+	background: var(--cBackground);
+}
+
+/* Handle */
+#messages::-webkit-scrollbar-thumb {
+	background: rgba(89, 168, 15, 0.5);
+}
+
+/* Handle on hover */
+#messages::-webkit-scrollbar-thumb:hover {
+	background: rgba(89, 168, 15, 0.3);
+}
+/* end scrollbar */
+
+.messages
 {
 	margin-bottom: 0.5em;
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
@@ -132,6 +169,14 @@
 .messages .sender {
 	align-self: flex-end;
 	padding-bottom:0.4em;
+}
+
+.body {
+	display:block;
+	max-width:80%;
+	min-width:10.01em;
+	word-break:break-word;
+	white-space:normal;
 }
 
 .me .body {
@@ -201,19 +246,26 @@
 	display: flex;
 	flex-direction: horizontal;
 	justify-content: space-between;
-	height: 10%;
+	height: 7%;
+	box-shadow: 0 -1.3em 1em -0.5em var( --cBackground );
+	border-top: 1px solid rgba(89, 168, 15, 0.8);
 }
 
 #chat form input:nth-child(1)
 {
 	background-color: var( --cBackground );
 	color: var( --cNeonLight );
-	width: 80%;
+	width: 100%;
 /*	height: 30px;*/
-	padding: 0.4em;
-	border-radius: 2px;
-	border: 1px solid var( --cNeon );
+	padding-left: 2em;
+	padding-right: 2em;
+	border:none;
+	outline:none;
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-size: 0.8em;
+	letter-spacing: 0.2em;
+	line-height: 1.8;
+	font-weight:700;
 }
 
 #chat form input:nth-child(2)
@@ -222,26 +274,33 @@
 	background-color: var( --cBackground );
 	color: var( --cNeon );
 	width: 15%;
-	border: 2px groove var( --cNeon );
+	border:none;
+	border-left: 1px solid var( --cNeon );
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 }
 
 #chat form input:nth-child(2):hover
 {
-	background-color: var( --cNeon );
+	background-color: rgba(89, 168, 15, 0.8);
 	color: var( --cBackground );
 }
 
 #channels
 {
-	width: 25vw;
-	height: 70vh;
-	border: 1px solid var( --cNeon );
-	border-radius: 1px;
+
+	width: 25%;
 
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
+	justify-content: space-between;
+
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:2%;
+	padding-right:2%;
+	border-radius: 1px;
+	height: 50%;
+
 }
 
 #channels li
@@ -260,33 +319,31 @@
 	background-color: var( --cNeon );
 }
 
-
-h1
-{
-	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
-	font-weight: 300;
-	color: var( --cNeon );
-	border-radius: 0.125em;
-
-	align-self: center;
-	padding: 0.7rem 0.7rem;
-	margin-bottom: 0.125em;
-
-	overflow-wrap: anywhere;
-	overflow-y: hidden;
-}
-
 ul
 {
 	overflow-y: scroll;
+	width:90%;
+	height:100%;
+	scrollbar-width:none;
+}
+
+ul::-webkit-scrollbar {
+	display:none;
 }
 	
 li
 {
 	overflow-wrap: anywhere;
+	width:90%;
 }
 
 @media only screen and ( min-width: 1220px )
 {
 	#chatSection{ margin-top: 50px; }
 }
+
+
+/* Temp Message css */
+
+
+
