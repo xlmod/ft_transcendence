@@ -18,7 +18,6 @@
 	width: 80vw;
 
 	border: var( --cNeon ) 0.1em solid;
-	box-shadow: 0 0 0.5em var( --cNeonDark );
 
 }
 
@@ -30,9 +29,9 @@
 	flex-direction: row;
 	align-items: center;
 	color: var( --cNeon );
-	font-size: 1.2rem;	
-	font-family: Skwar;
+	font-size: 1.5rem;	
 	font-weight: 450;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	margin:1em;
 }
 
@@ -81,12 +80,54 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	width:40%;
 }
 
 #btnCtrl Button {
 	margin: 0.3em;
 }
 
+#obs {
+	padding:0em;
+	margin: 0.3em;
+	border: 1px solid var( --cNeon );
+	border-radius: 2px;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	background-color: var(--cNeonDark);
+}
+
+#obsButton {
+	background-color: var(--cBackground);
+	color: var( --cNeon );
+	margin:0;
+	border:none;
+	padding: 0.5em;
+	border-right: 1px solid var( --cNeon );
+	font-family: Skwar;
+	font-size:1.2em;
+	cursor: pointer;
+}
+#obsButton:hover {
+	background-color: var(--cNeon);
+	color: var( --cBackground );
+}
+
+#obsInput {
+	width:100%;
+	margin:0;
+	padding: 0.5em;
+	background-color: var(--cBackground);
+	color: var( --cNeonDark );
+	border:none;
+	outline: none;
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-size: 0.8rem;	
+}
+#obsInput:hover, #obsInput:focus {
+	color: var( --cNeonDark );
+}
 
 @media only screen and ( min-width: 1220px )
 {

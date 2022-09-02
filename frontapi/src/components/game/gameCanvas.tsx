@@ -6,7 +6,6 @@ import { game_socket } from "../../socket";
 
 import { Button } from '../utils/button';
 import './game.css';
-import {Vec} from "./gameTypes/Vec";
 
 type Room = {
 	id: string,
@@ -29,6 +28,7 @@ export function GameCanvas(): JSX.Element {
 	const [leftplayer, setLeftplayer] = useState<string>("Player");
 	const [rightplayer, setRightplayer] = useState<string>("Player");
 	const [state, setState] = useState<string>("");
+	const [obsname, setObsname] = useState<string>("");
 
 	const board = new Board();
 	board.reset();
@@ -91,33 +91,30 @@ export function GameCanvas(): JSX.Element {
 			setRight(room.score_right);
 		});
 
-		game_socket.socket.on("update_score", (score_left, score_right) => {
-			setLeft(score_left);
-			setRight(score_right);
-		});
-
-		game_socket.socket.on("ball_dir", (data: Vec) => {
-			board.set_ball_dir(data.x, data.y);
-		});
-
-
 		game_socket.socket.on("start_game", () => {
 			board.reset();
 			board.set_ball_dir(-1, 0);
-			game_interval = setInterval(() => {
-				board.tick();
-				board.draw();
-			}, 16);
+			console.log(`1start: ${game_interval}`)
+			if (game_interval == null) {
+				game_interval = setInterval(() => {
+					board.tick();
+					board.draw();
+				}, 16);
+			} else {
+				clearInterval(game_interval);
+			}
 		});
 
 		game_socket.socket.on("reset_game", () => {
 			clearInterval(game_interval);
+			game_interval = null;
 			board.clear();
 		});
 
 		game_socket.socket.on("end_game", () => {
 			board.reset();
 			clearInterval(game_interval);
+			game_interval = null;
 			setState("");
 			setLeftplayer("Player");
 			setRightplayer("Player");
@@ -125,16 +122,30 @@ export function GameCanvas(): JSX.Element {
 			setRight(0);
 		});
 
+		game_socket.socket.on("update_score", (score_left, score_right) => {
+			setLeft(score_left);
+			setRight(score_right);
+		});
+
 		game_socket.socket.on("update_ball", (pos, dir) => {
 			board.set_ball_pos(pos.x, pos.y);
 			board.set_ball_dir(dir.x, dir.y);
 		});
 
+		game_socket.socket.on("update_status", (s) => {
+			side = s;
+			if (s === "obs")
+				setState("observer");
+			else {
+				setState("player");
+			}
+		});
+
 		game_socket.socket.on("update_paddle", (s, paddle_pos, paddle_dir) => {
-			if (side === "left" && s === "right") {
+			if (s === "right") {
 				board.set_right_dir(paddle_dir.x, paddle_dir.y);
 				board.set_right_pos(paddle_pos.x, paddle_pos.y);
-			} else if (side === "right" && s === "left") {
+			} else if (s === "left") {
 				board.set_left_dir(paddle_dir.x, paddle_dir.y);
 				board.set_left_pos(paddle_pos.x, paddle_pos.y);
 			} else if (side === "obs") {
@@ -148,6 +159,16 @@ export function GameCanvas(): JSX.Element {
 			}
 		});
 
+		game_socket.socket.on("update_hard_paddle", (s, paddle_pos, paddle_dir) => {
+			if (s === "right") {
+				board.set_right_dir(paddle_dir.x, paddle_dir.y);
+				board.set_right_pos(paddle_pos.x, paddle_pos.y);
+			} else if (s === "left") {
+				board.set_left_dir(paddle_dir.x, paddle_dir.y);
+				board.set_left_pos(paddle_pos.x, paddle_pos.y);
+			}
+		});
+
 		if (canvasRef.current) {
 			let canvas = canvasRef.current;
 			canvas.width = 1000;
@@ -155,10 +176,15 @@ export function GameCanvas(): JSX.Element {
 			GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
 			const ctx = canvas?.getContext("2d");
 			board.set_ctx(ctx, GAME_SETTINGS.ratio)
+			console.log("resume")
+			game_socket.socket.emit("resume");
 		}
 
 		return () => {
+			console.log(`end: ${game_interval}`)
 			clearInterval(game_interval);
+			game_interval = null;
+			game_socket.socket.emit("pause");
 		}
 
 	}, []);
@@ -190,7 +216,10 @@ export function GameCanvas(): JSX.Element {
 			{ state === "" &&
 			<div id="btnCtrl">
 				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
-				{ Button( "Observe", 1.2, () => { game_socket.socket.emit("observe_room");} ) }
+				<div id="obs">
+					<div id="obsButton" onClick={() => {game_socket.socket.emit("observe_room", obsname);}} >Observe</div>
+					<input id="obsInput" onChange={(event) => {setObsname(event.target.value)}} />
+				</div>
 			</div>}
 			{ state === "player" &&
 			<div id="btnCtrl">
