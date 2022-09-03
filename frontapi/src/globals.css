@@ -35,6 +35,10 @@
 	--cNeonDark: #567539; /* green */
 	--cNeonLight: #9ED54C; /* light green */
 	--cNeonBis: #59A80F; /* not used */
+	--cNeon80: rgba(89, 168, 15, 0.8); 
+	--cNeon50: rgba(89, 168, 15, 0.5); 
+	--cNeon30: rgba(89, 168, 15, 0.3); 
+	--cNeon20: rgba(89, 168, 15, 0.2); 
 }
 
 body

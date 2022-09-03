@@ -1,128 +1,100 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { AuthContext } from '../../services/auth.service';
+import React from 'react';
+import {Message} from './message';
 
 import './chat.css';
 
-export function Chat()
-: JSX.Element
+interface IProps {}
+
+interface IState {
+	msglist: [React.ReactNode | null],
+}
+
+export class Chat extends React.Component< IProps, IState >
 {
 
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
+	inRef;
+	msgRef;
+	inelememt: any;
+	msgelement: any;
 
-	const inRef = useRef<HTMLInputElement | null>(null);
+	constructor(props: IProps) {
+		super(props);
 
-	const [list,setList] = useState<[JSX.Element]>([Message({date:"", owner:"", me:false, body:"Welcome to the chat zone"})]);
-	const [,updateState] = useState<{}>();
+		this.inelememt = null;
+		this.inRef = (element: any) => {this.inelememt = element};
+		this.msgelement = null;
+		this.msgRef = (element: any) => {this.msgelement = element};
 
-	const addMessage = (event:React.FormEvent<HTMLFormElement>) => {
+		this.state = {msglist:[null]};
+
+		this.addMessage = this.addMessage.bind(this);
+	}
+
+
+	addMessage(event:React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const d = new Date();
-		let input: HTMLInputElement | null = inRef.current;
+		let input: HTMLInputElement | null = this.inelememt;
 		if (input) {
 			let value = input.value;
 			if (value.trimStart() === "")
 				return;
 			input.value = "";
-			const msg = Message({date:d.toLocaleTimeString(), owner:"Me", me: true, body:value});
-			let l = list;
-			l?.push(msg);
-			setList(l);
-			updateState({});
+			let l = this.state.msglist;
+			let msg = <Message date={d.toLocaleTimeString()} owner="Me" me={true} body={value} /> ;
+			l.push(msg);
+			msg = <Message date={d.toLocaleTimeString()} owner="Other" me={false} body={value} /> ;
+			l.push(msg);
+			this.setState({msglist:l});
 		}
-	};
+	}
 
-	return (
-		<main>
-			<section id="chatSection">
-				<div id="users">
-					<div id="friends">
-						<h1>Friends</h1>
-						<ul>
-							<li className="away">Yoda</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="away">Yoda</li>
-							<li className="away">Yoda</li>
-							<li className="away">Yoda</li>
-							<li className="away">Yoda</li>
-							<li className="away">Yoda</li>
-							<li className="away">Yoda</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-							<li className="playing">Anakin Skywalker</li>
-							<li className="connected">Princess Leïa</li>
-						</ul>
+	componentDidUpdate() {
+		let msgdiv: HTMLDivElement | null = this.msgelement;
+		if (msgdiv) {
+			msgdiv.scrollTop = msgdiv.scrollHeight;
+		}
+	}
+
+	render() {
+		return (
+			<main>
+				<section id="chat-section">
+					<div id="chat-rooms">
+						<div id="chat-joined-rooms" className="chat-block">
+							<div className="chat-title">Rooms</div>
+							<div className="chat-list" >
+							</div>
+						</div>
+						<div id="chat-private-rooms" className="chat-block">
+							<div className="chat-title">PRIVMSG</div>
+							<div className="chat-list" >
+							</div>
+						</div>
 					</div>
-					<div id="members">
-						<h1>Room members</h1>
-						<ul>
-							<li className="connected">Princess Leïa</li>
-						</ul>
-					</div>
-				</div>
-				<div id="chatParent">
-					<div id="chat">
-					<div id="messages">
-						{list}
-					</div>
-						<form onSubmit={addMessage}>
-							<input type="text" name="message" placeholder="Type your message here" ref={inRef} />
-							<input type="submit" value="Send"/>
+					<div id="chat-content">
+						<div id="chat-messages" ref={this.msgRef}>
+							{this.state.msglist}
+						</div>
+						<form id="chat-form" onSubmit={this.addMessage}>
+							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={this.inRef} />
+							<input id="chat-form-submit" type="submit" value="Send"/>
 						</form>
 					</div>
-				</div>
-				<div id="channels">
-					<h1>Rooms</h1>
-					<ul>
-						<li>Tatooine</li>
-						<li>Starkiller Base</li>
-						<li>Naboo</li>
-						<li>Dagobah</li>
-					</ul>
-				</div>
-			</section>
-		</main>
-	);
-}
-
-function Message(props: {date: string, owner: string, me:boolean, body: string})
-: JSX.Element
-{
-
-	if (props.me) {
-		return (
-				<p className="messages me">
-					<span className="sender">{props.owner}</span>
-					<br/>
-					<span className="body">
-						{props.body}
-						<span className="date">{props.date}</span>
-					</span>
-				</p>
-		);
-	} else {
-		return (
-				<p className="messages other">
-					<span className="sender">{props.owner}</span>
-					<br/>
-					<span className="body">
-						{props.body}
-						<span className="date">{props.date}</span>
-					</span>
-				</p>
+					<div id="chat-users" className="menu">
+						<div id="chat-friends" className="chat-block">
+							<div className="chat-title">Friends</div>
+							<div className="chat-list" >
+							</div>
+						</div>
+						<div id="chat-members" className="chat-block">
+							<div className="chat-title">Members</div>
+							<div className="chat-list" >
+							</div>
+						</div>
+					</div>
+				</section>
+			</main>
 		);
 	}
 }
-
-/*
-						{ Message({date:"16:09", owner:"Me", me:true, body:"The passage experienced a surge in popularity during the 1960s when Letraset used it on their dry-transfer sheets, and again during the 90s as desktop publishers bundled the text with their software. Today it's seen all around the web; on templates, websites, and stock designs. Use our generator to get your own, or read on for the authoritative history of lorem ipsum."})}
-						*/
