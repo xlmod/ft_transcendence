@@ -3,9 +3,6 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { nextTick } from 'process';
-import { download } from '@/tools/download.tools';
-
 
 @Controller('auth')
 export class AuthController {
@@ -34,12 +31,12 @@ export class AuthController {
 			httpOnly: true,
 		});
 
-		res.redirect( 'http://localhost:3000/game' );
+		res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
 
 		// For 2fa
 		// (!user.TwoFactorAuthToggle) ?
-		// 	res.redirect( 'http://localhost:3000/game' ) :
-		// 	res.redirect( 'http://localhost:3000/tfa' );
+		// 	res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`) :
+		// 	res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
 	}
 
 	@Get('logout')
@@ -60,6 +57,6 @@ export class AuthController {
 		res.cookie('access_token', jtoken, {
 			httpOnly: true,
 		});
-		res.redirect( 'http://localhost:3000/game' );
+		res.redirect( `http://${process.env.HOST}:${process.env.FRONT_PORT}/game` );
 	}
 }

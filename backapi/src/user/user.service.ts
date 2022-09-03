@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DeleteResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { LeaderUserDto } from './types/leaderboard.dto';
 
 @Injectable()
 export class UserService {
@@ -75,5 +76,14 @@ export class UserService {
 	}
 	async turnTwoFactorAuthentication(userId: string, toset: boolean) {
 		return this.userRepository.update(userId, { TwoFactorAuthToggle: toset });
+	}
+
+	async ConfigLeaderboard(): Promise<LeaderUserDto[]> {
+		let rank: number = 0;
+		const leaderboard: LeaderUserDto[] = (await this.userRepository.find({}))
+											.filter(user => { if (user.win || user.lose) return user })
+											.sort((a, b) => { return b.elo - a.elo })
+											.map(users => { return new LeaderUserDto(++rank, users)});
+		return leaderboard;
 	}
 }

@@ -16,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MFileOptions } from 'src/tools/download.tools';
@@ -27,19 +26,25 @@ export class UserController {
 	constructor(private userService: UserService) {}
 
 	@Get()
-	async AllUsers(): Promise<User[]> {
-		return await this.userService.GetUsers();
+	async AllUsers(): Promise<UserDto[]> {
+		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+	}
+
+	// Laderboard
+	@Get('/leaderboard')
+	async leaderboarder() {
+		return await this.userService.ConfigLeaderboard();
 	}
 
 	@Get('/me')
 	async GetCurrenlyUser(@Res({ passthrough: true }) res) {
-		return {uid: (await this.userService.findById(res.locals.uuid)).id};
+		return {uid: res.locals.uuid};
 		// return new UserDto(await this.userService.findById(res.locals.uuid));
 	}
 
 	@Get(':id')
-	async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<User> {
-		return await this.userService.findById(id);
+	async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+		return new UserDto(await this.userService.findById(id));
 	}
 
 	@Post()
