@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import React from 'react';
 import CSS from 'csstype';
-import '../../globals.css';
 
-export function Button( name: string, size: number, action: any )
-: JSX.Element
-{
-	let buttonStyles: CSS.Properties = {
-		fontSize: size + "em",
-		fontFamily: 'Skwar',
-		cursor: 'pointer',
-		border: '1px solid var( --cNeon )',
-		borderRadius: '2px',
-		padding: '0.5rem',
-	};
+import './button.css';
 
-	return(
-		<button id={ name } className="genericButtons" onClick={ action } style={ buttonStyles }>
-			{ name }
-		</button>
-	);
+interface IProps {
+	id: string,
+	value: string,
+	fontSize: number,
+	onClick: () => void,
+}
+
+interface IState {
+	style: CSS.Properties,
+}
+
+export class Button extends React.Component< IProps, IState > {
+
+	constructor(props: IProps) {
+		super(props);
+		this.state = {
+			style: {
+				fontSize: this.props.fontSize + "em",
+			}
+		}
+	}
+
+	render(): React.ReactNode {
+		return(
+			<button id={this.props.id} className="generic-button" onClick={this.props.onClick} style={this.state.style}>
+				{this.props.value}
+			</button>
+		);
+	}
 }

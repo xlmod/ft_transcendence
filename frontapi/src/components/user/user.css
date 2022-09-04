@@ -17,7 +17,7 @@
 	color: var(--cNeon);
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	font-weight: 350;
-	overflow-x: hidden;
+
 
 }
 
@@ -80,6 +80,7 @@
 	margin: 5%;
 	display:flex;
 	flex-direction:column;
+	overflow-y: scroll;
 }
 
 .user-title {
@@ -91,7 +92,7 @@
 
 	align-self:center;
 
-	margin-bottom: 10%;
+	margin-bottom: 1em;
 }
 
 .user-list {
@@ -102,7 +103,7 @@
 
 	align-self: flex-start;
 
-	width:80%;
+	width:100%;
 	height:100%;
 
 	font-family: SkwarLetter;
@@ -110,8 +111,6 @@
 	font-size:0.8em;
 
 	padding-bottom: 1.8em;
-	padding-left:20%;
-	padding-right:20%;
 
 }
 
@@ -145,8 +144,8 @@
 
 	#user-matchhistory {
 		margin: 5%;
-		height: 80%;
-		width:100%;
+		height: 70%;
+		width:67%;
 	}
 
 }

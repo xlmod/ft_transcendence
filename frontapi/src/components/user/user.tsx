@@ -1,10 +1,11 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Navigate} from 'react-router';
 import axios from 'axios';
 
 import './user.css';
-import { AuthContext } from '../../services/auth.service';
+
 import {Button} from '../utils/button';
+import {Useredit} from './useredit';
 
 const API_URL = "http://localhost:3333/";
 
@@ -14,6 +15,7 @@ interface IState {
 	user: any,
 	uid: string,
 	connected: boolean,
+	edit: boolean,
 }
 
 export class User extends React.Component< IProps, IState >
@@ -25,7 +27,9 @@ export class User extends React.Component< IProps, IState >
 			user: [],
 			uid: "",
 			connected: true,
+			edit: false,
 		};
+
 	}
 
 	async componentDidMount() {
@@ -61,6 +65,7 @@ export class User extends React.Component< IProps, IState >
 		return (
 			<main>
 				<section id="user-section">
+					{this.state.edit && <Useredit close={() => {this.setState({edit:false})}} pseudo={this.state.user.pseudo} />}
 					<div id="user-id">
 						<div id="user-id-avatar">
 							<img src ={ this.state.user.avatar }/>
@@ -75,7 +80,7 @@ export class User extends React.Component< IProps, IState >
 							<div id="user-id-elo">
 								<p>{this.state.user.elo}</p>
 							</div>
-							{ Button("edit info", 0.6, () => {}) }
+							<Button id="user-info-edit" value="edit info" fontSize={0.7} onClick={() => this.setState({edit:true})} />
 						</div>
 					</div>
 					<div id="user-matchhistory">
