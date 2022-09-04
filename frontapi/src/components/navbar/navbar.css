@@ -48,13 +48,14 @@
 	stroke: var( --cNeonDark );
 	stroke-width: 4;
 }
-#iconGame:focus, #iconGame:hover{
+#iconGame:focus, #iconGame:hover, #iconGame.sameRoute {
 	filter: drop-shadow(0px 0px 3px var( --cNeon ) );
 }
-#iconGame:focus text, #iconGame:focus circle, #iconGame:hover text, #iconGame:hover circle {
+#iconGame:focus text, #iconGame:focus circle, #iconGame:hover text, #iconGame:hover circle,
+#iconGame.sameRoute text, #iconGame.sameRoute circle {
 	fill: var( --cNeon );
 }
-#iconGame:focus line, #iconGame:hover line {
+#iconGame:focus line, #iconGame:hover line, #iconGame.sameRoute line {
 	stroke: var( --cNeon );
 	stroke-width: 4;
 }
@@ -65,10 +66,10 @@
 #iconLeaderboard {
 	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
 }
-#iconLeaderboard:hover, #iconLeaderboard:focus {
+#iconLeaderboard:hover, #iconLeaderboard:focus, #iconLeaderboard.sameRoute {
 	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
-#iconLeaderboard:hover path, #iconLeaderboard:focus path {
+#iconLeaderboard:hover path, #iconLeaderboard:focus path, #iconLeaderboard.sameRoute path {
 	fill: var( --cNeon );
 }
 
@@ -81,11 +82,12 @@
 #iconChat rect {
 	fill: var( --cNeonDark );
 }
-#iconChat:hover, #iconChat:focus {
+#iconChat:hover, #iconChat:focus, #iconChat.sameRoute {
 	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
 #iconChat:hover rect, #iconChat:focus rect,
-#iconChat:hover path, #iconChat:focus path {
+#iconChat:hover path, #iconChat:focus path,
+#iconChat.sameRoute rect, #iconChat.sameRoute path {
 	fill: var( --cNeon );
 }
 
@@ -96,10 +98,10 @@
 {
 	filter: drop-shadow(0px 0px 0px var( --cNeonDark ) );
 }
-#iconUser:hover, #iconUser:focus {
+#iconUser:hover, #iconUser:focus, #iconUser.sameRoute {
 	filter: drop-shadow(0px 0px 4px var( --cNeon ) );
 }
-#iconUser:hover path, #iconUser:focus path {
+#iconUser:hover path, #iconUser:focus path, #iconUser.sameRoute path {
 	fill: var( --cNeon );
 }
 
