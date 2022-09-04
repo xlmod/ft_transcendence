@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { AuthContext } from '../../services/auth.service';
 import './navbar.css';
@@ -8,6 +8,7 @@ export function Navbar()
 :  JSX.Element
 {
 	const {logout} = useContext(AuthContext);
+	const location = useLocation();
 	return (
 		<div>
 		<nav id="navbarIcon">
@@ -75,10 +76,30 @@ export function Navbar()
 		</nav>
 
 		<nav id="navbarText">
-			<NavLink id="buttonGame" to="/game">Game</NavLink>
-			<NavLink id="buttonLeaderboard" to="/leaderboard">Leaderboard</NavLink>
-			<NavLink id="buttonChat" to="/chat">Chat</NavLink>
-			<NavLink id="buttonUser" to="/user">User</NavLink>
+			<NavLink
+				id="buttonGame"
+				className={ ( location.pathname === "/game" ) ? "sameRoute" : "otherRoute" }
+				to="/game">
+				Game
+			</NavLink>
+			<NavLink
+				id="buttonLeaderboard"
+				className={ ( location.pathname === "/leaderboard" ) ? "sameRoute" : "otherRoute" }
+				to="/leaderboard">
+				Leaderboard
+			</NavLink>
+			<NavLink
+				id="buttonChat"
+				className={ ( location.pathname === "/chat" ) ? "sameRoute" : "otherRoute" }
+				to="/chat">
+				Chat
+			</NavLink>
+			<NavLink
+				id="buttonUser"
+				className={ ( location.pathname === "/user" ) ? "sameRoute" : "otherRoute" }
+				to="/user">
+				User
+			</NavLink>
 		</nav>
 		</div>
 	);

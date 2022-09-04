@@ -120,6 +120,7 @@
 
 
 /* NavText */
+
 #navbarText
 {
 	margin-top: 80px;
@@ -130,14 +131,9 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
-
-	/*
-	border-style: solid;
-	border-color: blue;
-	border-width: 1px;
-	*/
-
 }
+
+
 
 #navbarText *
 {
@@ -146,23 +142,30 @@
 	background-color: var( --cBackground );
 	padding: 0.7rem 0.7rem 1rem 1rem;
 
-	color: var( --cNeonDark );
+/*	color: var( --cNeonDark );*/
 	font-size: 1.5rem;	
 	font-family: Skwar;
 	font-weight: 450;
-	/*
-	text-shadow:
-		0 0 0.1em #ffffff,
-		0 0 0.5em var( --cNeon );
-		*/
 
 	border: var( --cNeonDark ) 0.1em solid;
 	border-radius: 0.2em;
-	/*
-	box-shadow:
-		inset 0 0 0.5em var( --cNeon ),
-		0 0 0.5em var( --cNeon );
-		*/
+}
+
+#navbarText .otherRoute
+{
+	color: var( --cNeonDark );
+}
+
+#navbarText .sameRoute
+{
+	color: var( --cNeon );
+    border: var( --cNeon ) 0.1em solid;
+    text-shadow:
+        0 0 0.1em #ffffff,
+        0 0 0.5em var( --cNeon );
+    box-shadow:
+        inset 0 0 0.5em var( --cNeon ),
+        0 0 0.5em var( --cNeon );
 }
 
 #navbarText *:hover{
@@ -179,7 +182,7 @@
 }
 
 
-#navbarText *:focus
+#navbarText .otherRoute:focus
 {
 	color: var( --cNeon );
 	border: var( --cNeon ) 0.1em solid;
