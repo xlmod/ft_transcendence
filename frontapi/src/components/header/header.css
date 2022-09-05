@@ -12,16 +12,6 @@ header
 	left: 0;
 	width: 100%;
 	height: 80px;
-
-/*
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-*/
-
-	/*
-	border: red 1px solid;
-	*/
 }
 
 #logo
@@ -36,27 +26,22 @@ header
 	align-items: flex-start;
 	justify-content: space-between;
 
-	/*
-	border: blue 1px solid;
-	*/
+	text-decoration: none;
 }
 
 #P, #O, #N, #G, #under
 {
 	position: relative;
 	display: inline-block;
+	margin-right: 0.3em;
 
 	font-size: 2em;
 	font-family: Skwar;
-	font-weight: 300;
+	font-weight: 180;
 	color: var( --cNeon );
 	text-shadow:
-		0 0 0.1em #ffffff,
-		0 0 0.5em var( --cNeon );
-
-	/*
-	border: yellow 1px solid;
-	*/
+		0 0 0.2em #ffffff,
+		0 0 0.2em var( --cNeonLight );
 }
 
 #under {
@@ -75,6 +60,10 @@ header
 	}
 }
 
+#logo:hover
+{
+	cursor: pointer;
+}
 
 #logo:hover #P
 {
@@ -112,164 +101,53 @@ header
 {
 	0%		{left: 0px; top: 0px;}
 	10%		{top: 0px;}
-	17%		{top: 35px;}
+	17%		{top: 25px;}
+	24%		{top: 35px;}
+	35%		{top: 35px;}
+	55%		{top: -5px;}
 	100%	{top: 0px;}
 }
 
 @keyframes play-O
 {
 	0%		{font-size: 100%; left: 0px; top: 0px;}
-	17%		{font-size: 4px; left: -17px; top: 25px;}
-	30%		{left: 15px; top: -30px;}
-	45%		{left: 52px; top: 13px;}
-	100%	{font-size: 100%; left: 0px; top: 0px;}
+	17%		{font-size: 4px; left: -17px; top: 30px;}
+/*	30%		{left: 10px; top: -15px;}*/
+	32%		{left: 45px; top: 5px;}
+	55%		{left: -17px; top: 0px;}
+	62%		{left: 5px; top: -15px;}
+	75%		{font-size: 4px; left: 40px; top: 20px;}
+	90%		{font-size: 100%; left: 0px; top: 0px;}
+	100%	{font-size: 100%; left: 0%; top: 0px;}
 }
 
 @keyframes play-N
 {
+/*
 	0%		{transform: rotate(0deg); left: 0px; top: 0px;}
 	17%		{transform: rotate(0deg); left: 10px; top: 0px;}
 	70%		{transform: rotate(360deg); top: 60px;}
 	100%	{transform: rotate(0deg); left: 0px; top: 0px;}
+*/
+
+	0%		{left: 0px; top: 0px; transform: rotateY(0deg);}
+	17%		{left: 5px;}
+	23%		{color: var( --cNeon );}
+	24%		{left: 5px; transform: rotateY(0deg);}
+	33%		{left: 0px; transform: rotateY(720deg); color: var( --cNeon20 );}
+	75%		{left: 0px;}
+	90%		{left: 5px; color: var( --cNeon20 );}
+	100%	{left: 0px; top: 0px; transform: rotateY(720deg); color: var( --cNeon );}
+	
 }
 
 @keyframes play-G
 {
 	0%		{left: 0px; top: 0px;}
-	17%		{left: 10px;}
-	45%		{top: 20px;}
+	17%		{left: 6px;}
+	25%		{top: 0px;}
+	40%		{top: -20px;}
+	58%		{top: -20px;}
+	85%		{top: 28px;}
 	100%	{left: 0px; top: 0px;}
 }
-/*
-#navbarIcon
-{
-	width: 300px;
-	height: 66px;
-
-	align-self: end;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-
-	border-style: solid;
-	border-color: blue;
-	border-width: 1px;
-}
-
-.navbarIcon
-{
-	width: 60px;
-	height: 60px;
-	cursor: pointer;
-
-	border-style: solid;
-	border-color: yellow;
-	border-width: 1px;
-}
-
-.navbarIcon path
-{
-	fill: var( --cNeon );
-}
-
-#iconGame
-{
-	filter: drop-shadow(0px 0px 3px var( --cNeonLight ) );
-}
-
-#iconGame text, circle
-{
-	fill: var( --cNeon );
-}
-
-#iconGame line
-{
-	stroke: var( --cNeon );
-	stroke-width: 2;
-}
-
-#iconGame rect
-{
-	stroke: var( --cNeon );
-	stroke-width: 1;
-}
-
-#iconLeaderboard
-{
-	filter: drop-shadow(0px 0px 3px var( --cNeonLight ) );
-}
-
-#iconChat
-{
-	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
-}
-
-#iconChat rect
-{
-	fill: var( --cNeon );
-}
-
-#iconUser
-{
-	filter: drop-shadow(0px 0px 4px var( --cNeonLight ) );
-}
-
-#iconUser
-{
-	transform: translate( -10, -10 );
-}
-
-#navbarText
-{
-	margin-top: 0px;
-	margin-left: 25%;
-	width: 50%;
-
-	display: none;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-
-	border-style: solid;
-	border-color: blue;
-	border-width: 1px;
-
-}
-
-#navbarText *
-{
-	text-decoration: none;
-	cursor: pointer;
-	background-color: var( --cBackground );
-	padding: 0.7rem 0.7rem 1rem 1rem;
-
-	color: var( --cNeon );
-	font-size: 1.5rem;	
-	font-family: Skwar;
-	font-weight: 450;
-	text-shadow:
-		0 0 0.1em #ffffff,
-		0 0 0.5em var( --cNeon );
-
-	border: var( --cNeon ) 0.1em solid;
-	border-radius: 0.2em;
-	box-shadow:
-		inset 0 0 0.5em var( --cNeon ),
-		0 0 0.5em var( --cNeon );
-}
-
-#navbarText *:hover,
-#navbarText *:focus
-{
-	background-color: var( --cNeon );
-	color: var( --cBackground );
-	text-shadow: none;
-	box-shadow: 0 0 1.1em 0.1em var( --cNeon );
-}
-
-@media only screen and ( min-width: 1220px )
-{
-	#navbarIcon { display: none; }
-	#navbarText { display: flex; }
-}
-*/
