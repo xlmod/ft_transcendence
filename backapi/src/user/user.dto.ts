@@ -61,6 +61,8 @@ export class UserDto {
 
 	constructor(user: User) {
 		this.id = user.id,
+		this.firstName = user.firstName,
+		this.lastName = user.lastName,
 		this.pseudo = user.pseudo,
 		this.avatar = user.avatar,
 		this.win = user.win,

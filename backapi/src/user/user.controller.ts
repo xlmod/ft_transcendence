@@ -47,10 +47,10 @@ export class UserController {
 		return new UserDto(await this.userService.findById(id));
 	}
 
-	@Post()
-	create(@Body() createUserDto: CreateUserDto) {
-		return this.userService.create(createUserDto);
-	}
+	// @Post()
+	// create(@Body() createUserDto: CreateUserDto) {
+	// 	return this.userService.create(createUserDto);
+	// }
 
 	/*
 		Need some test, doesn't work
