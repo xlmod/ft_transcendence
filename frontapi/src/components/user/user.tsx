@@ -1,9 +1,11 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Navigate} from 'react-router';
 import axios from 'axios';
 
 import './user.css';
-import { AuthContext } from '../../services/auth.service';
+
+import {Button} from '../utils/button';
+import {Useredit} from './useredit';
 
 const API_URL = "http://localhost:3333/";
 
@@ -13,19 +15,21 @@ interface IState {
 	user: any,
 	uid: string,
 	connected: boolean,
+	edit: boolean,
 }
 
 export class User extends React.Component< IProps, IState >
 {
 	constructor(props: IProps)
 	{
-		//CheckLogin();
 		super(props);
 		this.state = {
 			user: [],
 			uid: "",
 			connected: true,
+			edit: false,
 		};
+
 	}
 
 	async componentDidMount() {
@@ -60,35 +64,32 @@ export class User extends React.Component< IProps, IState >
 			return(<Navigate to="/signin" />);
 		return (
 			<main>
-				<section id="userSection">
-					<div id="me">
-						<h1>ID</h1>
-						<img src ={ this.state.user.avatar }/>
-						<p>
-							<span>First__</span>
-							<span>{ this.state.user.firstName }</span>
-						</p>
-						<p>
-							<span>Last__</span>
-							<span>{ this.state.user.lastName }</span>
-						</p>
-						<p>
-							<span>Pseudo__</span>
-							<span>{ this.state.user.pseudo }</span>
-						</p>
-						<p>
-							<span>Points__</span>
-							<span id="points">42</span>
-						</p>
+				<section id="user-section">
+					{this.state.edit && <Useredit close={() => {this.setState({edit:false})}} pseudo={this.state.user.pseudo} />}
+					<div id="user-id">
+						<div id="user-id-avatar">
+							<img src ={ this.state.user.avatar }/>
+						</div>
+						<div id="user-id-info">
+							<div id="user-id-name">
+								<p>{ this.state.user.firstName } {this.state.user.lastName}</p>
+							</div>
+							<div id="user-id-pseudo">
+								<p>{ this.state.user.pseudo }</p>
+							</div>
+							<div id="user-id-elo">
+								<p>{this.state.user.elo}</p>
+							</div>
+							<Button id="user-info-edit" value="edit info" fontSize={0.7} onClick={() => this.setState({edit:true})} />
+						</div>
+					</div>
+					<div id="user-matchhistory">
+						<div className="user-title">Match History</div>
+						<div className="user-list">
+						</div>
 					</div>
 				</section>
 			</main>
 		);
 	}
-}
-
-const CheckLogin = () => {
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
-	
 }

@@ -1,0 +1,67 @@
+@import '../../globals.css';
+
+#useredit-wall {
+	position: fixed;
+
+	left: 0;
+	top: 0;
+
+	width: 100%;
+	height:100%;
+
+	background-color: rgba(0,0,0,0.2);
+
+	backdrop-filter: blur(0.3em);
+}
+
+#useredit-window {
+	position: fixed;
+
+	left: calc(50% - 10em);
+	top: calc(50% - 5em);
+
+	background-color: var(--cBackground);
+
+	border:1px solid var(--cNeon);
+
+	width:20em;
+	height:10em;
+
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
+
+}
+
+#useredit-button {
+}
+
+
+#useredit-button Button{
+	width:calc(50% - 0.8em);
+	margin:0.4em;
+}
+
+#useredit-button-save {
+}
+
+#useredit-button-cancel {
+	border: 1px solid rgba(255, 0, 0, .5);
+	color: rgba(255, 0, 0, .5);
+}
+
+#useredit-button-cancel:hover {
+	color: var(--cBackground);
+	background-color: rgba(255, 0, 0, .5);
+}
+
+#useredit-input {
+	margin:0.4em;
+	width:calc(100% - 0.8em);
+	padding:0;
+}
+
+#useredit-input-pseudo {
+	margin:0;
+	width:calc(100% - 1em);
+}

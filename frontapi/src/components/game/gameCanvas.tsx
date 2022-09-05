@@ -215,7 +215,7 @@ export function GameCanvas(): JSX.Element {
 			<canvas ref={canvasRef} id="game"></canvas>
 			{ state === "" &&
 			<div id="btnCtrl">
-				{ Button( "Start", 1.2, () => { game_socket.socket.emit("join_room");} ) }
+				<Button id="game-button-start" value="Start" fontSize={1.2} onClick={() => { game_socket.socket.emit("join_room")}} />
 				<div id="obs">
 					<div id="obsButton" onClick={() => {game_socket.socket.emit("observe_room", obsname);}} >Observe</div>
 					<input id="obsInput" onChange={(event) => {setObsname(event.target.value)}} />
@@ -223,11 +223,11 @@ export function GameCanvas(): JSX.Element {
 			</div>}
 			{ state === "player" &&
 			<div id="btnCtrl">
-				{ Button( "Resign", 1.2, () => { game_socket.socket.emit("quit");} ) }
+				<Button id="game-button-resign" value="Resign" fontSize={1.2} onClick={() => { game_socket.socket.emit("quit")}} />
 			</div>}
 			{ state === "observer" &&
 			<div id="btnCtrl">
-				{ Button( "Exit", 1.2, () => { game_socket.socket.emit("observe_quit");} ) }
+				<Button id="game-button-resign" value="Exit" fontSize={1.2} onClick={() => { game_socket.socket.emit("observe_quit")}} />
 			</div>}
 		</section>
 	);
