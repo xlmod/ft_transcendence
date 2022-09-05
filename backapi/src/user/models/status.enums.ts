@@ -1,5 +1,6 @@
 export enum UserRole {
 	admin = 'admin',
+	owner = 'owner',
 	user = 'user',
 }
 
@@ -9,9 +10,8 @@ export enum UserStatus {
 	gaming = 'gaming',
 }
 
-export enum RelationStatus {
-	unfriend = 'nothing',
-	pending = 'pending',
-	friend = 'friend',
-	bloked = 'bloked',
-}
+// export enum FriendStatus {
+// 	unfriend = 'unfriend',
+// 	friend = 'friend',
+// 	bloked = 'bloked',
+// }

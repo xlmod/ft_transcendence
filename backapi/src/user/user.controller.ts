@@ -16,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MFileOptions } from 'src/tools/download.tools';
@@ -27,24 +26,29 @@ export class UserController {
 	constructor(private userService: UserService) {}
 
 	@Get()
-	async AllUsers(): Promise<User[]> {
-		return await this.userService.GetUsers();
+	async AllUsers(): Promise<UserDto[]> {
+		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+	}
+
+	// Leaderboard
+	@Get('/leaderboard')
+	async leaderboarder(@Res({passthrough: true}) res) {
+		return await this.userService.ConfigLeaderboard(res.locals.uuid);
 	}
 
 	@Get('/me')
 	async GetCurrenlyUser(@Res({ passthrough: true }) res) {
-		return {uid: (await this.userService.findById(res.locals.uuid)).id};
+		return {uid: res.locals.uuid};
 		// return new UserDto(await this.userService.findById(res.locals.uuid));
 	}
 
 	@Get(':id')
-	async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<User> {
-		return await this.userService.findById(id);
+	async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+		return new UserDto(await this.userService.findById(id));
 	}
 
 	@Post()
 	create(@Body() createUserDto: CreateUserDto) {
-		// console.log(createUserDto);
 		return this.userService.create(createUserDto);
 	}
 
@@ -68,6 +72,11 @@ export class UserController {
 	async update(@Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
 		await this.userService.update(res.locals.uuid, updata);
 	}
+
+	// @Patch(':id')
+	// async updatespe(@Param('id', new ParseUUIDPipe()) id: string, @Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
+	// 	await this.userService.update(id, updata);
+	// }
 
 	@Delete()
 	delete(@Res({ passthrough: true }) res) {
