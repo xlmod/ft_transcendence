@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { AuthContext } from '../../services/auth.service';
 import './navbar.css';
@@ -8,10 +8,13 @@ export function Navbar()
 :  JSX.Element
 {
 	const {logout} = useContext(AuthContext);
+	const location = useLocation();
 	return (
 		<div>
 		<nav id="navbarIcon">
-			<NavLink className="navbarIcon" id="iconGame" to="/game">
+			<NavLink className={`navbarIcon ${location.pathname === "/game" ? "sameRoute" : "otherRoute"}`}
+				id="iconGame"
+				to="/game">
 				<svg height="50px" width="50px">
 					<text x="12" y="10" font-size="0.7em">4</text>
 					<text x="31" y="10" font-size="0.7em">2</text>
@@ -22,7 +25,9 @@ export function Navbar()
 				</svg>
 			</NavLink>
 
-			<NavLink className="navbarIcon" id="iconLeaderboard" to="/leaderboard">
+			<NavLink className={`navbarIcon ${location.pathname === "/leaderboard" ? "sameRoute" : "otherRoute"}`}
+				id="iconLeaderboard"
+				to="/leaderboard">
 				<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
 					width="50px" height="50px" viewBox="0 0 485 485">
 					<g>
@@ -37,7 +42,9 @@ export function Navbar()
 				</svg>
 			</NavLink>
 
-			<NavLink className="navbarIcon" id="iconChat" to="/chat">
+			<NavLink className={`navbarIcon ${location.pathname === "/chat" ? "sameRoute" : "otherRoute"}`}
+				id="iconChat"
+				to="/chat">
 				<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
 	 				width="50px" height="50px" viewBox="0 0 512 512">
 					<g><g>
@@ -53,7 +60,9 @@ export function Navbar()
 				</svg>
 			</NavLink>
 
-			<NavLink className="navbarIcon" id="iconUser" to="/user">
+			<NavLink className={`navbarIcon ${location.pathname === "/user" ? "sameRoute" : "otherRoute"}`}
+				id="iconUser"
+				to="/user">
 				<svg width="50px" height="50px" viewBox="0 0 256 256" id="Flat">
 					<g transform="translate( -50, -50 ) scale( 1.4 1.4 )">
 					<path d="M208,36H48A12.01375,12.01375,0,0,0,36,48V208a12.01375,12.01375,0,0,0,12,12H198.20093l.01147.001.00879-.001H208a12.01375,12.01375,0,0,0,12-12V48A12.01375,12.01375,0,0,0,208,36ZM63.00146,212a68.00818,68.00818,0,0,1,129.99708,0ZM212,208a4.00458,4.00458,0,0,1-4,4h-6.66211a75.907,75.907,0,0,0-52.74878-53.13037,44,44,0,1,0-41.17822,0A75.907,75.907,0,0,0,54.66211,212H48a4.00458,4.00458,0,0,1-4-4V48a4.00458,4.00458,0,0,1,4-4H208a4.00458,4.00458,0,0,1,4,4Zm-84-52a36,36,0,1,1,36-36A36.04061,36.04061,0,0,1,128,156Z"/>
@@ -75,10 +84,30 @@ export function Navbar()
 		</nav>
 
 		<nav id="navbarText">
-			<NavLink id="buttonGame" to="/game">Game</NavLink>
-			<NavLink id="buttonLeaderboard" to="/leaderboard">Leaderboard</NavLink>
-			<NavLink id="buttonChat" to="/chat">Chat</NavLink>
-			<NavLink id="buttonUser" to="/user">User</NavLink>
+			<NavLink
+				id="buttonGame"
+				className={ ( location.pathname === "/game" ) ? "sameRoute" : "otherRoute" }
+				to="/game">
+				Game
+			</NavLink>
+			<NavLink
+				id="buttonLeaderboard"
+				className={ ( location.pathname === "/leaderboard" ) ? "sameRoute" : "otherRoute" }
+				to="/leaderboard">
+				Leaderboard
+			</NavLink>
+			<NavLink
+				id="buttonChat"
+				className={ ( location.pathname === "/chat" ) ? "sameRoute" : "otherRoute" }
+				to="/chat">
+				Chat
+			</NavLink>
+			<NavLink
+				id="buttonUser"
+				className={ ( location.pathname === "/user" ) ? "sameRoute" : "otherRoute" }
+				to="/user">
+				User
+			</NavLink>
 		</nav>
 		</div>
 	);
