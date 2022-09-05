@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
 import * as crypto from "crypto";
 
 @Entity('users')
-export class User {
+export class User extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
 	readonly id: string
 
@@ -42,6 +42,13 @@ export class User {
 
 	@Column({ nullable: true, default: null })
 	public TwoFactorAuth?: string
+
+	@Column('uuid', { array: true, nullable: true, default: null})
+	blocks: string[]
+
+	@ManyToMany(() => User, friend => friend.friends, { onUpdate: "NO ACTION", onDelete: "NO ACTION" })
+	@JoinTable()
+	friends: User[]
 
 	@CreateDateColumn({ type: 'timestamptz', nullable: false })
 	readonly CreatedAt: Date

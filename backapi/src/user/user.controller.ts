@@ -30,10 +30,10 @@ export class UserController {
 		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
 	}
 
-	// Laderboard
+	// Leaderboard
 	@Get('/leaderboard')
-	async leaderboarder() {
-		return await this.userService.ConfigLeaderboard();
+	async leaderboarder(@Res({passthrough: true}) res) {
+		return await this.userService.ConfigLeaderboard(res.locals.uuid);
 	}
 
 	@Get('/me')
@@ -49,7 +49,6 @@ export class UserController {
 
 	@Post()
 	create(@Body() createUserDto: CreateUserDto) {
-		// console.log(createUserDto);
 		return this.userService.create(createUserDto);
 	}
 
@@ -73,6 +72,11 @@ export class UserController {
 	async update(@Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
 		await this.userService.update(res.locals.uuid, updata);
 	}
+
+	// @Patch(':id')
+	// async updatespe(@Param('id', new ParseUUIDPipe()) id: string, @Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
+	// 	await this.userService.update(id, updata);
+	// }
 
 	@Delete()
 	delete(@Res({ passthrough: true }) res) {
