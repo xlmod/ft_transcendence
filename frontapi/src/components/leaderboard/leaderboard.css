@@ -1,36 +1,99 @@
 @import '../../globals.css';
 
-#leaderboardSection
+#leaderboard-section
 {
 	position: absolute;
 	left: 0;
+
 	margin-top: 120px;
-	width: 100vw;
+	margin-left:10%;
+	margin-right:10%;
+
+	width: 80%;
+	height: 70%;
 
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+
+	color: var( --cNeon );
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-size: 1rem;
+	font-weight: 350;
+
 }
 
-#leaderboard
+
+#leaderboard-table
 {
-	width: 70vw;
-	border-spacing: 0em;
-	
-	font-family: Skwar;
+	width: 100%;
+	height:100%;
+	max-width:1220px;
+	min-width:500px;
 }
 
+#leaderboard-header {
+	background-color: var(--cBackground);
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.leaderboard-header-cell {
+	color: var( --cNeonLight );
+
+	padding-bottom:1em;
+
+	text-align: center;
+
+	font-size:1.5em;
+	font-weight: 450;
+
+	width:33.3333%;
+}
+
+#leaderboard-entry-list {
+
+	height:100%;
+	overflow-y: scroll;
+}
+
+.leaderboard-entry {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+
+	border-top: 1px solid rgba(89, 168, 15, 0.3);;
+}
+
+.leaderboard-cell {
+	text-align: center;
+
+	line-height: 1.9;
+
+	width:33.3333%;
+}
+
+@media only screen and ( min-width: 1220px )
+{
+	#leaderboard-section {
+
+		height:60%;
+
+	}
+
+}
+
+/*
 #leaderboard th
 {
-	/*
-	background-color: var( --cNeonLight );
-	*/
 	text-align: center;
 	opacity: 100%;
-	/*
-	border: 1px solid var( --cNeon );
-	border-radius: 10px;
-	*/
 	color: var( --cNeonLight );
 
 	font-size: 1.7rem;
@@ -89,5 +152,7 @@
 
 @media only screen and ( min-width: 1220px )
 {
-	#leaderboardSection { margin-top: 50px; }
+{
 }
+*/
+
