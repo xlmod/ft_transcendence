@@ -1,7 +1,7 @@
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { RelationDto } from '../types/relation.dto';
+import { RelationDto } from '../models/relation.dto';
 import { UserService } from '../user.service';
 
 /**
