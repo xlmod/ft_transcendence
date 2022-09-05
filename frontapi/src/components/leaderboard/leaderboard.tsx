@@ -1,13 +1,10 @@
-import { useContext } from 'react';
-import { AuthContext } from '../../services/auth.service';
+import { useAuth } from '../../services/auth.service';
 
 import './leaderboard.css';
 
 export function Leaderboard()
 : JSX.Element
 {
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
 	return (
 		<main>
 			<section id="leaderboardSection">
