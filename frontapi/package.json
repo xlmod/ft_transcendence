@@ -13,8 +13,10 @@
     "axios": "^0.27.2",
     "js-cookie": "^3.0.1",
     "react": "^18.2.0",
+    "react-auth-code-input": "^3.2.1",
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
+    "react-numeric-input": "^2.2.3",
     "react-router": "^6.3.0",
     "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.2",
+    "@types/react-numeric-input": "^2.2.4",
     "css-select": "^5.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",

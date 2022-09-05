@@ -1,0 +1,53 @@
+@import "../../globals.css";
+
+#sectionTFA
+{
+	margin-top: 100px;
+	width: 100%;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#sectionTFA h1
+{
+	margin-top: 50px;
+
+	font-family: Skwar;
+	font-weight: 550;
+	color: var( --cNeonDark );
+}
+
+#sectionTFA .inputs-parent
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+	width: 400px;
+}
+
+#sectionTFA .inputs-children
+{
+	width: 50px;
+	height: 50px;
+	font-size: 1.5em;
+	text-align: center;
+	font-family: SkwarNumber;
+	color: var( --cNeon );
+
+	background: var( --cBackground );
+	border: none;
+	border-bottom: 1px solid var( --cNeon );
+}
+
+#sectionTFA .inputs-children:focus
+{
+}
+
+@media only screen and ( min-width: 1220px )
+{
+	#sectionTFA
+	{ margin-top: 0px; }
+}
