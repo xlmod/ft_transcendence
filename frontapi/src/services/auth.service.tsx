@@ -99,4 +99,3 @@ export function RequireAuth(props:IRequireAuth) {
 	else
 		return (props.cmp);
 }
-

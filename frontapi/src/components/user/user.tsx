@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {Navigate} from 'react-router';
 import axios from 'axios';
 
 import './user.css';
+import { AuthContext } from '../../services/auth.service';
 
 const API_URL = "http://localhost:3333/";
 
@@ -54,6 +55,7 @@ export class User extends React.Component< IProps, IState >
 	}
 
 	render() {
+		const {logout} = useContext(AuthContext)
 		if (!this.state.connected)
 			return(<Navigate to="/signin" />);
 		return (
