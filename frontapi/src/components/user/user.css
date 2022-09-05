@@ -1,83 +1,151 @@
 @import '../../globals.css';
 
-#userSection
-{
+#user-section {
 	position: absolute;
 	left: 0;
-	width: 100vw;
+
+	width:80%;
+	height:70%;
+
 	margin-top: 120px;
+	margin-left:10%;
+	margin-right:10%;
 
 	display: flex;
-	flex-direction: horizontal;
-	justify-content: space-between;
+	flex-direction:column;
+
+	color: var(--cNeon);
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-weight: 350;
+
+
 }
 
-#me
-{
-	width: 25vw;
-/*	height: 70vh;*/
-	padding-bottom: 1em;
-	border: 1px solid var( --cNeon );
-	border-radius: 2px;
+#user-id {
 
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+
+	height: 10em;
+
+}
+
+#user-id-avatar img {
+	width: 10em;
+	height: 10em;
+
+	border-radius: 10em;
+
+	align-self:flex-start;
+
+}
+
+#user-id-info {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	justify-content:space-between;
+	width: calc(100% - 10em);
+
+	margin-left: 5%;
 }
 
-h1
-{
-	font-family: Skwar;
-    font-weight: 300;
-    color: var( --cNeonLight );
-    border-radius: 0.125em;
-
-    align-self: center;
-    padding: 0.7rem 0.7rem;
-    margin-bottom: 1em;
-
-    overflow-wrap: anywhere;
-    overflow-y: hidden;
+#user-id-info * {
+	padding:0;
+	margin:0;
+	padding-bottom:0.3em;
 }
 
-img
-{
-	width: 150px;
-	height: 150px;
-	border-radius: 150px;
+#user-id-name {
+	font-size: 1em;
+	font-weight: 550;
+	line-height: 1.7;
+
+	color: var(--cNeonLight);
+
 }
 
-#me p
-{
-	width: 90%;
-	margin-bottom: 0em;
-
-	display: flex;
-	flex-direction: horizontal;
-	justify-content: space-between;
+#user-id-pseudo {
+	font-size: 0.9em;
+	color: var(--cNeon);
 }
 
-#me span
-{
-	display: inline-block;
+#user-id-elo {
+	font-size: 0.8em;
+	color: var(--cNeonDark);
+	margin-bottom:1em;
 }
 
-#me span:nth-child(1)
-{
-	font-family: Skwar;
-	font-weight: 200;
+#user-matchhistory {
+	margin: 5%;
+	display:flex;
+	flex-direction:column;
+	overflow-y: scroll;
+}
+
+.user-title {
+	font-family: SkwarLetter;
+	font-size:1.5em;
+	font-weight: 450;
+
+	color: var( --cNeonLight );
+
+	align-self:center;
+
+	margin-bottom: 1em;
+}
+
+.user-list {
 	color: var( --cNeon );
+
+	overflow-wrap: anywhere;
+	overflow-y:scroll;
+
+	align-self: flex-start;
+
+	width:100%;
+	height:100%;
+
+	font-family: SkwarLetter;
+	line-height: 1.7;
+	font-size:0.8em;
+
+	padding-bottom: 1.8em;
+
 }
 
-#me span:nth-child(2)
-{
-	font-family: Skwar;
-	font-weight: 500;
-	color: var( --cNeon );
-}
 
-#points
-{
-	margin-top: -0.31em;;
-	font-size: 1.4em;
+@media only screen and ( min-width: 1220px ) {
+	#user-section {
+		flex-direction:row;
+		height:60%;
+	}
+
+	#user-id {
+		flex-direction: column;
+		align-self:flex-start;
+		width:15em;
+		height: 100%;
+	}
+
+	#user-id-avatar img {
+		width: 15em;
+		height: 15em;
+
+		border-radius: 15em;
+
+		margin-bottom:1em;
+	}
+
+	#user-id-info {
+		width: calc(100%);
+		margin-left: 0%;
+	}
+
+	#user-matchhistory {
+		margin: 5%;
+		height: 70%;
+		width:67%;
+	}
+
 }
