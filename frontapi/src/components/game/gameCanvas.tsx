@@ -8,6 +8,7 @@ import { game_socket } from "../../socket";
 import { Button } from '../utils/button';
 import './game.css';
 import {Vec} from "./gameTypes/Vec";
+import {Gameinvite} from "./gameinvite";
 
 type Room = {
 	id: string,
