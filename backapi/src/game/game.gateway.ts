@@ -134,40 +134,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.playerQuit(client.id);
 	}
 
-	@SubscribeMessage("pause")
-	handlePause(
-		@ConnectedSocket() client: Socket,
-	) {
-		let room: Room | null = this.getRoomFromClientId(client.id);
-		if (room == null)
-			return ;
-		client.leave(room.id);
-	}
-
-	@SubscribeMessage("resume")
-	handleResume(
-		@ConnectedSocket() client: Socket,
-	) {
-		let room: Room | null = this.getRoomFromClientId(client.id);
-		if (room == null)
-			return ;
-		client.join(room.id);
-		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
-		if (room.full) {
-			client.emit("reset_game");
-			client.emit("start_game");
-			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
-			client.emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
-			client.emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
-			if (room.player_left === client.id)
-				client.emit("update_status", "left");
-			else if (room.player_right === client.id)
-				client.emit("update_status", "right");
-			else
-				client.emit("update_status", "obs");
-		}
-	}
-
 	@SubscribeMessage("observe_room")
 	async handleObserveRoom(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
 		console.log(data);
@@ -235,6 +201,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}, 16, room);
 		room.update = setInterval((r) => {
 			this.server.to(r.id).emit("update_ball", r.board.get_ball_pos(), r.board.get_ball_dir());
+			this.server.to(r.id).emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
+			this.server.to(r.id).emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
 		}, 1000, room);
 		this.server.to(room.id).emit("start_game");
 	}
@@ -303,7 +271,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
-		this.server.to(room.id).emit("end_game");
+		this.server.to(room.id).emit("end_game", side);
 		this.joined.delete(user_left.id);
 		this.joined.delete(user_right.id);
 		this.gameService.getSocketBySocketId(room.player_left).leave(room.id);
