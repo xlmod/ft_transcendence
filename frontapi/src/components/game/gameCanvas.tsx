@@ -1,3 +1,4 @@
+
 import { useRef, useEffect, useState } from "react";
 import {BASE_WIDTH} from "./gameTypes/base";
 import { Board } from "./gameTypes/Board";
@@ -6,6 +7,7 @@ import { game_socket } from "../../socket";
 
 import { Button } from '../utils/button';
 import './game.css';
+import {Vec} from "./gameTypes/Vec";
 
 type Room = {
 	id: string,
@@ -45,11 +47,9 @@ export function GameCanvas(): JSX.Element {
 			} else {return ;}
 			if (!key_pressed) {
 				if (side === "left") {
-					board.set_left_dir(0, y);
-					game_socket.socket.emit("update_paddle", {side, paddle_dir:board.get_left_dir(), paddle_pos: board.get_left_pos()});
+					game_socket.socket.emit("update_paddle", {side, paddle_dir: new Vec(0, y), paddle_pos: board.get_left_pos()});
 				} else {
-					board.set_right_dir(0, y)
-					game_socket.socket.emit("update_paddle", {side, paddle_dir:board.get_right_dir(), paddle_pos: board.get_right_pos()});
+					game_socket.socket.emit("update_paddle", {side, paddle_dir: new Vec(0, y), paddle_pos: board.get_right_pos()});
 				}
 				key_pressed = true;
 			}
@@ -57,11 +57,9 @@ export function GameCanvas(): JSX.Element {
 		document.addEventListener('keyup', (e) => {
 			if (e.key === "ArrowUp" || e.key === "ArrowDown") {
 				if (side === "left") {
-					board.set_left_dir(0, 0);
-					game_socket.socket.emit("update_paddle", {side, paddle_dir:board.get_left_dir(), paddle_pos: board.get_left_pos()});
+					game_socket.socket.emit("update_paddle", {side, paddle_dir: new Vec(0, 0), paddle_pos: board.get_left_pos()});
 				} else {
-					board.set_right_dir(0, 0);
-					game_socket.socket.emit("update_paddle", {side, paddle_dir:board.get_right_dir(), paddle_pos: board.get_right_pos()});
+					game_socket.socket.emit("update_paddle", {side, paddle_dir:new Vec(0, 0), paddle_pos: board.get_right_pos()});
 				}
 				key_pressed = false;
 			} else {return ;}
@@ -94,7 +92,7 @@ export function GameCanvas(): JSX.Element {
 		game_socket.socket.on("start_game", () => {
 			board.reset();
 			board.set_ball_dir(-1, 0);
-			console.log(`1start: ${game_interval}`)
+			console.log(`start: ${game_interval}`)
 			if (game_interval == null) {
 				game_interval = setInterval(() => {
 					board.tick();
@@ -106,14 +104,16 @@ export function GameCanvas(): JSX.Element {
 		});
 
 		game_socket.socket.on("reset_game", () => {
-			clearInterval(game_interval);
+			if (game_interval != null)
+				clearInterval(game_interval);
 			game_interval = null;
 			board.clear();
 		});
 
 		game_socket.socket.on("end_game", () => {
 			board.reset();
-			clearInterval(game_interval);
+			if (game_interval != null)
+				clearInterval(game_interval);
 			game_interval = null;
 			setState("");
 			setLeftplayer("Player");
@@ -176,15 +176,26 @@ export function GameCanvas(): JSX.Element {
 			GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
 			const ctx = canvas?.getContext("2d");
 			board.set_ctx(ctx, GAME_SETTINGS.ratio)
-			console.log("resume")
-			game_socket.socket.emit("resume");
 		}
 
 		return () => {
-			console.log(`end: ${game_interval}`)
-			clearInterval(game_interval);
+			if (game_interval != null)
+				clearInterval(game_interval);
 			game_interval = null;
-			game_socket.socket.emit("pause");
+			game_socket.socket.emit("quit");
+			game_socket.socket.emit("observe_quit");
+
+			game_socket.socket.off("room_player_joined");
+			game_socket.socket.off("room_observer_joined");
+			game_socket.socket.off("room_setting");
+			game_socket.socket.off("start_game");
+			game_socket.socket.off("reset_game");
+			game_socket.socket.off("end_game");
+			game_socket.socket.off("update_score");
+			game_socket.socket.off("update_ball");
+			game_socket.socket.off("update_status");
+			game_socket.socket.off("update_paddle");
+			game_socket.socket.off("update_hard_paddle");
 		}
 
 	}, []);
