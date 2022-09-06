@@ -1,6 +1,11 @@
 @import "../../globals.css";
 
-#navbarIcon
+.hide
+{
+	display: none;
+}
+
+#navbarIcon:not(.hide)
 {
 	float: right;
 	width: 330px;
@@ -10,25 +15,14 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-
-	/*
-	border-style: solid;
-	border-color: blue;
-	border-width: 1px;
-	*/
 }
+
 
 .navbarIcon
 {
 	width: 60px;
 	height: 60px;
 	cursor: pointer;
-
-	/*
-	border-style: solid;
-	border-color: yellow;
-	border-width: 1px;
-	*/
 }
 
 .navbarIcon path
@@ -123,7 +117,7 @@
 
 /* NavText */
 
-#navbarText
+#navbarText:not(.hide)
 {
 	margin-top: 80px;
 	margin-left: 25%;
@@ -200,12 +194,12 @@
 {
 	.navbarIcon:not(#iconLogout) { display: none; }
 	#iconLogout { position: absolute; top: 10px; right: 10px; }
-	#navbarText { display: flex; }
+	#navbarText:not(.hide) { display: flex; }
 }
 
 @media only screen and ( max-width: 500px )
 {
-	#navbarIcon
+	#navbarIcon:not(.hide)
 	{
 		display: inline-block;
 		width: 220px;

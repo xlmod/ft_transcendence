@@ -9,9 +9,11 @@ export function Navbar()
 {
 	const {logout} = useContext(AuthContext);
 	const location = useLocation();
+	const hide :string = ( location.pathname === "/tfa" || location.pathname == "/signin" )
+							? "hide" : "";
 	return (
 		<div>
-		<nav id="navbarIcon">
+		<nav id="navbarIcon" className={hide}>
 			<NavLink className={`navbarIcon ${location.pathname === "/game" ? "sameRoute" : "otherRoute"}`}
 				id="iconGame"
 				to="/game">
@@ -83,7 +85,7 @@ export function Navbar()
 			</button>
 		</nav>
 
-		<nav id="navbarText">
+		<nav id="navbarText" className={hide}>
 			<NavLink
 				id="buttonGame"
 				className={ ( location.pathname === "/game" ) ? "sameRoute" : "otherRoute" }

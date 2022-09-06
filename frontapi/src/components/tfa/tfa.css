@@ -16,7 +16,7 @@
 
 	font-family: Skwar;
 	font-weight: 550;
-	color: var( --cNeonDark );
+	color: var( --cNeonLight );
 }
 
 #sectionTFA .inputs-parent
@@ -39,15 +39,23 @@
 
 	background: var( --cBackground );
 	border: none;
-	border-bottom: 1px solid var( --cNeon );
 }
 
-#sectionTFA .inputs-children:focus
+#sectionTFA .inputs-children:not(.fail)
 {
+	border-bottom: 1px solid var( --cNeon80 );
+}
+
+#sectionTFA .inputs-children.fail
+{
+	outline: 1px solid rgba( 255, 0, 0, 0.8 );
+}
+
+#sectionTFA .inputs-children:not(.fail):focus
+{
+	outline: 1px solid var( --cNeon80 );
 }
 
 @media only screen and ( min-width: 1220px )
 {
-	#sectionTFA
-	{ margin-top: 0px; }
 }
