@@ -1,14 +1,18 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DeleteResult } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { LeaderUserDto } from './models/leaderboard.dto';
+import * as fs from 'fs';
+import { MatchService } from '@/match/match.service';
+import { MatchDto } from '@/match/models/match.dto';
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectRepository(User) private userRepository: Repository<User>,
+		private matchService: MatchService,
 	) {}
 
 	async GetUsers(): Promise<User[]> {
@@ -59,14 +63,23 @@ export class UserService {
 			}
 		}
 		for (const key in data) {
-			if (data[key] !== undefined && key !== 'CreatedAt' && key !== 'UpdatedAt'
-										&& key !== 'Ban' && key !== 'Admin') {
+			if (data[key] !== undefined && key !== 'CreatedAt' && key !== 'UpdatedAt' && key !== 'elo'
+										&& key !== 'avatar' && key !== 'win' && key !== 'lose') {
 				user[key] = data[key];
 			}
 		}
 		user.UpdatedAt = new Date();
 		// console.log(user.UpdatedAt.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
 		await this.userRepository.update(id, user);
+	}
+
+	async updateavatar(user: User, data: string): Promise<void> {
+		if (!user || !data)
+			throw new BadRequestException();
+		if (user.avatar !== data && fs.existsSync(process.env.STORAGE + user.avatar))
+			fs.unlinkSync(process.env.STORAGE + user.avatar);
+		user.avatar = data;
+		await this.userRepository.save(user);
 	}
 
 	async delete(id: string): Promise<DeleteResult> {
@@ -85,7 +98,7 @@ export class UserService {
 	async ConfigLeaderboard(id: string): Promise<LeaderUserDto[]> {
 		const friends = (await this.getfriends(id)).friends.map(curr => { if (id !== curr.id) return curr.id;});
 		const leaderboard: LeaderUserDto[] = (await this.userRepository.find({}))
-											.filter(user => { if (user.win || !user.lose) return user })
+											.filter(user => { if (user.win || user.lose) return user })
 											.sort((a, b) => { return b.elo - a.elo })
 											.map(users => {
 												let isfriend: boolean = false;
@@ -305,5 +318,38 @@ export class UserService {
 		} catch(e) {
 			throw e;
 		}
+	}
+
+	// Match History
+	async endGame(lid: string, rid: string, lscore: number, rscore: number, lelo: number, relo: number) {
+		let leftwin: boolean = false;
+		const luser = await this.findById(lid);
+		const ruser = await this.findById(rid);
+		if (!luser || !ruser)
+			throw new NotFoundException('User not found');
+		luser.elo = lelo;
+		ruser.elo = relo;
+		if (lscore > rscore) {
+			++luser.win;
+			++ruser.lose;
+			leftwin = true;
+		} else {
+			++luser.lose;
+			++ruser.win;
+		}
+		await this.userRepository.save(luser);
+		await this.userRepository.save(ruser);
+		await this.matchService.create({ 
+			luser: luser, lscore: lscore,
+			ruser: ruser, rscore: rscore,
+			leftwin: leftwin
+		} as MatchDto);
+	}
+
+	async getHistoryMatch(id: string): Promise<MatchDto[]> {
+		const user = await this.findById(id);
+		if (!user)
+			throw new NotFoundException('User not found');
+		return await this.matchService.FindHistoryMatch(user);
 	}
 }

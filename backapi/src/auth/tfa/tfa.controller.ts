@@ -17,7 +17,7 @@ export class TwoFactorAuthenticationController {
 	) {}
 
 	@Get()
-	@UseGuards(TwoFactorAuthGuard)
+	@UseGuards(AuthGuard('jwt-two-factor'))
 	async Qrcb(@Res() res: Response) {
 		const user = await this.userService.findById(res.locals.uuid);
 		const otpauthUrl = 'otpauth://totp/'+process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME+':'+ user.id+'?secret='+user.TwoFactorAuth
@@ -30,6 +30,8 @@ export class TwoFactorAuthenticationController {
 		const user = await this.userService.findById(res.locals.uuid);
 		if (!user)
 			throw new NotFoundException();
+		if (!user.TwoFactorAuthToggle)
+			this.userService.turnTwoFactorAuthentication(user.id, true);
 		const { otpauthUrl } = await
 		this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(user);
 		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);

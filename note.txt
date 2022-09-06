@@ -2,7 +2,7 @@ Env:
 	HOST=localhost
 	PORT=
 	FRONT_PORT=
-	STORAGE=./avatars/
+	STORAGE=./uploads/
 
 	## Database Config -> v
 	DATABASE_HOST=localhost
