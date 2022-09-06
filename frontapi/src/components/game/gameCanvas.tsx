@@ -114,21 +114,30 @@ export function GameCanvas(): JSX.Element {
 		});
 
 		game_socket.socket.on("end_game", (w) => {
+			board.clear();
 			board.reset();
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
-			setWinner(w);
-			setEnd(true);
-			setTimeout(() => {
+			if (w !== "") {
+				setWinner(w);
+				setEnd(true);
+				setTimeout(() => {
+					setState("");
+					setLeftplayer("Player");
+					setRightplayer("Player");
+					setLeft(0);
+					setRight(0);
+					setEnd(false);
+					setWinner("");
+				}, 1500);
+			} else {
 				setState("");
 				setLeftplayer("Player");
 				setRightplayer("Player");
 				setLeft(0);
 				setRight(0);
-				setEnd(false);
-				setWinner("");
-			}, 1500);
+			}
 		});
 
 		game_socket.socket.on("update_score", (score_left, score_right) => {

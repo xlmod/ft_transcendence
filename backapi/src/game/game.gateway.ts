@@ -244,7 +244,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.setWinner(room, "left");
 			} else {
 				this.server.to(room.id).emit("reset_game");
-				this.server.to(room.id).emit("end_game");
+				this.server.to(room.id).emit("end_game", "");
 				this.gameService.getSocketBySocketId(client_id).leave(room.id);
 				let user = await this.gameService.getUserBySocketId(client_id);
 				this.joined.delete(user.id);
