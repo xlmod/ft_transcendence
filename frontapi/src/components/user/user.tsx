@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {Navigate} from 'react-router';
 
 import {iaxios} from "../../utils/axios";
@@ -11,23 +11,14 @@ import {Useredit} from './useredit';
 
 interface IProps {}
 
-interface IState {
-	user: any,
-	uid: string,
-	connected: boolean,
-	edit: boolean,
-}
-
 export function User(props: IProps) {
 
 	const {checkLogin} = useContext(AuthContext);
 	checkLogin();
 
 	const [user, setUser] = useState<any>([]);
-	const [uid, setUid] = useState<string>("");
 	const [connected, setConnected] = useState<boolean>(true);
 	const [edit, setEdit] = useState<boolean>(false);
-	const [update, setUpdate] = useState<boolean>(false);
 
 
 	const getUid = async () => {
@@ -50,22 +41,20 @@ export function User(props: IProps) {
 	};
 
 	const updateUserData = async () => {
-		let uid_l = await getUid();
-		let connected_l:boolean = false;
+		let uid = await getUid();
 		let user_l: any = {};
-		if (uid_l !== "") {
-			user_l = await getUser(uid_l);
-			connected_l = true;
+		if (uid !== "") {
+			user_l = await getUser(uid);
+		} else {
+			setConnected(false);
 		}
-		console.log(await getAvatar(uid_l));
+		let avatar_l = await getAvatar(uid);
 		if (user_l !== user) {
 			setUser(user_l);
-			setUid(uid_l);
-			setConnected(connected_l);
 		}
 	}
 
-	const closeUserEdit = (update: boolean) => {
+	const closeUserEdit = () => {
 		setEdit(false);
 	}
 
@@ -79,7 +68,7 @@ export function User(props: IProps) {
 	return (
 		<main>
 			<section id="user-section">
-				{edit && <Useredit close={closeUserEdit} pseudo={user.pseudo} />}
+				{edit && <Useredit close={closeUserEdit} pseudo={user.pseudo} tfa={user.TwoFactorAuthToggle}/>}
 				<div id="user-id">
 					<div id="user-id-avatar">
 						<img src ={ user.avatar }/>

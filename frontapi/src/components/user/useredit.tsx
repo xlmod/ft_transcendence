@@ -1,4 +1,4 @@
-import React from "react";
+import {useState} from "react";
 import {Button} from "../utils/button";
 import {Fileinput} from "../utils/fileinput";
 import {Textinput} from "../utils/textinput";
@@ -6,119 +6,114 @@ import {Textinput} from "../utils/textinput";
 import { iaxios } from "../../utils/axios";
 
 import './useredit.css'
-import {connected} from "process";
 import {Navigate} from "react-router";
+import {ToggleSwitch} from "../utils/toggleswitch";
 
 interface IProps {
 	pseudo: string,
+	tfa: boolean,
 	close: (update: boolean) => void,
 }
 
-interface IState {
-	pseudo: string,
-	pseudoerror: boolean,
-	avatar: File | null,
-	avatarerror: boolean,
-	connected: boolean,
-}
+export function Useredit(props: IProps) {
 
-export class Useredit extends React.Component< IProps, IState > {
+	const [pseudo, setPseudo] = useState<string>(props.pseudo);
+	const [pseudoerror, setPseudoerror] = useState<boolean>(false);
+	const [avatar, setAvatar] = useState<File | null>(null);
+	const [avatarerror, setAvatarerror] = useState<boolean>(false);
+	const [tfa, setTfa] = useState<boolean>(props.tfa);
+	const [connected, setConnected] = useState<boolean>(true);
 
-	constructor(props: IProps) {
-		super(props);
-
-		this.state = {
-			pseudo: this.props.pseudo,
-			pseudoerror: false,
-			avatar: null,
-			avatarerror: false,
-			connected: true,
-		}
-
-		this.pseudoChange = this.pseudoChange.bind(this);
-		this.avatarChange = this.avatarChange.bind(this);
-		this.onSave = this.onSave.bind(this);
-	}
-
-	pseudoChange(event: any) {
-		let pseudo: string = event.target.value;
-		if (pseudo === "" || pseudo.length > 10) {
-			this.setState({pseudoerror: true})
+	const pseudoChange = (event: any) => {
+		let value: string = event.target.value;
+		if (value === "" || value.length > 10) {
+			setPseudoerror(true);
 		} else {
-			this.setState({pseudoerror: false})
+			setPseudoerror(false);
 		}
-		this.setState({pseudo: pseudo})
-	}
+		setPseudo(value);
+	};
 
-	avatarChange(event: any) {
+	const avatarChange = (event: any) => {
 		let file = event.target.files[0];
 		if (file.size > Math.pow(2, 20)) {
-			this.setState({avatarerror:true})
+			setAvatarerror(true);
 		} else {
-			this.setState({avatarerror: false})
+			setAvatarerror(false);
 		}
-		this.setState({avatar: file})
-	}
+		setAvatar(file);
+	};
 
-	async onSave() {
-		if (this.state.pseudoerror || this.state.avatarerror) {
+	const tfaChange = (event: any) => {
+		setTfa(event.target.checked);
+	};
+
+	const onSave = async () => {
+		if (pseudoerror || avatarerror) {
 			return ;
 		}
-		if (this.state.pseudo != this.props.pseudo) {
-			let connected = await iaxios.patch("/user/", {pseudo: this.state.pseudo}).then((data) => {return true}).catch((err) => {return false});
+		if (pseudo != props.pseudo) {
+			let connected = await iaxios.patch("/user/", {pseudo: pseudo}).then(() => {return true}).catch(() => {return false});
 			if (!connected)
-				this.setState({connected: connected})
+				setConnected(connected);
 		}
-		if (this.state.avatar != null) {
-			console.log(this.state.avatar.name);
-			let connected = await iaxios.post("/user/upload/avatar", this.state.avatar).then((data) => {return true}).catch((err) => {return false});
+		if (avatar != null) {
+			let connected = await iaxios.post("/user/upload/avatar", {file:avatar}).then(() => {return true}).catch(() => {return false});
 			if (!connected)
-				this.setState({connected: connected})
+				setConnected(connected);
 		}
-		this.props.close(true);
+		if (tfa != props.tfa) {
+			let connected = await iaxios.patch("/user/", {TwoFactorAuthToggle: tfa}).then(() => {return true}).catch(() => {return false});
+			if (!connected)
+				setConnected(connected);
+		}
+		props.close(true);
 
-	}
+	};
 
-	render(): React.ReactNode {
-		if (!this.state.connected)
-			return(<Navigate to="/signin" />);
-		return (
-			<section id="useredit-section">
-				<div id="useredit-wall">
+	if (!connected)
+		return(<Navigate to="/signin" />);
+	return (
+		<section id="useredit-section">
+			<div id="useredit-wall">
+			</div>
+			<div id="useredit-window">
+				<div id="useredit-input">
+
+					<Textinput
+						id="useredit-input-pseudo"
+						placeholder="Pseudo"
+						onChange={pseudoChange}
+						value={pseudo}
+						style={{fontSize: '0.8em'}}
+						error={pseudoerror}
+						tooltiperror="max 10 characters"
+					/>
+
+					<Fileinput
+						id="useredit-input-avatar"
+						onChange={avatarChange}
+						style={{fontSize: '0.8em'}}
+						error={avatarerror}
+					/>
+
+					<label>
+					<span id="useredit-input-toggle-label">2FA</span>
+					<ToggleSwitch
+						id="useredit-input-toggle"
+						checked={tfa}
+						onChange={tfaChange}
+						
+					/>
+					</label>
+
 				</div>
-				<div id="useredit-window">
-					<div id="useredit-input">
-
-						<Textinput
-							id="useredit-input-pseudo"
-							placeholder="Pseudo"
-							onChange={this.pseudoChange}
-							value={this.state.pseudo}
-							style={{fontSize: '0.8em'}}
-							error={this.state.pseudoerror}
-							tooltiperror="max 10 characters"
-						/>
-
-						<Fileinput
-							id="useredit-input-avatar"
-							onChange={this.avatarChange}
-							style={{fontSize: '0.8em'}}
-							error={this.state.avatarerror}
-						/>
-
-						<label style={{fontSize:'0.8em'}}>
-							TFA
-							<input type="checkbox" />
-						</label>
-
-					</div>
-					<div id="useredit-button">
-						<Button id="useredit-button-cancel" value="cancel" fontSize={0.8} onClick={() => {this.props.close(false)}} />
-						<Button id="useredit-button-save" value="save" fontSize={0.8} onClick={this.onSave} />
-					</div>
+				<div id="useredit-button">
+					<Button id="useredit-button-cancel" value="cancel" fontSize={0.8} onClick={() => {props.close(false)}} />
+					<Button id="useredit-button-save" value="save" fontSize={0.8} onClick={onSave} />
 				</div>
-			</section>
-		);
-	}
+			</div>
+		</section>
+	);
 
 }

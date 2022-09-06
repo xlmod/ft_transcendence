@@ -1,5 +1,3 @@
-
-import React from 'react';
 import CSS from 'csstype';
 
 import './fileinput.css';
@@ -12,26 +10,17 @@ interface IProps {
 	error?: boolean,
 }
 
-interface IState {
-}
+export function Fileinput(props: IProps) {
 
-export class Fileinput extends React.Component< IProps, IState > {
-
-	constructor(props: IProps) {
-		super(props);
-	}
-
-	render(): React.ReactNode {
-		return(
-			<input
-				id={this.props.id}
-				className={this.props.error ? "generic-fileinput-error" : "generic-fileinput"}
-				onChange={this.props.onChange}
-				style={this.props.style}
-				placeholder={this.props.placeholder != undefined ? this.props.placeholder : ""}
-				type="file"
-				accept="image/png, image/jpg, image/gif, image/jpeg"
-			/>
-		);
-	}
+	return(
+		<input
+			id={props.id}
+			className={props.error ? "generic-fileinput-error" : "generic-fileinput"}
+			onChange={props.onChange}
+			style={props.style}
+			placeholder={props.placeholder != undefined ? props.placeholder : ""}
+			type="file"
+			accept="image/png, image/jpg, image/gif, image/jpeg"
+		/>
+	);
 }
