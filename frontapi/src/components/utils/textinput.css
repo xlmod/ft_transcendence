@@ -2,19 +2,43 @@
 
 .generic-textinput
 {
-	color: var( --cNeonDark );
+	color: var( --cNeon80 );
 	background-color: var( --cBackground );
 
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 
 	cursor: pointer;
 
-	border: 1px solid var(--cNeon);
+	border: 1px solid var(--cNeon80);
+	outline:none;
+
 	padding: 0.5em;
 }
 
 .generic-textinput:focus
 {
 	color: var( --cNeon );
+	border: 1px solid var(--cNeon);
 }
 
+.generic-textinput-error
+{
+	color: rgba(255, 0, 0, 0.8);
+	background-color: var( --cBackground );
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+
+	cursor: pointer;
+
+
+	border: 1px solid rgba(255, 0, 0, 0.8);
+	outline:none;
+
+	padding: 0.5em;
+}
+
+.generic-textinput-error:focus
+{
+	color: rgba(255, 0, 0, 1);
+	border: 1px solid rgba(255, 0, 0, 1);
+}
