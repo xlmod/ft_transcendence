@@ -58,10 +58,20 @@
 #useredit-input {
 	margin:0.4em;
 	width:calc(100% - 0.8em);
+	height:100%;
 	padding:0;
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
 }
 
 #useredit-input-pseudo {
+	margin:0;
+	width:calc(100% - 1em);
+
+}
+
+#useredit-input-avatar {
 	margin:0;
 	width:calc(100% - 1em);
 }

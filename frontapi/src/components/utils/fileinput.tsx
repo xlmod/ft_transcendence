@@ -2,22 +2,20 @@
 import React from 'react';
 import CSS from 'csstype';
 
-import './textinput.css';
+import './fileinput.css';
 
 interface IProps {
 	id?: string,
 	placeholder?: string,
 	onChange?: (event:any) => void,
-	value?: string,
 	style?: CSS.Properties,
 	error?: boolean,
-	tooltiperror?: string,
 }
 
 interface IState {
 }
 
-export class Textinput extends React.Component< IProps, IState > {
+export class Fileinput extends React.Component< IProps, IState > {
 
 	constructor(props: IProps) {
 		super(props);
@@ -27,12 +25,12 @@ export class Textinput extends React.Component< IProps, IState > {
 		return(
 			<input
 				id={this.props.id}
-				className={this.props.error ? "generic-textinput-error" : "generic-textinput"}
+				className={this.props.error ? "generic-fileinput-error" : "generic-fileinput"}
 				onChange={this.props.onChange}
 				style={this.props.style}
-				placeholder={this.props.placeholder}
-				value={this.props.value}
-				type="text"
+				placeholder={this.props.placeholder != undefined ? this.props.placeholder : ""}
+				type="file"
+				accept="image/png, image/jpg, image/gif, image/jpeg"
 			/>
 		);
 	}

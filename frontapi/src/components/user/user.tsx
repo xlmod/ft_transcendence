@@ -1,13 +1,11 @@
 import React from 'react';
 import {Navigate} from 'react-router';
-import axios from 'axios';
+import {iaxios} from "../../utils/axios";
 
 import './user.css';
 
 import {Button} from '../utils/button';
 import {Useredit} from './useredit';
-
-const API_URL = "http://localhost:3333/";
 
 interface IProps {}
 
@@ -30,33 +28,56 @@ export class User extends React.Component< IProps, IState >
 			edit: false,
 		};
 
+		this.updateUserData = this.updateUserData.bind(this);
+		this.closeUserEdit = this.closeUserEdit.bind(this);
 	}
 
-	async componentDidMount() {
-		const getUid = async () => {
-			return await axios.get( API_URL + 'user/me', { withCredentials: true } )
-				.then( (data) => {
-					return data.data.uid;
-				}).catch( () => {return ""});
-		};
-		const getUser = async (uid: string) => {
-			return await axios.get(API_URL + 'user/' + uid, {withCredentials: true})
-				.then( (data) => {
-					return  data.data;
-				}).catch(() => {return []});
-		};
-		let uid = await getUid();
+	getUid = async () => {
+		return await iaxios.get('/user/me')
+			.then( (data) => {
+				return data.data.uid;
+			}).catch( () => {return ""});
+	};
+	getUser = async (uid: string) => {
+		return await iaxios.get('/user/' + uid)
+			.then( (data) => {
+				return  data.data;
+			}).catch(() => {return []});
+	};
+	getAvatar = async (uid: string) => {
+		return await iaxios.get('/profile/' + uid)
+			.then( (data) => {
+				return  data.data;
+			}).catch(() => {return []});
+	};
+
+	async updateUserData() {
+		let uid = await this.getUid();
 		let connected:boolean = false;
 		let user: any = {};
 		if (uid !== "") {
-			user = await getUser(uid);
+			user = await this.getUser(uid);
 			connected = true;
 		}
-		this.setState({
-			user: user,
-			uid: uid,
-			connected: connected,
-		});
+		console.log(await this.getAvatar(uid));
+		if (user !== this.state.user) {
+			this.setState({
+				user: user,
+				uid: uid,
+				connected: connected,
+			});
+		}
+	}
+
+	async componentDidMount() {
+		await this.updateUserData();
+	}
+
+
+	closeUserEdit(update: boolean) {
+		this.setState({edit:false});
+		if (update)
+			this.updateUserData();
 	}
 
 	render() {
@@ -65,7 +86,7 @@ export class User extends React.Component< IProps, IState >
 		return (
 			<main>
 				<section id="user-section">
-					{this.state.edit && <Useredit close={() => {this.setState({edit:false})}} pseudo={this.state.user.pseudo} />}
+					{this.state.edit && <Useredit close={this.closeUserEdit} pseudo={this.state.user.pseudo} />}
 					<div id="user-id">
 						<div id="user-id-avatar">
 							<img src ={ this.state.user.avatar }/>
