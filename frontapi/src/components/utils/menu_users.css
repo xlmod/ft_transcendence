@@ -1,0 +1,41 @@
+@import '../../globals.css';
+
+/*
+font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+*/
+
+.menu-users
+{
+	position: absolute;
+	left: 55%;
+	border: 1px solid var( --cNeon );
+	height: 7em;
+	background-color: var( --cBackground );
+	padding: 0.6em;
+}
+
+.menu-users nav
+{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+.nav-users
+{
+	text-decoration: none;
+	text-align: left;
+	color: var( --cNeon );
+	background-color: var( --cBackground );
+	border: none;
+	font-size: 0.7em;
+	padding: 0.3em;
+	font-family: SkwarLetter;
+}
+
+.nav-users:hover
+{
+	cursor: pointer;
+	color: var( --cBackground );
+	background-color: var( --cNeon80 );
+}
