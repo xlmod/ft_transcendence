@@ -1,0 +1,52 @@
+@import '../../globals.css';
+
+.generic-fileinput
+{
+	color: var( --cNeon80 );
+	background-color: var( --cBackground );
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+
+	cursor: pointer;
+
+	border:none;
+	outline:none;
+
+}
+
+input[type=file]::file-selector-button {
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	color: var( --cNeon80 );
+	border:none;
+	border: 1px solid var(--cNeon80);
+	background-color: var( --cBackground );
+	padding:0.4em;
+	margin-right:1em;
+}
+
+input[type=file]::file-selector-button:hover {
+	color: var( --cBackground );
+	background-color: var( --cNeon80 );
+}
+
+.generic-fileinput-error
+{
+	color: rgba(255, 0, 0, 0.8);
+	background-color: var( --cBackground );
+
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+
+	cursor: pointer;
+
+
+	outline:none;
+
+	padding: 0.5em;
+	overflow: none;
+}
+
+.generic-fileinput-error:focus
+{
+	color: rgba(255, 0, 0, 1);
+}

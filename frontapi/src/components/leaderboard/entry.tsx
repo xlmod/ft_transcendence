@@ -1,30 +1,22 @@
-import React from 'react';
 
 import './leaderboard.css';
 
 
 interface IProps {
+	uid: string,
 	rank: number,
 	pseudo: string,
 	elo: number,
+	isfriend: boolean,
 }
 
-interface IState {}
+export function Entry(props: IProps) {
 
-export class Entry extends React.Component< IProps, IState >
-{
-
-	constructor(props: IProps) {
-		super(props);
-	}
-
-	render(): React.ReactNode {
-		return (
-			<div className="leaderboard-entry">
-				<div className="leaderboard-cell">{this.props.rank}</div>
-				<div className="leaderboard-cell">{this.props.pseudo}</div>
-				<div className="leaderboard-cell">{this.props.elo}</div>
-			</div>
-		);
-	}
+	return (
+		<div className="leaderboard-entry">
+			<div className="leaderboard-cell">{props.rank}</div>
+			<div className="leaderboard-cell">{props.pseudo}</div>
+			<div className="leaderboard-cell">{props.elo}</div>
+		</div>
+	);
 }
