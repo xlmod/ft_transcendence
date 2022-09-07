@@ -39,7 +39,7 @@ export class AuthService {
 	async JwtVerify(token: string) {
 		try {
 			const verif = this.jwtService.verify(token);
-			const user = this.userService.findById(verif.uuid);
+			const user = await this.userService.findById(verif.uuid);
 			return user;
 		} catch(e) {
 			throw new UnauthorizedException('Jwt auth failed');

@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsUUID, IsNotEmpty, IsString, IsNumber, IsDate } from 'class-validator';
+import { IsBoolean, IsEmail, IsUUID, IsString, IsNumber, IsDate } from 'class-validator';
 import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { User } from './user.entity';
 
@@ -74,5 +74,5 @@ export class UserDto {
 }
 
 export class UpdateUserDto extends PartialType(
-	OmitType(UserDto, ['id' as const]), 
+	OmitType(UserDto, ['id', 'CreatedAt' as const]), 
 ) {}

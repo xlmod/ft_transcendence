@@ -2,8 +2,8 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsUUID } from "class-validator";
 import { User } from "../user.entity";
 
 export class LeaderUserDto {
-	@IsUUID()
-	id: string;
+	// @IsUUID()
+	// id: string;
 	@IsNumber()
 	elo: number;
 	@IsNotEmpty()
@@ -12,7 +12,7 @@ export class LeaderUserDto {
 	isfriend: boolean;
 
 	constructor(player: User, isfriend: boolean) {
-		this.id = player.id,
+		// this.id = player.id,
 		this.elo = player.elo,
 		this.pseudo = player.pseudo
 		this.isfriend = isfriend;

@@ -9,16 +9,16 @@ import {
 	UseGuards,
 	ParseUUIDPipe,
 	UseInterceptors,
-	Req,
 	UploadedFile,
 	NotFoundException,
 	Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, UserDto } from './user.dto';
+import { UserService } from '../user.service';
+import { UpdateUserDto, UserDto } from '../user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { MFileOptions } from 'src/tools/download.tools';
+import { Response } from 'express';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +27,8 @@ export class UserController {
 
 	@Get()
 	async AllUsers(): Promise<UserDto[]> {
-		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+		// return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+		return (await this.userService.GetUsers());
 	}
 
 	// Leaderboard
@@ -47,21 +48,18 @@ export class UserController {
 		return new UserDto(await this.userService.findById(id));
 	}
 
-	// @Post()
-	// create(@Body() createUserDto: CreateUserDto) {
-	// 	return this.userService.create(createUserDto);
-	// }
-
-	/*
-		Need some test, doesn't work
-	*/
+	/**
+	 * 
+	 * @param {Response} res
+	 * @param {Express.Multer.File} file key 'file' -> image file
+	 * @returns {User} with avatar uptade otherwise throw exception
+	 */
 	@Post('upload/avatar')
 	@UseInterceptors(FileInterceptor('file', MFileOptions))
-	async UploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
+	async UploadAvatar(@Res({ passthrough: true }) res: Response, @UploadedFile() file: Express.Multer.File) {
 		try {
-			const user = await this.userService.findById(req.res.locals.uuid);
-			// console.log(file);
-			await this.userService.update(user.id, { avatar: file.filename });
+			const user = await this.userService.findById(res.locals.uuid);
+			await this.userService.updateavatar(user, file.filename);
 			return user;
 		} catch(error) {
 			throw new NotFoundException('User not found');
