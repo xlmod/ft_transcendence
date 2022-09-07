@@ -1,17 +1,12 @@
-import React, { useContext, useState } from 'react';
-import NumericInput from 'react-numeric-input';
+import { useState } from 'react';
 import AuthCode from 'react-auth-code-input';
-import axios from 'axios';
+import {iaxios} from '../../utils/axios';
 
-import { AuthContext } from '../../services/auth.service';
 import './tfa.css';
 
-const API_URL = "http://localhost:3333/"
 
 export const TFA = () =>
 {
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
 	const [input, setInput] = useState("");
 	const [failed, setFailed] = useState("");
 
@@ -19,8 +14,8 @@ export const TFA = () =>
 		setInput( res );
 		if( res[0] && res[1] && res[2] && res[3] && res[4] && res[5] )
 		{
-			axios.get( API_URL + 'tfa', { withCredentials: true } )
-				.then( ( data :any ) => { } )
+			iaxios.get("tfa")
+				.then( () => { } )
 				.catch( () => { setFailed( "fail" ); } );
 		}
 	};

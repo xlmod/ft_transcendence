@@ -1,17 +1,14 @@
-import {useContext, useEffect, useState} from 'react';
+import { useEffect, useState} from 'react';
 import {Entry} from './entry';
-
-import { AuthContext } from '../../services/auth.service';
 
 import './leaderboard.css';
 import {iaxios} from '../../utils/axios';
+import {Navigate} from 'react-router';
 
 export function Leaderboard() {
 
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
-
 	const [entrylist, setEntrylist] = useState<[React.ReactNode | null]>([null]);
+	const [connected, setConnected] = useState<boolean>(true);
 	const [,updateState] = useState<{}>();
 
 	const addEntry = (uid: string, rank: number, pseudo: string, elo: number, isfriend: boolean) => {
@@ -24,11 +21,14 @@ export function Leaderboard() {
 		return await iaxios.get('/user/leaderboard')
 			.then((data) => {
 				return  data.data;
-			}).catch(() => {return []});
+			}).catch(() => {return null});
 	};
 
 	useEffect(() => {
 		getLeaderboard().then((leaderboard) => {
+			if (leaderboard == null) {
+				setConnected(false);
+			}
 			setEntrylist([null]);
 			for (const [i, obj] of leaderboard.entries()) {
 				addEntry(obj.id, i + 1, obj.pseudo, obj.elo, obj.isfriend);
@@ -37,6 +37,8 @@ export function Leaderboard() {
 		});
 	}, []);
 
+	if (!connected)
+		return(<Navigate to="/signin" />);
 	return (
 		<main>
 			<section id="leaderboard-section">

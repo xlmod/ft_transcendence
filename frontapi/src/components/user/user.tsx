@@ -13,9 +13,6 @@ interface IProps {}
 
 export function User(props: IProps) {
 
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
-
 	const [user, setUser] = useState<any>([]);
 	const [connected, setConnected] = useState<boolean>(true);
 	const [edit, setEdit] = useState<boolean>(false);
