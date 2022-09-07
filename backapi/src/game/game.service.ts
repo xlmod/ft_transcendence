@@ -18,6 +18,7 @@ export class GameService {
 	async addUserWithSocketId(client: Socket) {
 		let user = await this.authService.JwtVerify(client.handshake.headers.cookie.split('=')[1]);
 		this.userMap.set(client.id, {uid: user.id, socket: client});
+		console.log(this.userMap);
 	}
 
 	async getUserBySocketId(client_id: string): Promise<User> {
@@ -29,12 +30,27 @@ export class GameService {
 		return this.userMap.get(client_id).socket;
 	}
 
-	getSocketByUId(uid: string): Socket {
+	async getSocketByPseudo(uid: string): Promise<Socket | null> {
 		for (const [_, obj] of this.userMap.entries()) {
-			if (uid === obj.uid) {
+			const user = await this.userService.findById(obj.uid);
+			if (user.pseudo === uid) {
 				return obj.socket;
 			}
 		}
+		return null;
+	}
+
+	getSocketByUid(uid: string): Socket | null {
+		for (const [_, obj] of this.userMap.entries()) {
+			if (obj.uid === uid) {
+				return obj.socket;
+			}
+		}
+		return null;
+	}
+
+	removeUserWithSocketId(client_id: string) {
+		this.userMap.delete(client_id);
 	}
 
 

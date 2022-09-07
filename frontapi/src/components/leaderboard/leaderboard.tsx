@@ -31,7 +31,7 @@ export function Leaderboard() {
 		getLeaderboard().then((leaderboard) => {
 			setEntrylist([null]);
 			for (const [i, obj] of leaderboard.entries()) {
-				addEntry(obj.id, i + 1, obj.pseudo, obj.elo, obj.isfriend);
+				addEntry(obj.pseudo, i + 1, obj.pseudo, obj.elo, obj.isfriend);
 				updateState({});
 			}
 		});

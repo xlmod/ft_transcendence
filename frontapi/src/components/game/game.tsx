@@ -211,7 +211,10 @@ export function Game(props: IProps): JSX.Element {
 					GAME_SETTINGS.add_modifier("reduce", 2);
 				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
 				board.set_ctx(ctx, GAME_SETTINGS.ratio)
-				game_socket.socket.emit("invite", obj);
+				if (obj.join)
+					game_socket.socket.emit("invite_join", obj);
+				else
+					game_socket.socket.emit("invite", obj);
 			} else {
 				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
 				board.set_ctx(ctx, GAME_SETTINGS.ratio)

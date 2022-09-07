@@ -63,8 +63,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.playerQuit(client.id)
+		await this.playerQuit(client.id)
+		this.gameService.removeUserWithSocketId(client.id);
 		this.logger.log(`Client disconnected: ${client.id}`);
+		
 	}
 
 	@SubscribeMessage("join_room")
@@ -169,43 +171,44 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage("invite")
-	async handleInvite(@ConnectedSocket() client: Socket, @MessageBody("uid") uid: string)
+	async handleInvite(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
 		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id) || user.id === uid) {
+		if (this.joined.has(user.id) || user.pseudo === obj.uid)
 			return ;
-		} else
-			this.joined.add(user.id);
+		let invited: Socket | null = await this.gameService.getSocketByPseudo(obj.uid);
+		if (invited == null)
+			return ;
+		this.joined.add(user.id);
 		let room = new Room();
 		room.id = client.id;
 		room.player_left = client.id;
 		room.user_left = user.pseudo;
 		room.board.reset();
-		room.reserved = uid;
+		room.reserved = user.id;
 		this.rooms.set(room.id, room);
 		client.join(room.id);
 		client.emit("room_player_joined", "left");
 		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
-		let invited: Socket = this.gameService.getSocketByUId(uid);
-		invited.emit("invitation", user.pseudo);
+		obj.uid = user.id;
+		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: obj.speedball, paddleshrink: obj.paddleshrink, join: obj.join});
 	}
 
 	@SubscribeMessage("invite_join")
-	async handleInviteJoin(@ConnectedSocket() client: Socket)
+	async handleInviteJoin(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
 		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id)) {
+		if (this.joined.has(user.id))
 			return ;
-		} else
-			this.joined.add(user.id);
-		let room: Room | null = null;;
+		let room: Room | null = null;
 		for (const [_, r] of this.rooms.entries()) {
-			if (!r.full && r.reserved === user.id) {
+			if (!r.full && r.reserved === obj.uid) {
 				room = r;
 				break ;
 			}
 		}
 		if (room != null) {
+			this.joined.add(user.id);
 			room.player_right = client.id;
 			room.user_right = user.pseudo;
 			room.full = true;
@@ -213,17 +216,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.emit("room_player_joined", "right");
 			this.server.to(room.id).emit("room_setting", new SerialRoom(room));
 			this.startGame(room);
-		} 
+		}
 	}
 
 	@SubscribeMessage("invite_decline")
-	async handleInviteDecline(@ConnectedSocket() client: Socket, @MessageBody("uid") uid: string)
+	async handleInviteDecline(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
 		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id)) {
-			return ;
-		} else
-			this.joined.add(user.id);
+		console.log(user.id);
+		console.log(obj);
+		let socket: Socket | null = this.gameService.getSocketByUid(obj.uid);
+		console.log(socket);
+		if (socket == null)
+			return;
+		this.playerQuit(socket.id);
 	}
 
 

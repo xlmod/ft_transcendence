@@ -29,7 +29,7 @@ export function Gameinvite(props: IProps) {
 
 	const onInvite = () => {
 		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
-		let obj = {uid: props.uid, speedball:speedball, paddleshrink:paddleshrink};
+		let obj = {uid: props.uid, speedball:speedball, paddleshrink:paddleshrink, join:false};
 		setCode(encode(JSON.stringify(obj)));
 	};
 

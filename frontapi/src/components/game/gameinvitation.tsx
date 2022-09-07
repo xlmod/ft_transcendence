@@ -3,14 +3,14 @@ import {Navigate} from "react-router";
 import {Buffer} from "buffer";
 
 import {Button} from "../utils/button";
-import {ToggleSwitch} from "../utils/toggleswitch";
 
 import './gameinvite.css'
 import {game_socket} from "../../socket";
 
 interface IProps {
 	pseudo: string,
-	close: (update: boolean) => void,
+	obj: any,
+	close: (code: string) => void,
 }
 
 export function Gameinvitation(props: IProps) {
@@ -18,11 +18,11 @@ export function Gameinvitation(props: IProps) {
 	const [code, setCode] = useState<string>("");
 
 	const onInvite = () => {
-		props.close(true);
+		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
+		let obj = {uid: props.obj.uid, speedball:props.obj.speedball, paddleshrink:props.obj.paddleshrink, join:true};
+		props.close(encode(JSON.stringify(obj)));
 	};
 
-	if (code !== "")
-		return (<Navigate to={"/game"} />);
 	return (
 		<section id="gameinvite-section">
 			<div id="gameinvite-wall">
@@ -32,7 +32,7 @@ export function Gameinvitation(props: IProps) {
 				<div id="gameinvite-input">
 				</div>
 				<div id="gameinvite-button">
-					<Button id="gameinvite-button-cancel" value="decline" fontSize={0.8} onClick={() => {props.close(false)}} />
+					<Button id="gameinvite-button-cancel" value="decline" fontSize={0.8} onClick={() => {game_socket.socket.emit("invite_decline", props.obj) ;props.close("")}} />
 					<Button id="gameinvite-button-save" value="accept" fontSize={0.8} onClick={onInvite} />
 				</div>
 			</div>
