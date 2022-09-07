@@ -1,10 +1,14 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {Navigate} from "react-router";
+import {Buffer} from "buffer";
+
 import {Button} from "../utils/button";
 import {ToggleSwitch} from "../utils/toggleswitch";
 
 import './gameinvite.css'
 
 interface IProps {
+	uid: string,
 	close: (update: boolean) => void,
 }
 
@@ -12,6 +16,8 @@ export function Gameinvite(props: IProps) {
 
 	const [speedball, setSpeedball] = useState<boolean>(false);
 	const [paddleshrink, setPaddleshrink] = useState<boolean>(false);
+	const [code, setCode] = useState<string>("");
+
 
 	const speedballChange = (event: any) => {
 		setSpeedball(event.target.checked);
@@ -21,12 +27,14 @@ export function Gameinvite(props: IProps) {
 		setPaddleshrink(event.target.checked);
 	};
 
-	const onInvite = async () => {
-		//
-		// send to game_scocket
-		props.close(true);
+	const onInvite = () => {
+		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
+		let obj = {uid: props.uid, speedball:speedball, paddleshrink:paddleshrink};
+		setCode(encode(JSON.stringify(obj)));
 	};
 
+	if (code !== "")
+		return (<Navigate to={"/game/" + code} />);
 	return (
 		<section id="gameinvite-section">
 			<div id="gameinvite-wall">

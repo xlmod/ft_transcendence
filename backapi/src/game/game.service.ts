@@ -29,6 +29,15 @@ export class GameService {
 		return this.userMap.get(client_id).socket;
 	}
 
+	getSocketByUId(uid: string): Socket {
+		for (const [_, obj] of this.userMap.entries()) {
+			if (uid === obj.uid) {
+				return obj.socket;
+			}
+		}
+	}
+
+
 	calcElo(elo_win: number, elo_lose: number): [number, number] {
 		let kfactor = 40;
 		let ew = 1 / (1 + Math.pow(10, (elo_lose - elo_win) / 400));

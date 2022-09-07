@@ -76,7 +76,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.joined.add(user.id);
 		let room: Room | null = null;;
 		for (const [_, r] of this.rooms.entries()) {
-			if (!r.full) {
+			if (!r.full && r.reserved === "") {
 				room = r;
 				break ;
 			}
@@ -168,6 +168,64 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
+	@SubscribeMessage("invite")
+	async handleInvite(@ConnectedSocket() client: Socket, @MessageBody("uid") uid: string)
+	{
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id) || user.id === uid) {
+			return ;
+		} else
+			this.joined.add(user.id);
+		let room = new Room();
+		room.id = client.id;
+		room.player_left = client.id;
+		room.user_left = user.pseudo;
+		room.board.reset();
+		room.reserved = uid;
+		this.rooms.set(room.id, room);
+		client.join(room.id);
+		client.emit("room_player_joined", "left");
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		let invited: Socket = this.gameService.getSocketByUId(uid);
+		invited.emit("invitation", user.pseudo);
+	}
+
+	@SubscribeMessage("invite_join")
+	async handleInviteJoin(@ConnectedSocket() client: Socket)
+	{
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id)) {
+			return ;
+		} else
+			this.joined.add(user.id);
+		let room: Room | null = null;;
+		for (const [_, r] of this.rooms.entries()) {
+			if (!r.full && r.reserved === user.id) {
+				room = r;
+				break ;
+			}
+		}
+		if (room != null) {
+			room.player_right = client.id;
+			room.user_right = user.pseudo;
+			room.full = true;
+			client.join(room.id);
+			client.emit("room_player_joined", "right");
+			this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+			this.startGame(room);
+		} 
+	}
+
+	@SubscribeMessage("invite_decline")
+	async handleInviteDecline(@ConnectedSocket() client: Socket, @MessageBody("uid") uid: string)
+	{
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id)) {
+			return ;
+		} else
+			this.joined.add(user.id);
+	}
+
 
 
 	startGame(room: Room) {
@@ -232,7 +290,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.leave(room.id);
 		room.observer.delete(client.id);
 		client.emit("reset_game");
-		client.emit("end_game");
+		client.emit("end_game", "");
 		let user = await this.gameService.getUserBySocketId(client.id);
 		this.joined.delete(user.id);
 	}
@@ -330,6 +388,7 @@ class Room {
 	full: boolean = false;
 	interval: any = null;
 	update: any = null;
+	reserved: string = "";
 	board: Board = new Board();
 	score_left: number = 0;
 	score_right: number = 0;
