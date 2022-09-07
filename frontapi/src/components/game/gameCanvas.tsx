@@ -8,6 +8,7 @@ import { game_socket } from "../../socket";
 import { Button } from '../utils/button';
 import './game.css';
 import {Vec} from "./gameTypes/Vec";
+import {Gameinvite} from "./gameinvite";
 
 type Room = {
 	id: string,
@@ -31,6 +32,8 @@ export function GameCanvas(): JSX.Element {
 	const [rightplayer, setRightplayer] = useState<string>("Player");
 	const [state, setState] = useState<string>("");
 	const [obsname, setObsname] = useState<string>("");
+	const [end, setEnd] = useState<boolean>(false);
+	const [winner, setWinner] = useState<string>("");
 
 	const board = new Board();
 	board.reset();
@@ -110,16 +113,31 @@ export function GameCanvas(): JSX.Element {
 			board.clear();
 		});
 
-		game_socket.socket.on("end_game", () => {
+		game_socket.socket.on("end_game", (w) => {
+			board.clear();
 			board.reset();
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
-			setState("");
-			setLeftplayer("Player");
-			setRightplayer("Player");
-			setLeft(0);
-			setRight(0);
+			if (w !== "") {
+				setWinner(w);
+				setEnd(true);
+				setTimeout(() => {
+					setState("");
+					setLeftplayer("Player");
+					setRightplayer("Player");
+					setLeft(0);
+					setRight(0);
+					setEnd(false);
+					setWinner("");
+				}, 1500);
+			} else {
+				setState("");
+				setLeftplayer("Player");
+				setRightplayer("Player");
+				setLeft(0);
+				setRight(0);
+			}
 		});
 
 		game_socket.socket.on("update_score", (score_left, score_right) => {
@@ -240,6 +258,8 @@ export function GameCanvas(): JSX.Element {
 			<div id="btnCtrl">
 				<Button id="game-button-resign" value="Exit" fontSize={1.2} onClick={() => { game_socket.socket.emit("observe_quit")}} />
 			</div>}
+			{ end && winner === "left" && <div id="game-end-screen">{leftplayer} Won!</div>}
+			{ end && winner === "right" && <div id="game-end-screen">{rightplayer} Won!</div>}
 		</section>
 	);
 

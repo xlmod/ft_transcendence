@@ -11,6 +11,7 @@
 
 	border: 1px solid var(--cNeon);
 	padding: 0.5em;
+	font-weight:550;
 }
 
 .generic-button:hover
