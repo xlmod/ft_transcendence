@@ -22,6 +22,7 @@ export function Gameinvite(props: IProps) {
 	};
 
 	const onInvite = async () => {
+		//
 		// send to game_scocket
 		props.close(true);
 	};
@@ -31,16 +32,17 @@ export function Gameinvite(props: IProps) {
 			<div id="gameinvite-wall">
 			</div>
 			<div id="gameinvite-window">
+				<span id="gameinvite-title">game options</span>
 				<div id="gameinvite-input">
 					<label>
-					<span className="gameinvite-input-toggle-label">speedball</span>
+					<span className="gameinvite-input-toggle-label">speed ball</span>
 						<ToggleSwitch
 							checked={false}
 							onChange={speedballChange}
 						/>
 					</label>
 					<label>
-					<span className="gameinvite-input-toggle-label">paddleshrink</span>
+					<span className="gameinvite-input-toggle-label">paddle shrink</span>
 						<ToggleSwitch
 							checked={false}
 							onChange={paddleshrinkChange}
