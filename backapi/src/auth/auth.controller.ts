@@ -32,11 +32,6 @@ export class AuthController {
 		});
 
 		res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
-
-		// For 2fa
-		// (!user.TwoFactorAuthToggle) ?
-		// 	res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`) :
-		// 	res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
 	}
 
 	@Get('logout')
