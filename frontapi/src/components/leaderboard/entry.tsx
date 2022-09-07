@@ -1,3 +1,4 @@
+import { Pseudo } from '../utils/pseudo';
 
 import './leaderboard.css';
 
@@ -15,7 +16,9 @@ export function Entry(props: IProps) {
 	return (
 		<div className="leaderboard-entry">
 			<div className="leaderboard-cell">{props.rank}</div>
-			<div className="leaderboard-cell">{props.pseudo}</div>
+			<Pseudo uid={ props.uid } pseudo={ props.pseudo }
+				isFriend={ props.isfriend } isBlocked={ false }
+				pseudoClassName="leaderboard-cell" menuClassName="menu-leaderboard" />
 			<div className="leaderboard-cell">{props.elo}</div>
 		</div>
 	);

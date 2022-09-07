@@ -244,6 +244,7 @@ export function GameCanvas(): JSX.Element {
 			<canvas ref={canvasRef} id="game"></canvas>
 			{ state === "" &&
 			<div id="btnCtrl">
+{/*				<Gameinvite close={ () => { } } />*/}
 				<Button id="game-button-start" value="Start" fontSize={1.2} onClick={() => { game_socket.socket.emit("join_room")}} />
 				<div id="obs">
 					<div id="obsButton" onClick={() => {game_socket.socket.emit("observe_room", obsname);}} >Observe</div>
