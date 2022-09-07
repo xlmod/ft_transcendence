@@ -164,12 +164,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (room == null)
 			return ;
 		if (room.observer.has(client.id)) {
-			client.leave(room.id);
-			room.observer.delete(client.id);
-			client.emit("reset_game");
-			client.emit("end_game");
-			let user = await this.gameService.getUserBySocketId(client.id);
-			this.joined.delete(user.id);
+			this.observerQuit(room, client.id);
 		}
 	}
 
@@ -232,10 +227,22 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return room; 
 	}
 
+	async observerQuit(room: Room, client_id: string) {
+		let client = this.gameService.getSocketBySocketId(client_id);
+		client.leave(room.id);
+		room.observer.delete(client.id);
+		client.emit("reset_game");
+		client.emit("end_game");
+		let user = await this.gameService.getUserBySocketId(client.id);
+		this.joined.delete(user.id);
+	}
+
 	async playerQuit(client_id: string) {
 		let room: Room | null = this.getRoomFromClientId(client_id)
 		if (room != null) {
-			if (room.full) {
+			if (room.observer.has(client_id)) {
+				this.observerQuit(room, client_id);
+			} else if (room.full) {
 				clearInterval(room.interval);
 				clearInterval(room.update);
 				if (room.player_left === client_id)
@@ -243,6 +250,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				else
 					this.setWinner(room, "left");
 			} else {
+
 				this.server.to(room.id).emit("reset_game");
 				this.server.to(room.id).emit("end_game", "");
 				this.gameService.getSocketBySocketId(client_id).leave(room.id);
