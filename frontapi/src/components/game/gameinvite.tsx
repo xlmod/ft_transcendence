@@ -8,7 +8,7 @@ import {ToggleSwitch} from "../utils/toggleswitch";
 import './gameinvite.css'
 
 interface IProps {
-	uid: string,
+	pseudo: string,
 	close: (update: boolean) => void,
 }
 
@@ -29,7 +29,7 @@ export function Gameinvite(props: IProps) {
 
 	const onInvite = () => {
 		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
-		let obj = {uid: props.uid, speedball:speedball, paddleshrink:paddleshrink, join:false};
+		let obj = {uid: props.pseudo, speedball:speedball, paddleshrink:paddleshrink, join:false};
 		setCode(encode(JSON.stringify(obj)));
 	};
 

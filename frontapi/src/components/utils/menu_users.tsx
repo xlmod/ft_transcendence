@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { iaxios } from '../../utils/axios';
 import CSS from 'csstype';
@@ -10,7 +10,6 @@ const FRONT_URL = "http://localhost:3000/";
 //const BACK_URL = "http://localhost:3333/relationship/";
 
 interface IProps {
-	uid :string,
 	pseudo :string,
 	isFriend :boolean,
 	isBlocked :boolean,
@@ -19,20 +18,32 @@ interface IProps {
 
 export function MenuUsers( props: IProps )
 {
+	const [_isFriend, setFriend] = useState( props.isFriend );
+	const [_isBlocked, setBlocked] = useState( props.isBlocked );
+
 	const clickFriend = () =>
 	{
-		iaxios.get( 'relationship/'
-			+ ( ( !props.isFriend ) ? 'add:' : 'remove:' ) + props.uid )
-			.catch( () => { } );
-		props.isFriend = !props.isFriend;
+		iaxios({
+			method: 'put',
+			url: 'relationship/' + ( !_isFriend ? 'add' : 'del' ),
+			data: { pseudo: props.pseudo },
+		})
+		.then( data => { setFriend( !_isFriend ) } )
+		.catch( () => { } );
 	}
 
 	const clickBlock = () =>
 	{
-		iaxios.get( 'relationship/'
-			+ ( ( !props.isBlocked ) ? 'block:' : 'unblock:' ) + props.uid )
-			.catch( () => { } );
-		props.isBlocked = !props.isBlocked;
+		iaxios({
+			method: 'patch',
+			url: 'relationship/' + ( !_isBlocked ? 'block' : 'unblock' ),
+			data: { pseudo: props.pseudo },
+		})
+		.then( data => {
+			setBlocked( !_isBlocked );
+			if( _isBlocked ) setFriend( false );
+		} )
+		.catch( () => { } );
 	}
 
 	const [invite, setInvite] = useState( false );
@@ -42,7 +53,7 @@ export function MenuUsers( props: IProps )
 			<nav>
 				<NavLink
 					className="nav-users"
-					to={FRONT_URL + "user:" + props.uid}>
+					to={ FRONT_URL + "user/" + props.pseudo }>
 					See profile
 				</NavLink>
 				<button
@@ -60,14 +71,14 @@ export function MenuUsers( props: IProps )
 				<button
 					className="nav-users"
 					onClick={ clickFriend }>
-					{ ( !props.isFriend ) ? "Add friend" : "Remove friend" }
+					{ !_isFriend ? "Add friend" : "Remove friend" }
 				</button>
 				<button
 					className="nav-users"
 					onClick={ clickBlock }>
-					{ ( !props.isBlocked ) ? "Block user" : "Unblock user" }
+					{ !_isBlocked ? "Block user" : "Unblock user" }
 				</button>
-				{ invite && <Gameinvite uid={props.uid} close={ () => { setInvite( false ); } } /> }
+				{ invite && <Gameinvite pseudo={props.pseudo} close={ () => { setInvite( false ); } } /> }
 			</nav>
 		</div>
 	);

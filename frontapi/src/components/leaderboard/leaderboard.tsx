@@ -2,6 +2,7 @@ import {useContext, useEffect, useState} from 'react';
 import {Entry} from './entry';
 
 import { AuthContext } from '../../services/auth.service';
+import { ILeaderboard, getLeaderboard, IUser, getBlocked } from '../utils/requester';
 
 import './leaderboard.css';
 import {iaxios} from '../../utils/axios';
@@ -11,31 +12,15 @@ export function Leaderboard() {
 	const {checkLogin} = useContext(AuthContext);
 	checkLogin();
 
-	const [entrylist, setEntrylist] = useState<[React.ReactNode | null]>([null]);
-	const [,updateState] = useState<{}>();
+	const [leaderboard, setLeaderboard] = useState< ILeaderboard[] | null >([]);
+	const [blocked, setBlocked] = useState< IUser[] | null >([]);
 
-	const addEntry = (uid: string, rank: number, pseudo: string, elo: number, isfriend: boolean) => {
-		let entries = entrylist;
-		entries.push(<Entry rank={rank} pseudo={pseudo} elo={elo} isfriend={isfriend} uid={uid}/>);	
-		setEntrylist(entries);
-	}
+	useEffect( () => {
+		getLeaderboard().then( list => { setLeaderboard( list ); } );
+		getBlocked().then( list => { setBlocked( list ); } );
+	}, [] );
 
-	const getLeaderboard = async () => {
-		return await iaxios.get('/user/leaderboard')
-			.then((data) => {
-				return  data.data;
-			}).catch(() => {return []});
-	};
-
-	useEffect(() => {
-		getLeaderboard().then((leaderboard) => {
-			setEntrylist([null]);
-			for (const [i, obj] of leaderboard.entries()) {
-				addEntry(obj.pseudo, i + 1, obj.pseudo, obj.elo, obj.isfriend);
-				updateState({});
-			}
-		});
-	}, []);
+	let index = 1;
 
 	return (
 		<main>
@@ -47,7 +32,13 @@ export function Leaderboard() {
 					<div className="leaderboard-header-cell">ELO</div>
 				</div>
 				<div id="leaderboard-entry-list">
-					{entrylist}
+					{ leaderboard ? leaderboard.map( entry => (
+						<Entry rank={ index++ } pseudo={ entry.pseudo } elo={ entry.elo }
+							isfriend={ entry.isfriend }
+							isblocked={ ( blocked &&
+										blocked.find( user => user.pseudo === entry.pseudo ) ) ?
+										true : false } />
+					)) : "" }
 				</div>
 			</div>
 			</section>
