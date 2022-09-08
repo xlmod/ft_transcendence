@@ -78,7 +78,7 @@ export function MenuUsers( props: IProps )
 					onClick={ clickBlock }>
 					{ !_isBlocked ? "Block user" : "Unblock user" }
 				</button>
-				{ invite && <Gameinvite close={ () => { setInvite( false ); } } /> }
+				{ invite && <Gameinvite uid={props.uid} close={ () => { setInvite( false ); } } /> }
 			</nav>
 		</div>
 	);

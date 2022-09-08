@@ -12,9 +12,6 @@ class GameSocket {
 		});
 		this.socket.on("disconnect", () => {
 		});
-		this.socket.on("echo", (data) => {
-			console.log(`echo : ${data}`);
-		});
 	}
 }
 
