@@ -335,12 +335,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let user_right = await this.gameService.getUserBySocketId(room.player_right);
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
-			await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
-			await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			// await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
+			// await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
-			await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
-			await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			// await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
+			// await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game", side);
