@@ -24,7 +24,12 @@ export class UserService {
 	}
 
 	async findById(id: string): Promise<User> {
-		return await this.userRepository.findOne({ id });
+		try {
+			const user = await this.userRepository.findOne({ id });
+			if (!user)
+				throw Error;
+			return user;
+		} catch(e) { throw new NotFoundException('User not found'); }
 	}
 
 	async findByEmail(email: string): Promise<User> {
@@ -35,11 +40,16 @@ export class UserService {
 		});
 	}
 	async findByPseudo(pseudo: string): Promise<User> {
-		return await this.userRepository.findOne({
-			where: {
-				pseudo: pseudo,
-			},
-		});
+		try {
+			const user = await this.userRepository.findOne({
+				where: {
+					pseudo: pseudo,
+				},
+			});
+			if (!user)
+				throw Error;
+			return user;
+		} catch(e) { throw new NotFoundException('User not found')}
 	}
 
 	async create(data: CreateUserDto): Promise<void> {
@@ -218,8 +228,9 @@ export class UserService {
 		// return (await this.findById(mid)).blocks;
 		let ret = new Array();
 		const ids = (await this.findById(mid)).blocks;
-		for(const id of ids)
-			ret.push(await this.findById(id));
+		if (ids)
+			for(const id of ids)
+				ret.push(await this.findById(id));
 		return ret;
 	}
 

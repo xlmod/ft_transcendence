@@ -39,13 +39,17 @@ export class UserController {
 
 	@Get('/me')
 	async GetCurrenlyUser(@Res({ passthrough: true }) res) {
-		return {uid: res.locals.uuid};
-		// return new UserDto(await this.userService.findById(res.locals.uuid));
+		return new UserDto(await this.userService.findById(res.locals.uuid));
 	}
 
-	@Get(':id')
-	async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-		return new UserDto(await this.userService.findById(id));
+	// @Get(':id')
+	// async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+	// 	return new UserDto(await this.userService.findById(id));
+	// }
+
+	@Get(':pseudo')
+	async findPseudo(@Param('pseudo') pseudo: string) {
+		return new UserDto(await this.userService.findByPseudo(pseudo));
 	}
 
 	/**
