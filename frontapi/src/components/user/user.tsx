@@ -7,6 +7,7 @@ import {iaxios} from "../../utils/axios";
 import { IMatchHistory, getMatchHistory } from '../utils/requester';
 import {Button} from '../utils/button';
 import {Useredit} from './useredit';
+import { EntryMatch } from './entry_match';
 
 import './user.css';
 
@@ -64,7 +65,6 @@ export function User() {
 		getMatchHistory().then( list => { setMatchHistory( list ); } );
 	}, [edit]);
 
-
 	if (!connected)
 		return(<Navigate to="/signin" />);
 	return (
@@ -90,7 +90,17 @@ export function User() {
 				</div>
 				<div id="user-matchhistory">
 					<div className="user-title">Match History</div>
-					<table className="user-list">
+					<table className="user-list" id="match-history">
+						<tr>
+							<th>Opponent</th>
+							<th>Score</th>
+							<th>Date</th>
+						</tr>
+						{ matchHistory ? matchHistory.map( match => (
+							<EntryMatch pseudoViewer={ user.pseudo } date={ match.CreatedAt }
+								leftwin={ match.leftwin } lscore={ match.lscore }
+								rscore= { match.rscore } luser={ match.luser } ruser={ match.ruser } />
+						) ) : "" }
 					</table>
 				</div>
 			</section>

@@ -27,8 +27,12 @@ export interface ILeaderboard
 
 export interface IMatchHistory
 {
-	win :number | null,
-	loose :number | null,
+	CreatedAt :string,
+	leftwin :boolean,
+	lscore :number,
+	luser :IUser,
+	rscore :number,
+	ruser :IUser,
 }
 
 export async function getFriends()
@@ -76,5 +80,7 @@ export async function getMatchHistory()
 			console.log( data.data );
 			return data.data;
 		} )
-		.catch( () => { return [] } );
+		.catch( () => {
+			return [];
+		} );
 }
