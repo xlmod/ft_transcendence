@@ -40,8 +40,8 @@ export function MenuUsers( props: IProps )
 			data: { pseudo: props.pseudo },
 		})
 		.then( data => {
+			setFriend( false );
 			setBlocked( !_isBlocked );
-			if( _isBlocked ) setFriend( false );
 		} )
 		.catch( () => { } );
 	}
@@ -53,7 +53,7 @@ export function MenuUsers( props: IProps )
 			<nav>
 				<NavLink
 					className="nav-users"
-					to={ FRONT_URL + "user/" + props.pseudo }>
+					to={ "/user/" + props.pseudo }>
 					See profile
 				</NavLink>
 				<button

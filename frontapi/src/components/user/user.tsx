@@ -1,17 +1,16 @@
 import {useContext, useEffect, useState} from 'react';
 import {Navigate} from 'react-router';
 
-import {iaxios} from "../../utils/axios";
 import { AuthContext } from '../../services/auth.service';
+import {iaxios} from "../../utils/axios";
 
-import './user.css';
-
+import { IMatchHistory, getMatchHistory } from '../utils/requester';
 import {Button} from '../utils/button';
 import {Useredit} from './useredit';
 
-interface IProps {}
+import './user.css';
 
-export function User(props: IProps) {
+export function User() {
 
 	const {checkLogin} = useContext(AuthContext);
 	checkLogin();
@@ -19,6 +18,7 @@ export function User(props: IProps) {
 	const [user, setUser] = useState<any>([]);
 	const [connected, setConnected] = useState<boolean>(true);
 	const [edit, setEdit] = useState<boolean>(false);
+	const [matchHistory, setMatchHistory] = useState< IMatchHistory[] | null >([]);
 
 
 	const getUid = async () => {
@@ -60,6 +60,8 @@ export function User(props: IProps) {
 
 	useEffect(() => {
 		updateUserData();
+
+		getMatchHistory().then( list => { setMatchHistory( list ); } );
 	}, [edit]);
 
 
@@ -88,8 +90,8 @@ export function User(props: IProps) {
 				</div>
 				<div id="user-matchhistory">
 					<div className="user-title">Match History</div>
-					<div className="user-list">
-					</div>
+					<table className="user-list">
+					</table>
 				</div>
 			</section>
 		</main>

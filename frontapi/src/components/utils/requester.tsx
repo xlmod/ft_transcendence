@@ -25,6 +25,12 @@ export interface ILeaderboard
 	pseudo :string,
 }
 
+export interface IMatchHistory
+{
+	win :number | null,
+	loose :number | null,
+}
+
 export async function getFriends()
 : Promise< IUser[] >
 {
@@ -61,3 +67,14 @@ export async function getLeaderboard()
 		.catch( () => { return [] } );
 }
 
+export async function getMatchHistory()
+: Promise< IMatchHistory[] >
+{
+	return iaxios.get( 'match/history' )
+		.then( data => {
+			console.log( "match history" );
+			console.log( data.data );
+			return data.data;
+		} )
+		.catch( () => { return [] } );
+}
