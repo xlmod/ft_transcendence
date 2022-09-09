@@ -1,4 +1,4 @@
-import { ConflictException, Controller, Get, ImATeapotException, NotFoundException, Param, Res, UseGuards } from '@nestjs/common';
+import { ConflictException, Controller, Get, ImATeapotException, NotFoundException, Param, ParseUUIDPipe, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { existsSync } from 'fs';
 import { AppService } from './app.service';
@@ -20,25 +20,12 @@ export class AppController {
 		throw new ImATeapotException(`Cup of Tea ${user.pseudo} ?`);
 	}
 
-	@Get('/filename/:fileid')
+	@Get('/filename/:id')
 	@UseGuards(JwtAuthGuard)
-	async SendAvatarFileId(@Param('filename') filename: string, @Res() res: Response) {
+	async SendAvatarFileId(@Param('filename', new ParseUUIDPipe()) filename: string, @Res() res: Response) {
 		const user = await this.userService.findById(filename);
 		if (!user)
 			throw new NotFoundException('User not found');
-		if (existsSync(process.env.STORAGE + user.avatar)) {
-			return res.sendFile(user.avatar, { root: process.env.STORAGE });
-		}
-		throw new ConflictException('Storage not found');
-	}
-
-	@Get('/profile/:pseudo')
-	@UseGuards(JwtAuthGuard)
-	async SendAvatarFile(@Param('pseudo') pseudo: string, @Res() res: Response) {
-		const user = await this.userService.findByPseudo(pseudo);
-		if (!user) {
-			throw new NotFoundException('User not found');
-		}
 		if (existsSync(process.env.STORAGE + user.avatar)) {
 			return res.sendFile(user.avatar, { root: process.env.STORAGE });
 		}
