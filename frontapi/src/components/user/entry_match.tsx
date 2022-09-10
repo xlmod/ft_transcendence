@@ -10,6 +10,8 @@ interface IProps
 	rscore :number,
 	luser :IUser,
 	ruser :IUser,
+	isFriend :boolean,
+	isBlocked :boolean,
 }
 
 export function EntryMatch( props :IProps )
@@ -34,7 +36,7 @@ export function EntryMatch( props :IProps )
 				<div className="pseudovs">
 					<span className="VS">VS </span>
 					<Pseudo pseudo={ him.pseudo ? him.pseudo : "" }
-						isFriend={ false } isBlocked={ false }
+						isFriend={ props.isFriend } isBlocked={ props.isBlocked }
 						pseudoClassName="pseudo-match" menuClassName="menu-match" />
 				</div>
 				<span className="stats">

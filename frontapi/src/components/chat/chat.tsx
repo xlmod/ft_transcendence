@@ -12,6 +12,7 @@ export function Chat()
 {
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
+	const [selectFriends, setSelectFriends] = useState< boolean >( true );
 	const [update,updateState] = useState<{}>();
 
 	let inRef = useRef<HTMLInputElement | null>(null);
@@ -37,13 +38,10 @@ export function Chat()
 		}
 	}
 
-/*
 	const waitFriends = async () => {
-		setFriends(null);
-		const arrayFriends :IFriend[] = await getFriends();
+		const arrayFriends :IUser[] = await getFriends();
 		setFriends( arrayFriends );
 	};
-*/
 
 	useEffect( () => {
 		let msgdiv: HTMLDivElement | null = msgRef.current;
@@ -51,7 +49,7 @@ export function Chat()
 			msgdiv.scrollTop = msgdiv.scrollHeight;
 		}
 
-		getFriends().then( list => { setFriends( list ); } );
+		waitFriends();
 	}, [update] );
 
 		return (
@@ -82,11 +80,14 @@ export function Chat()
 						<div id="chat-friends" className="chat-block">
 							<div className="chat-title">Friends</div>
 							<div className="chat-list"  onClick={ () => { updateState({}); } }>
-								{ friends ? friends.map( friend => (
-									<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" }
-										isFriend={ true } isBlocked={ false }
-										pseudoClassName="friends" menuClassName="menu-friends" />
-								)) : "" }
+								{ selectFriends
+									? ( friends ? friends.map( friend => (
+										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" }
+											isFriend={ true } isBlocked={ false }
+											pseudoClassName="friends" menuClassName="menu-friends" />
+									)) : "" )
+									: ""
+								}
 							</div>
 						</div>
 						<div id="chat-members" className="chat-block">

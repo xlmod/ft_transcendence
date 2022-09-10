@@ -2,20 +2,20 @@ import { iaxios } from '../../utils/axios';
 
 export interface IUser
 {
-    CreatedAt :string | null,
-    TwoFactorAuth :string | null,
-    TwoFactorAuthToggle :boolean | null,
-    UpdatedAt :string | null,
-    avatar :string | null,
-    blocks :string | null,
-    elo :number | null,
-    email :string | null,
-    firstName :string | null,
-    id :string | null,
-    lastName :string | null,
-    lose :number | null,
-    pseudo :string | null,
-    win :number | null,
+    CreatedAt :string,
+    TwoFactorAuth :string,
+    TwoFactorAuthToggle :boolean,
+    UpdatedAt :string,
+    avatar :string,
+    blocks :string,
+    elo :number,
+    email :string,
+    firstName :string,
+    id :string,
+    lastName :string,
+    lose :number,
+    pseudo :string,
+    win :number,
 }
 
 export interface ILeaderboard
@@ -35,7 +35,47 @@ export interface IMatchHistory
 	ruser :IUser,
 }
 
-export async function getFriends()
+export function getMe()
+: Promise< IUser >
+{
+	return iaxios.get( '/user/me' )
+		.then( data => {
+			console.log( 'me' );
+			console.log( data.data );
+			return data.data;
+		} )
+		.catch( () => { return } );
+}
+
+export function getMePseudo( pseudo :string )
+: Promise< IUser >
+{
+	return iaxios.get( '/user/' + pseudo )
+		.then( data => {
+			console.log( 'me pseudo' );
+			console.log( data.data );
+			return data.data;
+		} )
+		.catch( () => { return } );
+}
+
+export function getAvatar( uid :string )
+: Promise< File >
+{
+	return iaxios.get( 'filename/' + uid )
+		.then( data => {
+			console.log( 'avatar' );
+			console.log( typeof( data.data ) );
+			return data.data;
+		} )
+		.catch( ( error ) => {
+			console.log( 'failed avatar ' + uid );
+			console.log( 'error ' + error );
+			return ;
+		} );
+}
+
+export function getFriends()
 : Promise< IUser[] >
 {
 	return iaxios.get( 'relationship' )
@@ -47,7 +87,7 @@ export async function getFriends()
 		.catch( () => { return [] } );
 }
 
-export async function getBlocked()
+export function getBlocked()
 : Promise< IUser[] >
 {
 	return iaxios.get( 'relationship/block' )
@@ -71,7 +111,7 @@ export async function getLeaderboard()
 		.catch( () => { return [] } );
 }
 
-export async function getMatchHistory()
+export function getMatchHistory()
 : Promise< IMatchHistory[] >
 {
 	return iaxios.get( 'match/history' )
@@ -83,4 +123,42 @@ export async function getMatchHistory()
 		.catch( () => {
 			return [];
 		} );
+}
+
+export function getMatchHistoryID( uid :string )
+: Promise< IMatchHistory[] >
+{
+	return iaxios.get( 'match/history/' + uid )
+		.then( data => {
+			console.log( "match history " + uid );
+			console.log( data.data );
+			return data.data;
+		} )
+		.catch( () => {
+			return [];
+		} );
+}
+
+export function putFriend( _pseudo :string, _which :string )
+: Promise< boolean >
+{
+	return iaxios({
+			method: 'put',
+			url: 'relationship/' + _which,
+			data: { pseudo: _pseudo },
+		})
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+export function patchBlock( _pseudo :string, _which :string )
+: Promise< boolean >
+{
+	return iaxios({
+			method: 'patch',
+			url: 'relationship/' + _which,
+			data: { pseudo: _pseudo },
+		})
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
 }

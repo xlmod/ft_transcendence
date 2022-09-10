@@ -50,7 +50,7 @@
 	margin-left: 5%;
 }
 
-#user-id-info * {
+#user-id-info * :not(.menu-match) {
 	padding:0;
 	margin:0;
 	padding-bottom:0.3em;
@@ -65,7 +65,7 @@
 
 }
 
-#user-id-pseudo {
+#user-id-pseudo :not(.menu-match) {
 	font-size: 0.9em;
 	color: var(--cNeon);
 }
@@ -77,11 +77,11 @@
 }
 
 #user-matchhistory {
-/*	margin: 5%;
-	margin-top: 0;*/
+/*	margin: 5%; */
+	margin-top: 3em;
 	display:flex;
 	flex-direction:column;
-	overflow-y: scroll;
+/*	overflow-y: scroll;*/
 }
 
 .user-title {
@@ -94,14 +94,18 @@
 	align-self:center;
 
 	margin-bottom: 1em;
+/*
 	margin-top: 2em;
+*/
 }
 
 .user-list {
 	color: var( --cNeon );
 
+/*
 	overflow-wrap: anywhere;
 	overflow-y:scroll;
+*/
 
 	align-self: flex-start;
 

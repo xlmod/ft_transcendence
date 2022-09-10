@@ -77,6 +77,7 @@
 	line-height: 1.9;
 
 	width:33.3333%;
+	overflow: hidden;
 }
 
 .menu-leaderboard
