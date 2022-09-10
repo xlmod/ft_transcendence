@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DeleteResult } from 'typeorm';
 import { User } from './user.entity';
@@ -83,7 +83,8 @@ export class UserService {
 		await this.userRepository.update(id, user);
 	}
 
-	async updateavatar(user: User, data: string): Promise<void> {
+	async updateavatar(id: string, data: string): Promise<void> {
+		const user = await this.findById(id);
 		if (!user || !data)
 			throw new BadRequestException();
 		if (user.avatar !== data && fs.existsSync(process.env.STORAGE + user.avatar))

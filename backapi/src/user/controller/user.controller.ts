@@ -56,15 +56,13 @@ export class UserController {
 	 * 
 	 * @param {Response} res
 	 * @param {Express.Multer.File} file key 'file' -> image file
-	 * @returns {User} with avatar uptade otherwise throw exception
+	 * @returns {void} with avatar uptade otherwise throw exception
 	 */
 	@Post('upload/avatar')
 	@UseInterceptors(FileInterceptor('file', MFileOptions))
-	async UploadAvatar(@Res({ passthrough: true }) res: Response, @UploadedFile() file: Express.Multer.File) {
+	async UploadAvatar(@Res({ passthrough: true }) res: Response, @UploadedFile() file: Express.Multer.File): Promise<void> {
 		try {
-			const user = await this.userService.findById(res.locals.uuid);
-			await this.userService.updateavatar(user, file.filename);
-			return user;
+			await this.userService.updateavatar(res.locals.uuid, file.filename);
 		} catch(error) {
 			throw new NotFoundException('User not found');
 		}
