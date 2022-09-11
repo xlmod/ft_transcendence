@@ -16,12 +16,18 @@ export function TFA()
 	const [connected, setConnected] = useState< boolean >( true );
 	const [input, setInput] = useState("");
 	const [failed, setFailed] = useState("");
+	const [auth, setAuth] = useState< boolean >( false );
+
+	const waitPostTFACode = async( _code :string ) => {
+		const _auth :boolean = await postTFACode( _code );
+		setAuth( _auth );
+	};
 
 	const handleOnChange = ( res: string ) => {
 		setInput( res );
 		if( res[0] && res[1] && res[2] && res[3] && res[4] && res[5] )
 		{
-			postTFACode( res );
+			waitPostTFACode( res );
 		}
 	};
 
@@ -34,7 +40,7 @@ export function TFA()
 		waitTFAAuth();
 	}, [] );
 
-	if( !connected )
+	if( !connected || auth )
 		return( <Navigate to="/" /> );
 
 	return (

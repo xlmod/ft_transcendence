@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from '../../user/user.service';
 import { TwoFactorAuthGuard } from './tfa.guard';
+import { JwtAuthGuard } from '../jwt-auth.guard';
 
 @Controller('tfa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -17,7 +18,7 @@ export class TwoFactorAuthenticationController {
 	) {}
 
 	@Get()
-	@UseGuards(AuthGuard('jwt-two-factor'))
+	@UseGuards(JwtAuthGuard)
 	async Qrcb(@Res() res: Response) {
 		const user = await this.userService.findById(res.locals.uuid);
 		const otpauthUrl = 'otpauth://totp/'+process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME+':'+ user.id+'?secret='+user.TwoFactorAuth
@@ -32,6 +33,7 @@ export class TwoFactorAuthenticationController {
 	}
 
 	@Post('generate')
+	@UseGuards(JwtAuthGuard)
 	async register(@Res() res: Response, @Req() req) {
 		const user = await this.userService.findById(res.locals.uuid);
 		if (!user)
@@ -52,13 +54,11 @@ export class TwoFactorAuthenticationController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 
-		const user = await this.userService.findById(res.locals.uuid)
+		const user = await this.userService.findById(res.locals.uuid);
 		const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(tfadto.twoFactorAuthenticationCode, user);
-		console.log(isCodeValid, 'ttest');
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
 
-		console.log('Cookies: ', req.cookies);
 		res.clearCookie('tfa_token');
 		const access_token = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
 		res.cookie('access_token', access_token, { httpOnly: true });
