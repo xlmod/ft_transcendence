@@ -9,7 +9,7 @@ export class TwoFactorAuthGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const req = context.switchToHttp().getRequest();
 		try {
-			const user = await this.authService.JwtVerify(req.cookies['access_token']);
+			const user = await this.authService.JwtVerify(req.cookies['tfa_token']);
 			if (!user.TwoFactorAuthToggle || !user.TwoFactorAuth)
 				throw Error;
 		} catch(error) {
