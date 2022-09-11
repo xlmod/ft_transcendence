@@ -9,13 +9,10 @@ export class AppMiddleware implements NestMiddleware {
 	constructor(private jwtService: JwtService, private userService: UserService) {}
 	use(req: Request, res: Response, next: NextFunction) {
 		// console.log(req.cookies);
-		if (req.cookies['2fa_token']) {
+		if (req.cookies['tfa_token']) {
 			try {
-				const tfa = this.jwtService.decode(req.cookies['2fa_token']);
-				console.log('tfa: ', tfa);
+				const tfa = this.jwtService.decode(req.cookies['tfa_token']);
 				res.locals.uuid = tfa['uuid'];
-				if (tfa)
-					next();
 			} catch {};
 		}
 		if (req.cookies['access_token']) {
