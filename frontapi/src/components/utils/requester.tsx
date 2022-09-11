@@ -192,7 +192,7 @@ export function patchPseudo( _pseudo :string )
 }
 
 
-export function patchTFA( _tfa :boolean )
+export function patchTFAToggle( _tfa :boolean )
 : Promise< boolean >
 {
 	return iaxios({
@@ -204,7 +204,7 @@ export function patchTFA( _tfa :boolean )
 		.catch( () => { return false; } );
 }
 
-export function postTFA()
+export function postTFAToggle()
 : Promise< boolean >
 {
 	return iaxios.post( 'tfa/generate' )
@@ -223,4 +223,24 @@ export function postAvatar( _avatar :File )
 		})
 		.then( () => { return true ; } )
 		.catch( () => { return false; } );
+}
+
+export function getTFAAuth()
+: Promise< boolean >
+{
+	return iaxios.get( 'tfa/me' )
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+export function postTFACode( tfaCode :string )
+: Promise< boolean >
+{
+	return iaxios({
+		method: 'post',
+		url: 'tfa/authenticate',
+		data: { twoFactorAuthenticationCode: tfaCode },
+	})
+	.then( () => { return true; } )
+	.catch( () => { return false; } );
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import {Navigate} from "react-router";
 
 import { iaxios } from "../../utils/axios";
-import { patchPseudo, postTFA, patchTFA, postAvatar } from '../utils/requester';
+import { patchPseudo, postTFAToggle, patchTFAToggle, postAvatar } from '../utils/requester';
 import {Button} from "../utils/button";
 import {Fileinput} from "../utils/fileinput";
 import {Textinput} from "../utils/textinput";
@@ -68,7 +68,7 @@ export function Useredit(props: IProps) {
 		console.log( 'new tfa ' + tfa );
 		console.log( 'old tfa ' + props.tfa );
 		if (tfa != props.tfa) {
-			let connected = await tfa?postTFA():patchTFA( false );
+			let connected = await tfa?postTFAToggle():patchTFAToggle( false );
 			if (!connected)
 				setConnected(connected);
 		}
