@@ -60,17 +60,33 @@ export function getMePseudo( pseudo :string )
 }
 
 export function getAvatar( uid :string )
-: Promise< File >
+: Promise< Blob >
 {
-	return iaxios.get( 'filename/' + uid )
+	return iaxios({
+			method: 'get',
+			url: 'filename/' + uid,
+			responseType: 'blob'
+		})
 		.then( data => {
-			console.log( 'avatar' );
-			console.log( typeof( data.data ) );
 			return data.data;
 		} )
 		.catch( ( error ) => {
-			console.log( 'failed avatar ' + uid );
-			console.log( 'error ' + error );
+			return ;
+		} );
+}
+
+export function getQR()
+: Promise< Blob >
+{
+	return iaxios({
+			method: 'get',
+			url: 'tfa',
+			responseType: 'blob'
+		})
+		.then( data => {
+			return data.data;
+		} )
+		.catch( ( error ) => {
 			return ;
 		} );
 }
@@ -160,5 +176,51 @@ export function patchBlock( _pseudo :string, _which :string )
 			data: { pseudo: _pseudo },
 		})
 		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+export function patchPseudo( _pseudo :string )
+: Promise< boolean >
+{
+	return iaxios({
+			method: 'patch',
+			url: '/user/',
+			data: { pseudo: _pseudo },
+		})
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+
+export function patchTFA( _tfa :boolean )
+: Promise< boolean >
+{
+	return iaxios({
+			method: 'patch',
+			url: 'user',
+			data: { TwoFactorAuthToggle: _tfa },
+		})
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+export function postTFA()
+: Promise< boolean >
+{
+	return iaxios.post( 'tfa/generate' )
+		.then( () => { return true; } )
+		.catch( () => { return false; } );
+}
+
+export function postAvatar( _avatar :File )
+: Promise< boolean >
+{
+	return iaxios({
+			method: 'post',
+			url: 'user/upload/avatar',
+			data: { file: _avatar },
+			headers: { 'Content-Type': 'multipart/form-data' }
+		})
+		.then( () => { return true ; } )
 		.catch( () => { return false; } );
 }

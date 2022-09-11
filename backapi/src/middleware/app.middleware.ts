@@ -19,7 +19,7 @@ export class AppMiddleware implements NestMiddleware {
 			}
 		}
 		// console.log('req.user', req.user);
-		console.log('mi', res.locals.uuid, '->', req.cookies);
+//		console.log('mi', res.locals.uuid, '->', req.cookies);
 		// console.log('mid', req.cookies['access_token']);
 		next();
 	}

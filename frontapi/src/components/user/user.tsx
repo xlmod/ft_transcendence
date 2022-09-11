@@ -10,6 +10,7 @@ import { Button } from '../utils/button';
 import { Pseudo } from '../utils/pseudo';
 import {Useredit} from './useredit';
 import { EntryMatch } from './entry_match';
+import { QRCode } from './qr_code';
 
 import './user.css';
 
@@ -24,16 +25,10 @@ export function User() {
 	const [ friends, setFriends] = useState< IUser[] | null >([]);
 	const [ blocked, setBlocked] = useState< IUser[] | null >([]);
 	const [matchHistory, setMatchHistory] = useState< IMatchHistory[] | null >([]);
-	const [avatar, setAvatar] = useState< File | null >();
+	const [avatar, setAvatar] = useState< Blob >();
 	const { pseudo } = useParams();
-/*
-	const getAvatar = async (uid: string) => {
-		return await iaxios.get('/profile/' + uid)
-			.then( (data) => {
-				return  data.data;
-			}).catch(() => {return []});
-	};
-*/
+	const [url, setUrl] = useState< string | void >("");
+
 	const waitMe = async() => {
 		const _me :IUser = await getMe();
 		setMe( _me );
@@ -54,7 +49,7 @@ export function User() {
 		{
 			const _user :IUser = await getMe();
 			const _matchHistory :IMatchHistory[] = await getMatchHistory();
-			const _avatar :File = await getAvatar( _user.id );
+			let _avatar :Blob = await getAvatar( _user.id );
 			setUser( _user );
 			setMatchHistory( _matchHistory );
 			setAvatar( _avatar );
@@ -63,16 +58,12 @@ export function User() {
 		{
 			const _user :IUser = await getMePseudo( _pseudo );
 			const _matchHistory :IMatchHistory[] = await getMatchHistoryID( _user?_user.id:"" );
-			const _avatar :File = await getAvatar( _user.id );
+			const _avatar :Blob = await getAvatar( _user.id );
 			setUser( _user );
 			setMatchHistory( _matchHistory );
 			setAvatar( _avatar );
 		}
 	}; 
-
-	const closeUserEdit = () => {
-		setEdit(false);
-	}
 
 	useEffect(() => {
 		waitMe();
@@ -81,15 +72,16 @@ export function User() {
 		waitUserMatch( pseudo?pseudo:"" );
 	}, [edit, pseudo]);
 
+
 	return (
 		<main>
 			<section id="user-section">
-				{user && edit && <Useredit close={closeUserEdit}
-							pseudo={user.pseudo?user.pseudo:""}
-							tfa={user.TwoFactorAuthToggle?user.TwoFactorAuthToggle:true}/>}
+				{me && edit && <Useredit close={() => {setEdit(false)}}
+							pseudo={me.pseudo}
+							tfa={me.TwoFactorAuthToggle}/>}
 				<div id="user-id">
 					<div id="user-id-avatar">
-						<img src={avatar?"yes":"no"}/>
+						<img src={avatar?URL.createObjectURL( avatar ):'./default-profile.jpg'} />
 					</div>
 					<div id="user-id-info">
 						<div id="user-id-name">
@@ -111,11 +103,14 @@ export function User() {
 							<p>{user?user.elo:""}</p>
 						</div>
 						{ user && me && me.pseudo !== user.pseudo
-							? ""
-							: <Button id="user-info-edit" value="edit info"
+							?	""
+							:	<Button id="user-info-edit" value="edit info"
 								fontSize={0.7} onClick={() => {setEdit(true)}} /> }
 					</div>
 				</div>
+				{ user && me && ( me.pseudo !== user.pseudo || !me.TwoFactorAuthToggle )
+					?	""
+					:	<QRCode /> }
 				<div id="user-matchhistory">
 					<div className="user-title">Match History</div>
 					<table className="user-list" id="match-history">

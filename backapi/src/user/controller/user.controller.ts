@@ -64,7 +64,7 @@ export class UserController {
 		try {
 			await this.userService.updateavatar(res.locals.uuid, file.filename);
 		} catch(error) {
-			throw new NotFoundException('User not found');
+			throw new NotFoundException('User not found or cannot update');
 		}
 	}
 
