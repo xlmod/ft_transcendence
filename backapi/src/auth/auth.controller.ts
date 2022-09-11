@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
+import { identity } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -24,14 +25,20 @@ export class AuthController {
 		const user = await this.authService.login(req.user);
 		if (user === undefined)
 			throw new UnauthorizedException();		// maybe remove later
-		console.log(user);
-		const jtoken = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
-
-		res.cookie('access_token', jtoken, {
-			httpOnly: true,
-		});
-
-		res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
+		// console.log(user);
+		if (user.TwoFactorAuthToggle) {
+			const tfa = this.jwtService.sign({uuid: user.id});
+			res.cookie('tfa_token', tfa, {
+				httpOnly: true,
+			});
+			res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/tfa`);
+		} else {
+			const jtoken = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
+			res.cookie('access_token', jtoken, {
+				httpOnly: true,
+			});
+			res.redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}/game`);
+		}
 	}
 
 	@Get('logout')

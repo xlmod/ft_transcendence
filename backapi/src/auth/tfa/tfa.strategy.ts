@@ -14,7 +14,7 @@ export class JwtTwoFactorStrategy extends PassportStrategy(Strategy, 'jwt-two-fa
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([(request: any) => {
-				return request.cookies['access_token'];
+				return request.cookies['tfa_token'];
 			}]),
 			secretOrKey: process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME,
 		});

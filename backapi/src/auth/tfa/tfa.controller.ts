@@ -25,6 +25,12 @@ export class TwoFactorAuthenticationController {
 		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthUrl);
 	}
 
+	@Get('me')
+	@UseGuards(TwoFactorAuthGuard)
+	async Getmy2faToken(@Res() res: Response) {
+		return this.userService.findById(res.locals.uuid);
+	}
+
 	@Post('generate')
 	async register(@Res() res: Response, @Req() req) {
 		const user = await this.userService.findById(res.locals.uuid);
@@ -52,6 +58,8 @@ export class TwoFactorAuthenticationController {
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
 
+		console.log('Cookies: ', req.cookies);
+		res.clearCookie('tfa_token');
 		const access_token = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
 		res.cookie('access_token', access_token, { httpOnly: true });
 		// const accessTokenCookie = this.authenticationService.getCookieWithJwtAccessToken(user.id, true);
