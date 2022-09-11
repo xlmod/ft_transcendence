@@ -52,11 +52,15 @@
 #playerLeftName{
 	align-self: flex-start;
 	margin-top: auto;
+	margin-right: 1em;
+	overflow: hidden;
 }
 
 #playerRightName{
 	align-self: flex-end;
 	margin-top: auto;
+	margin-left: 1em;
+	overflow: hidden;
 }
 
 #playerLeftScore{

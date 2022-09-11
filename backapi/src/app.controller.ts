@@ -22,8 +22,8 @@ export class AppController {
 
 	@Get('/filename/:id')
 	@UseGuards(JwtAuthGuard)
-	async SendAvatarFileId(@Param('filename', new ParseUUIDPipe()) filename: string, @Res() res: Response) {
-		const user = await this.userService.findById(filename);
+	async SendAvatarFileId(@Param('id', new ParseUUIDPipe()) id: string, @Res() res: Response) {
+		const user = await this.userService.findById(id);
 		if (!user)
 			throw new NotFoundException('User not found');
 		if (existsSync(process.env.STORAGE + user.avatar)) {
