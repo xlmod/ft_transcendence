@@ -1,17 +1,18 @@
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router';
 
 import { AuthContext } from '../../services/auth.service';
-import {iaxios} from "../../utils/axios";
+import { iaxios } from "../../utils/axios";
 
-import { IMatchHistory, getMatchHistory, getMatchHistoryID, IUser,
-		getMe, getMePseudo, getAvatar, getFriends, getBlocked } from '../utils/requester';
+import { IUser, IMatchHistory,
+		getUser, getAvatar, getFriends, getBlocked,
+		getMatchHistory } from '../utils/requester';
 import { Button } from '../utils/button';
 import { Pseudo } from '../utils/pseudo';
-import {Useredit} from './useredit';
+import { QRCode } from './qr_code';
+import { Useredit } from './useredit';
 import { Userdelete } from './userdelete';
 import { EntryMatch } from './entry_match';
-import { QRCode } from './qr_code';
 
 import './user.css';
 
@@ -29,10 +30,9 @@ export function User() {
 	const [matchHistory, setMatchHistory] = useState< IMatchHistory[] | null >([]);
 	const [avatar, setAvatar] = useState< Blob >();
 	const { pseudo } = useParams();
-	const [url, setUrl] = useState< string | void >("");
 
 	const waitMe = async() => {
-		const _me :IUser = await getMe();
+		const _me :IUser = await getUser("");
 		setMe( _me );
 	};
 
@@ -47,27 +47,16 @@ export function User() {
 	};
 
 	const waitUserMatch = async( _pseudo :string ) => {
-		if( !_pseudo )
-		{
-			const _user :IUser = await getMe();
-			const _matchHistory :IMatchHistory[] = await getMatchHistory();
-			let _avatar :Blob = await getAvatar( _user.id );
-			setUser( _user );
-			setMatchHistory( _matchHistory );
-			setAvatar( _avatar );
-		}
-		else
-		{
-			const _user :IUser = await getMePseudo( _pseudo );
-			const _matchHistory :IMatchHistory[] = await getMatchHistoryID( _user?_user.id:"" );
-			const _avatar :Blob = await getAvatar( _user.id );
-			setUser( _user );
-			setMatchHistory( _matchHistory );
-			setAvatar( _avatar );
-		}
+		const _user :IUser = await getUser( _pseudo );
+		const _matchHistory :IMatchHistory[] = await getMatchHistory( _pseudo!==""?_user.id:"");
+		const _avatar :Blob = await getAvatar( _user.id );
+		setUser( _user );
+		setMatchHistory( _matchHistory );
+		setAvatar( _avatar );
 	}; 
 
 	useEffect(() => {
+		checkLogin();
 		waitMe();
 		waitFriends();
 		waitBlocked();

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {Navigate} from "react-router";
 
+import { AuthContext } from '../../services/auth.service';
 import { iaxios } from "../../utils/axios";
 import { deleteUser } from '../utils/requester';
 import {Button} from "../utils/button";
@@ -12,17 +13,16 @@ interface IProps
 	close :( update :boolean ) => void,
 }
 
-export function Userdelete( props :IProps ) {
-
-	const [connected, setConnected] = useState< boolean >( true );
+export function Userdelete( props :IProps )
+: JSX.Element
+{
+	const {logout} = useContext( AuthContext );
 
 	const waitDelete = async() => {
 		await deleteUser();
-		setConnected( false );
+		logout();
 	}
 
-	if( !connected )
-		return( <Navigate to="/signin" /> );
 	return (
 		<section>
 			<div id="userdelete-wall">

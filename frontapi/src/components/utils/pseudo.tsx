@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
+import { AuthContext } from '../../services/auth.service';
 import { IUser, getFriends, getBlocked } from './requester';
 import { MenuUsers } from './menu_users';
 
@@ -13,6 +14,8 @@ interface IProps {
 
 export function Pseudo( props: IProps )
 {
+	const {checkLogin} = useContext( AuthContext );
+
 	const [friends, setFriends] = useState< IUser[] >([]);
 	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
@@ -28,6 +31,7 @@ export function Pseudo( props: IProps )
 	};
 
 	useEffect( () => {
+		checkLogin()
 		waitFriends();
 		waitBlocked();
 	}, [isFocus] );

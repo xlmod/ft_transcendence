@@ -62,7 +62,7 @@ export function Navbar()
 				</svg>
 			</NavLink>
 
-			<NavLink className={`navbarIcon ${location.pathname === "/user" ? "sameRoute" : "otherRoute"}`}
+			<NavLink className={`navbarIcon ${location.pathname.substr(0,5) === "/user" ? "sameRoute" : "otherRoute"}`}
 				id="iconUser"
 				to="/user">
 				<svg width="50px" height="50px" viewBox="0 0 256 256" id="Flat">
@@ -106,7 +106,7 @@ export function Navbar()
 			</NavLink>
 			<NavLink
 				id="buttonUser"
-				className={ ( location.pathname === "/user" ) ? "sameRoute" : "otherRoute" }
+				className={ ( location.pathname.substr(0,5) === "/user" ) ? "sameRoute" : "otherRoute" }
 				to="/user">
 				User
 			</NavLink>

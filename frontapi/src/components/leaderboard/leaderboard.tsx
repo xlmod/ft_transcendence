@@ -13,23 +13,14 @@ export function Leaderboard() {
 	checkLogin();
 
 	const [leaderboard, setLeaderboard] = useState< ILeaderboard[] | null >([]);
-//	const [blocked, setBlocked] = useState< IUser[] | null >([]);
 
 	const waitLeaderboard = async () => {
 		const _leaderboard :ILeaderboard[] = await getLeaderboard();
 		setLeaderboard( _leaderboard );
 	};
 
-/*
-	const waitBlocked = async () => {
-		const _blocked :IUser[] = await getBlocked();
-		setBlocked( _blocked );
-	};
-*/
-
 	useEffect( () => {
 		waitLeaderboard();
-//		waitBlocked();
 	}, [] );
 
 	let index = 1;
