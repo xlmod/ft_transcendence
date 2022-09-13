@@ -101,6 +101,9 @@ export function User() {
 						</div>
 						<div id="user-id-elo">
 							<p>{user?user.elo:""}</p>
+							{ user && me && ( me.pseudo !== user.pseudo || !me.TwoFactorAuthToggle )
+								?	""
+								:	<QRCode /> }
 						</div>
 						{ user && me && me.pseudo !== user.pseudo
 							?	""
@@ -108,9 +111,7 @@ export function User() {
 								fontSize={0.7} onClick={() => {setEdit(true)}} /> }
 					</div>
 				</div>
-				{ user && me && ( me.pseudo !== user.pseudo || !me.TwoFactorAuthToggle )
-					?	""
-					:	<QRCode /> }
+
 				<div id="user-matchhistory">
 					<div className="user-title">Match History</div>
 					<table className="user-list" id="match-history">
