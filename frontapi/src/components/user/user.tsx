@@ -9,6 +9,7 @@ import { IMatchHistory, getMatchHistory, getMatchHistoryID, IUser,
 import { Button } from '../utils/button';
 import { Pseudo } from '../utils/pseudo';
 import {Useredit} from './useredit';
+import { Userdelete } from './userdelete';
 import { EntryMatch } from './entry_match';
 import { QRCode } from './qr_code';
 
@@ -20,6 +21,7 @@ export function User() {
 	checkLogin();
 
 	const [edit, setEdit] = useState<boolean>(false);
+	const [del, setDel] = useState< boolean >( false );
 	const [me, setMe] = useState< IUser | null >( null );
 	const [user, setUser] = useState< IUser | null >( null );
 	const [ friends, setFriends] = useState< IUser[] | null >([]);
@@ -103,6 +105,11 @@ export function User() {
 							?	""
 							:	<Button id="user-info-edit" value="edit info"
 								fontSize={0.7} onClick={() => {setEdit(true)}} /> }
+						{ user && me && me.pseudo !== user.pseudo
+							?	""
+							:	<Button id="user-delete" value="delete account"
+									fontSize={0.4} onClick={() => { setDel( true ); } } /> }
+						{ del && <Userdelete close={setDel} /> }
 					</div>
 				</div>
 
@@ -118,21 +125,12 @@ export function User() {
 							<EntryMatch pseudoViewer={ user?user.pseudo:"" }
 								date={ match.CreatedAt }
 								leftwin={ match.leftwin } lscore={ match.lscore }
-								rscore= { match.rscore } luser={ match.luser } ruser={ match.ruser }
-								isFriend={ ( friends &&
-										friends.find( friend => friend.pseudo ===
-											( me && match.ruser.pseudo === me.pseudo
-												? match.luser.pseudo : match.ruser.pseudo ) )
-										? true : false ) }
-								isBlocked={ ( blocked &&
-										blocked.find( block => block.pseudo ===
-											( me && match.ruser.pseudo === me.pseudo
-												? match.luser.pseudo : match.ruser.pseudo ) )
-										? true : false ) } />
+								rscore= { match.rscore } luser={ match.luser } ruser={ match.ruser } />
 						) ) : "" }
 					</table>
 				</div>
 			</section>
+
 		</main>
 	);
 

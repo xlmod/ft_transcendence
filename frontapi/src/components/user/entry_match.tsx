@@ -10,8 +10,6 @@ interface IProps
 	rscore :number,
 	luser :IUser,
 	ruser :IUser,
-	isFriend :boolean,
-	isBlocked :boolean,
 }
 
 export function EntryMatch( props :IProps )

@@ -244,3 +244,8 @@ export function postTFACode( tfaCode :string )
 	.then( () => { return true; } )
 	.catch( () => { return false; } );
 }
+
+export function deleteUser()
+{
+	iaxios.delete( 'user' );
+}
