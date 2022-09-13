@@ -83,7 +83,6 @@ export function Chat()
 								{ selectFriends
 									? ( friends ? friends.map( friend => (
 										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" }
-											isFriend={ true } isBlocked={ false }
 											pseudoClassName="friends" menuClassName="menu-friends" />
 									)) : "" )
 									: ""

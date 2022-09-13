@@ -90,12 +90,6 @@ export function User() {
 						<div id="user-id-pseudo">
 							{ pseudo && me && me.pseudo !== pseudo
 								? <Pseudo pseudo={ user?user.pseudo:"" }
-									isFriend={ friends &&
-										friends.find( friend => friend.pseudo === (user?user.pseudo:"") )
-										? true : false }
-									isBlocked={ blocked &&
-										blocked.find( block => block.pseudo === (user?user.pseudo:"") )
-										? true : false }
 									pseudoClassName="pseudo-single" menuClassName="menu-match" />
 								: <p>{ user?user.pseudo:"" }</p> }
 						</div>

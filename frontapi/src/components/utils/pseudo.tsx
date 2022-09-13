@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
+import { IUser, getFriends, getBlocked } from './requester';
 import { MenuUsers } from './menu_users';
 
 
 interface IProps {
 	pseudo :string,
-	isFriend :boolean,
-	isBlocked :boolean,
 	pseudoClassName :string,
 	menuClassName :string
 }
 
+
 export function Pseudo( props: IProps )
 {
+	const [friends, setFriends] = useState< IUser[] >([]);
+	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
+
+	const waitFriends = async () => {
+		const _friends :IUser[] = await getFriends();
+		setFriends( _friends );
+	};
+
+	const waitBlocked = async () => {
+		const _blocked :IUser[] = await getBlocked();
+		setBlocked( _blocked );
+	};
+
+	useEffect( () => {
+		waitFriends();
+		waitBlocked();
+	}, [isFocus] );
 
 	return(
 		<div onMouseEnter={ () => { setFocus( true ); } }
@@ -21,7 +38,8 @@ export function Pseudo( props: IProps )
 			className={ props.pseudoClassName }>
 			{ props.pseudo }
 			{ isFocus && <MenuUsers pseudo={ props.pseudo }
-				isFriend={ props.isFriend } isBlocked={ props.isBlocked }
+				isFriend={ friends.find( user => user.pseudo === props.pseudo ) ? true : false }
+				isBlocked={ blocked.find( user => user.pseudo === props.pseudo ) ? true : false }
 				menuClassName={ props.menuClassName } />  }
 		</div>
 	);

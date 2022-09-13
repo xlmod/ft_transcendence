@@ -36,7 +36,6 @@ export function EntryMatch( props :IProps )
 				<div className="pseudovs">
 					<span className="VS">VS </span>
 					<Pseudo pseudo={ him.pseudo ? him.pseudo : "" }
-						isFriend={ props.isFriend } isBlocked={ props.isBlocked }
 						pseudoClassName="pseudo-match" menuClassName="menu-match" />
 				</div>
 				<span className="stats">
