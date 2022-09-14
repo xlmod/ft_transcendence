@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { iaxios } from '../../utils/axios';
 import CSS from 'csstype';
 
-import { IUser, getMe, putFriend, patchBlock } from '../utils/requester';
+import { IUser, getUser, putFriend, patchBlock } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
 import './menu_users.css';
 
@@ -28,7 +28,7 @@ export function MenuUsers( props: IProps )
 	const [editBlock, setEditBlock] = useState< boolean >( false );
 
 	const waitMe = async () => {
-		const _me :IUser = await getMe();
+		const _me :IUser = await getUser("");
 		setMe( _me );
 	};
 

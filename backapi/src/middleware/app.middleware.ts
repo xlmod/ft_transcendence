@@ -9,7 +9,7 @@ export class AppMiddleware implements NestMiddleware {
 	constructor(private jwtService: JwtService, private userService: UserService) {}
 	use(req: Request, res: Response, next: NextFunction) {
 		// console.log(req.cookies);
-		if (req.cookies['tfa_token']) {
+		if (req.cookies['tfa_token'] && !req.cookies['access_token']) {
 			try {
 				const tfa = this.jwtService.decode(req.cookies['tfa_token']);
 				res.locals.uuid = tfa['uuid'];
@@ -25,7 +25,7 @@ export class AppMiddleware implements NestMiddleware {
 			}
 		}
 		// console.log('req.user', req.user);
-//		console.log('mi', res.locals.uuid, '->', req.cookies);
+		console.log('mi', res.locals.uuid, '->', req.cookies);
 		// console.log('mid', req.cookies['access_token']);
 		next();
 	}

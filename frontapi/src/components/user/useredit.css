@@ -12,6 +12,8 @@
 	background-color: rgba(0,0,0,0.2);
 
 	backdrop-filter: blur(0.3em);
+
+	z-index: 1;
 }
 
 #useredit-window {
@@ -31,6 +33,7 @@
 	flex-direction: column;
 	justify-content:space-between;
 
+	z-index: 2;
 }
 
 #useredit-button {

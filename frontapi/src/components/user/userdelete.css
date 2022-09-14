@@ -1,0 +1,101 @@
+@import '../../globals.css';
+
+#user-delete
+{
+	display: block;
+	position: relative;
+}
+
+#user-delete
+{
+	margin-top: 0.4em;
+	border: 1px solid rgba(255, 0, 0, .7 );
+	color: rgba(255, 0, 0, 1);
+}
+
+#user-delete:hover
+{
+	color: var( --cBackground );
+	background-color: rgba( 255, 0, 0, .7 );
+}
+
+#userdelete-wall{
+	position: fixed;
+
+	left: 0;
+	top: 0;
+
+	width: 100%;
+	height:100%;
+
+	background-color: rgba(0,0,0,0.2);
+
+	backdrop-filter: blur(0.3em);
+}
+
+#userdelete-window {
+	position: fixed;
+
+	left: calc(50% - 10em);
+	top: calc(50% - 10em);
+
+	background-color: var(--cBackground);
+
+	border:1px solid rgba( 255, 0, 0, 1 );
+
+	width:22em;
+	height:10em;
+
+	display:flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+
+}
+
+#userdelete-window p
+{
+	color: rgba( 255, 0, 0, 1 );
+	font-weight: 550;
+}
+
+#userdelete-window p:nth-child(3)
+{
+	margin-top: -1em;
+}
+
+#userdelete-choices
+{
+	width: 100%;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+#userdelete-cancel
+{
+	width: 7em;
+	height: 3em;
+
+	color: var( --cNeon80 );
+	border: 1px solid var( --cNeon80 );
+}
+
+#userdelete-cancel:hover {
+	color: var(--cBackground);
+	background-color: var( --cNeon80 );
+}
+
+#userdelete-delete
+{
+	width: 18em;
+	border: 1px solid rgba( 255, 0, 0, .7 );
+	color: rgba( 255, 0, 0, .7 );
+}
+
+#userdelete-delete:hover
+{
+	color: var( --cBackground );
+	background-color: rgba( 255, 0, 0, .7 );
+}

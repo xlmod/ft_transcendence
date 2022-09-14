@@ -1,16 +1,18 @@
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router';
 
 import { AuthContext } from '../../services/auth.service';
-import {iaxios} from "../../utils/axios";
+import { iaxios } from "../../utils/axios";
 
-import { IMatchHistory, getMatchHistory, getMatchHistoryID, IUser,
-		getMe, getMePseudo, getAvatar, getFriends, getBlocked } from '../utils/requester';
+import { IUser, IMatchHistory,
+		getUser, getAvatar, getFriends, getBlocked,
+		getMatchHistory } from '../utils/requester';
 import { Button } from '../utils/button';
 import { Pseudo } from '../utils/pseudo';
-import {Useredit} from './useredit';
-import { EntryMatch } from './entry_match';
 import { QRCode } from './qr_code';
+import { Useredit } from './useredit';
+import { Userdelete } from './userdelete';
+import { EntryMatch } from './entry_match';
 
 import './user.css';
 
@@ -20,6 +22,7 @@ export function User() {
 	checkLogin();
 
 	const [edit, setEdit] = useState<boolean>(false);
+	const [del, setDel] = useState< boolean >( false );
 	const [me, setMe] = useState< IUser | null >( null );
 	const [user, setUser] = useState< IUser | null >( null );
 	const [ friends, setFriends] = useState< IUser[] | null >([]);
@@ -27,10 +30,9 @@ export function User() {
 	const [matchHistory, setMatchHistory] = useState< IMatchHistory[] | null >([]);
 	const [avatar, setAvatar] = useState< Blob >();
 	const { pseudo } = useParams();
-	const [url, setUrl] = useState< string | void >("");
 
 	const waitMe = async() => {
-		const _me :IUser = await getMe();
+		const _me :IUser = await getUser("");
 		setMe( _me );
 	};
 
@@ -45,27 +47,16 @@ export function User() {
 	};
 
 	const waitUserMatch = async( _pseudo :string ) => {
-		if( !_pseudo )
-		{
-			const _user :IUser = await getMe();
-			const _matchHistory :IMatchHistory[] = await getMatchHistory();
-			let _avatar :Blob = await getAvatar( _user.id );
-			setUser( _user );
-			setMatchHistory( _matchHistory );
-			setAvatar( _avatar );
-		}
-		else
-		{
-			const _user :IUser = await getMePseudo( _pseudo );
-			const _matchHistory :IMatchHistory[] = await getMatchHistoryID( _user?_user.id:"" );
-			const _avatar :Blob = await getAvatar( _user.id );
-			setUser( _user );
-			setMatchHistory( _matchHistory );
-			setAvatar( _avatar );
-		}
+		const _user :IUser = await getUser( _pseudo );
+		const _matchHistory :IMatchHistory[] = await getMatchHistory( _pseudo!==""?_user.id:"");
+		const _avatar :Blob = await getAvatar( _user.id );
+		setUser( _user );
+		setMatchHistory( _matchHistory );
+		setAvatar( _avatar );
 	}; 
 
 	useEffect(() => {
+		checkLogin();
 		waitMe();
 		waitFriends();
 		waitBlocked();
@@ -90,27 +81,27 @@ export function User() {
 						<div id="user-id-pseudo">
 							{ pseudo && me && me.pseudo !== pseudo
 								? <Pseudo pseudo={ user?user.pseudo:"" }
-									isFriend={ friends &&
-										friends.find( friend => friend.pseudo === (user?user.pseudo:"") )
-										? true : false }
-									isBlocked={ blocked &&
-										blocked.find( block => block.pseudo === (user?user.pseudo:"") )
-										? true : false }
 									pseudoClassName="pseudo-single" menuClassName="menu-match" />
 								: <p>{ user?user.pseudo:"" }</p> }
 						</div>
 						<div id="user-id-elo">
 							<p>{user?user.elo:""}</p>
+							{ user && me && ( me.pseudo !== user.pseudo || !me.TwoFactorAuthToggle )
+								?	""
+								:	<QRCode /> }
 						</div>
 						{ user && me && me.pseudo !== user.pseudo
 							?	""
 							:	<Button id="user-info-edit" value="edit info"
 								fontSize={0.7} onClick={() => {setEdit(true)}} /> }
+						{ user && me && me.pseudo !== user.pseudo
+							?	""
+							:	<Button id="user-delete" value="delete account"
+									fontSize={0.4} onClick={() => { setDel( true ); } } /> }
+						{ del && <Userdelete close={setDel} /> }
 					</div>
 				</div>
-				{ user && me && ( me.pseudo !== user.pseudo || !me.TwoFactorAuthToggle )
-					?	""
-					:	<QRCode /> }
+
 				<div id="user-matchhistory">
 					<div className="user-title">Match History</div>
 					<table className="user-list" id="match-history">
@@ -123,21 +114,12 @@ export function User() {
 							<EntryMatch pseudoViewer={ user?user.pseudo:"" }
 								date={ match.CreatedAt }
 								leftwin={ match.leftwin } lscore={ match.lscore }
-								rscore= { match.rscore } luser={ match.luser } ruser={ match.ruser }
-								isFriend={ ( friends &&
-										friends.find( friend => friend.pseudo ===
-											( me && match.ruser.pseudo === me.pseudo
-												? match.luser.pseudo : match.ruser.pseudo ) )
-										? true : false ) }
-								isBlocked={ ( blocked &&
-										blocked.find( block => block.pseudo ===
-											( me && match.ruser.pseudo === me.pseudo
-												? match.luser.pseudo : match.ruser.pseudo ) )
-										? true : false ) } />
+								rscore= { match.rscore } luser={ match.luser } ruser={ match.ruser } />
 						) ) : "" }
 					</table>
 				</div>
 			</section>
+
 		</main>
 	);
 

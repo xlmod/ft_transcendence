@@ -1,6 +1,7 @@
-import { useRef, useEffect, useState } from "react";
+import { useContext, useRef, useEffect, useState } from "react";
 import {Buffer} from "buffer";
 
+import { AuthContext } from '../../services/auth.service';
 import { game_socket } from "../../socket";
 import { Button } from '../utils/button';
 
@@ -29,6 +30,9 @@ interface IProps {
 }
 
 export function Game(props: IProps): JSX.Element {
+
+	const {checkLogin} = useContext( AuthContext );
+	checkLogin();
 
 	let canvasRef = useRef<HTMLCanvasElement | null>(null);
 

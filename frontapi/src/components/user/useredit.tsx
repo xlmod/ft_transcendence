@@ -65,8 +65,6 @@ export function Useredit(props: IProps) {
 			if (!connected)
 				setConnected(connected);
 		}
-		console.log( 'new tfa ' + tfa );
-		console.log( 'old tfa ' + props.tfa );
 		if (tfa != props.tfa) {
 			let connected = await tfa?postTFAToggle():patchTFAToggle( false );
 			if (!connected)

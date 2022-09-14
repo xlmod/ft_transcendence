@@ -1,11 +1,11 @@
 import {useContext, useEffect, useState} from 'react';
-import {Entry} from './entry';
 
 import { AuthContext } from '../../services/auth.service';
-import { ILeaderboard, getLeaderboard, IUser, getBlocked } from '../utils/requester';
+import {iaxios} from '../../utils/axios';
+import { ILeaderboard, getLeaderboard } from '../utils/requester';
+import { Entry } from './entry';
 
 import './leaderboard.css';
-import {iaxios} from '../../utils/axios';
 
 export function Leaderboard() {
 
@@ -13,21 +13,14 @@ export function Leaderboard() {
 	checkLogin();
 
 	const [leaderboard, setLeaderboard] = useState< ILeaderboard[] | null >([]);
-	const [blocked, setBlocked] = useState< IUser[] | null >([]);
 
 	const waitLeaderboard = async () => {
 		const _leaderboard :ILeaderboard[] = await getLeaderboard();
 		setLeaderboard( _leaderboard );
 	};
 
-	const waitBlocked = async () => {
-		const _blocked :IUser[] = await getBlocked();
-		setBlocked( _blocked );
-	};
-
 	useEffect( () => {
 		waitLeaderboard();
-		waitBlocked();
 	}, [] );
 
 	let index = 1;
@@ -43,11 +36,7 @@ export function Leaderboard() {
 				</div>
 				<div id="leaderboard-entry-list">
 					{ leaderboard ? leaderboard.map( entry => (
-						<Entry rank={ index++ } pseudo={ entry.pseudo } elo={ entry.elo }
-							isfriend={ entry.isfriend }
-							isblocked={ ( blocked &&
-										blocked.find( user => user.pseudo === entry.pseudo ) ) ?
-										true : false } />
+						<Entry rank={ index++ } pseudo={ entry.pseudo } elo={ entry.elo } />
 					)) : "" }
 				</div>
 			</div>

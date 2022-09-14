@@ -35,28 +35,12 @@ export interface IMatchHistory
 	ruser :IUser,
 }
 
-export function getMe()
+export function getUser( pseudo :string )
 : Promise< IUser >
 {
-	return iaxios.get( '/user/me' )
-		.then( data => {
-			console.log( 'me' );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => { return } );
-}
-
-export function getMePseudo( pseudo :string )
-: Promise< IUser >
-{
-	return iaxios.get( '/user/' + pseudo )
-		.then( data => {
-			console.log( 'me pseudo' );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => { return } );
+	return iaxios.get( '/user/' + (pseudo === ""?"me":pseudo) )
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return ; } );
 }
 
 export function getAvatar( uid :string )
@@ -65,14 +49,10 @@ export function getAvatar( uid :string )
 	return iaxios({
 			method: 'get',
 			url: 'filename/' + uid,
-			responseType: 'blob'
+			responseType: 'blob',
 		})
-		.then( data => {
-			return data.data;
-		} )
-		.catch( ( error ) => {
-			return ;
-		} );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return ; } );
 }
 
 export function getQR()
@@ -81,78 +61,42 @@ export function getQR()
 	return iaxios({
 			method: 'get',
 			url: 'tfa',
-			responseType: 'blob'
+			responseType: 'blob',
 		})
-		.then( data => {
-			return data.data;
-		} )
-		.catch( ( error ) => {
-			return ;
-		} );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return ; } );
 }
 
 export function getFriends()
 : Promise< IUser[] >
 {
 	return iaxios.get( 'relationship' )
-		.then( data => {
-			console.log( "friends" );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => { return [] } );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return [] } );
 }
 
 export function getBlocked()
 : Promise< IUser[] >
 {
 	return iaxios.get( 'relationship/block' )
-		.then( data => {
-			console.log( "blocked" );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => { return [] } );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return [] } );
 }
 
 export async function getLeaderboard()
 : Promise< ILeaderboard[] >
 {
 	return iaxios.get( 'user/leaderboard' )
-		.then( data => {
-			console.log( "leaderboard" );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => { return [] } );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return [] } );
 }
 
-export function getMatchHistory()
-: Promise< IMatchHistory[] >
-{
-	return iaxios.get( 'match/history' )
-		.then( data => {
-			console.log( "match history" );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => {
-			return [];
-		} );
-}
-
-export function getMatchHistoryID( uid :string )
+export function getMatchHistory( uid :string )
 : Promise< IMatchHistory[] >
 {
 	return iaxios.get( 'match/history/' + uid )
-		.then( data => {
-			console.log( "match history " + uid );
-			console.log( data.data );
-			return data.data;
-		} )
-		.catch( () => {
-			return [];
-		} );
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return []; } );
 }
 
 export function putFriend( _pseudo :string, _which :string )
@@ -243,4 +187,11 @@ export function postTFACode( tfaCode :string )
 	})
 	.then( () => { return true; } )
 	.catch( () => { return false; } );
+}
+
+export async function deleteUser()
+{
+	return iaxios.delete( 'user' )
+		.then( () => {return true;})
+		.catch(() => {return false;});
 }
