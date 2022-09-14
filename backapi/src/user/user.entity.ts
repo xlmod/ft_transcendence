@@ -46,7 +46,7 @@ export class User extends BaseEntity {
 	@Column('uuid', { array: true, nullable: true, default: null})
 	blocks: string[]
 
-	@ManyToMany(() => User, friend => friend.friends, { onUpdate: "NO ACTION", onDelete: "NO ACTION" })
+	@ManyToMany(() => User, friend => friend.friends, { onUpdate: "NO ACTION", onDelete: "CASCADE" })
 	@JoinTable()
 	friends: User[]
 

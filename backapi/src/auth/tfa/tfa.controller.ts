@@ -53,12 +53,10 @@ export class TwoFactorAuthenticationController {
 		@Body() tfadto: TwoFactorAuthenticationDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
-
 		const user = await this.userService.findById(res.locals.uuid);
 		const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationValid(tfadto.twoFactorAuthenticationCode, user);
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
-
 		res.clearCookie('tfa_token');
 		const access_token = this.jwtService.sign({ uuid: user.id, tfa: user.TwoFactorAuthToggle });
 		res.cookie('access_token', access_token, { httpOnly: true });
