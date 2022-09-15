@@ -25,7 +25,7 @@
 	flex-direction: row;
 	justify-content: flex-start;
 
-	height: 10em;
+	height: 12em;
 
 }
 
@@ -69,15 +69,41 @@
 #user-id-elo {
 	font-size: 0.8em;
 	color: var(--cNeonDark);
-	margin-bottom: 1em;
+/*	margin-bottom: 1em;
 	height: 30px;
 
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
+*/
+}
+
+#stats-qr
+{
+	height: 2.5em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 
 }
+
+#stats
+{
+	font-size: 0.7em;
+}
+
+#stats #victories
+{
+	color: var( --cNeonLight );
+}
+
+#stats #defeats
+{
+	color: rgba( 255, 0, 0, 0.7 );
+}
+
 
 #user-matchhistory {
 /*	margin: 5%; */
@@ -170,25 +196,6 @@
 	width: 100%;
 }
 
-/*
-#match-history .stats
-{
-	width: 11em;
-	height: 2.1em;
-	white-space: nowrap;
-	overflow: visible;
-}
-
-#match-history .victories
-{
-	color: var( --cNeonLight );
-}
-
-#match-history .defeats
-{
-	color: rgba( 255, 0, 0, 0.7 );
-}
-*/
 
 #match-history td:nth-child(2)
 {
