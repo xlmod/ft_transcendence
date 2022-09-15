@@ -10,7 +10,7 @@ import {Vec} from "./gameTypes/Vec";
 import {BASE_WIDTH} from "./gameTypes/base";
 
 import './game.css';
-import {useParams} from "react-router";
+import {Navigate, useParams} from "react-router";
 
 type Room = {
 	id: string,
@@ -43,6 +43,9 @@ export function Game(props: IProps): JSX.Element {
 	const [obsname, setObsname] = useState<string>("");
 	const [end, setEnd] = useState<boolean>(false);
 	const [winner, setWinner] = useState<string>("");
+	const [opt_speedball, setOpt_speedball] = useState<boolean>(false);
+	const [opt_paddleshrink, setOpt_paddleshrink] = useState<boolean>(false);
+	const [reload, setReload] = useState<boolean>(false);
 
 	const {code} = useParams();
 
@@ -103,10 +106,13 @@ export function Game(props: IProps): JSX.Element {
 			setRight(room.score_right);
 		});
 
-		game_socket.socket.on("start_game", () => {
+		game_socket.socket.on("start_game", (speedball: boolean, paddleshrink: boolean) => {
 			board.reset();
+			if (speedball)
+				board.set_speedball(0.5);
+			if (paddleshrink)
+				board.set_paddleshrink(0.5);
 			board.set_ball_dir(-1, 0);
-			console.log(`start: ${game_interval}`)
 			if (game_interval == null) {
 				game_interval = setInterval(() => {
 					board.tick();
@@ -125,11 +131,13 @@ export function Game(props: IProps): JSX.Element {
 		});
 
 		game_socket.socket.on("end_game", (w) => {
-			board.clear();
-			board.reset();
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
+			board.clear();
+			board.reset();
+			setOpt_speedball(false);
+			setOpt_paddleshrink(false);
 			if (w !== "") {
 				setWinner(w);
 				setEnd(true);
@@ -141,6 +149,8 @@ export function Game(props: IProps): JSX.Element {
 					setRight(0);
 					setEnd(false);
 					setWinner("");
+					setReload(true);
+					
 				}, 1500);
 			} else {
 				setState("");
@@ -148,6 +158,7 @@ export function Game(props: IProps): JSX.Element {
 				setRightplayer("Player");
 				setLeft(0);
 				setRight(0);
+				setReload(true);
 			}
 		});
 
@@ -198,6 +209,11 @@ export function Game(props: IProps): JSX.Element {
 			}
 		});
 
+		game_socket.socket.on("", () => {
+			console.log("RECU");
+
+		});
+
 		if (canvasRef.current) {
 			let canvas = canvasRef.current;
 			const ctx = canvas?.getContext("2d");
@@ -205,24 +221,28 @@ export function Game(props: IProps): JSX.Element {
 			canvas.height = 500;
 			board.set_ratio(canvas.width / BASE_WIDTH);
 			board.set_ctx(ctx)
-			if (props.invitation && code) {
-				const decode = (str:string): string => Buffer.from(str, "base64").toString("binary");
-				const obj = JSON.parse(decode(code));
-				if (obj.speedball)
-					board.set_speedball(2);
-				if (obj.paddleshrink)
-					board.set_paddleshrink(2);
-				if (obj.join)
-					game_socket.socket.emit("invite_join", obj);
-				else
-					game_socket.socket.emit("invite", obj);
-			}
+//			if (props.invitation && code) {
+//				const decode = (str:string): string => Buffer.from(str, "base64").toString("binary");
+//				const obj = JSON.parse(decode(code));
+//				if (obj.speedball)
+//					setOpt_speedball(true);
+//				if (obj.paddleshrink)
+//					setOpt_paddleshrink(true);
+//				console.log("setup")
+//				console.log(opt_speedball);
+//				console.log(opt_paddleshrink);
+//				if (obj.join)
+//					game_socket.socket.emit("invite_join", obj);
+//				else
+//					game_socket.socket.emit("invite", obj);
+//			}
 		}
 
 		return () => {
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
+			console.log("STOP RENDER");
 			game_socket.socket.emit("quit");
 			game_socket.socket.emit("observe_quit");
 
@@ -237,6 +257,7 @@ export function Game(props: IProps): JSX.Element {
 			game_socket.socket.off("update_status");
 			game_socket.socket.off("update_paddle");
 			game_socket.socket.off("update_hard_paddle");
+			game_socket.socket.off("test_echo");
 		}
 
 	}, []);

@@ -133,6 +133,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleQuit(
 		@ConnectedSocket() client: Socket,
 	) {
+		console.log("PLAYER QUIT ", client.id);
 		this.playerQuit(client.id);
 	}
 
@@ -185,6 +186,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		room.player_left = client.id;
 		room.user_left = user.pseudo;
 		room.board.reset();
+		if (obj.speedball)
+			room.opt_speedball = true;
+		if (obj.paddleshrink)
+			room.opt_paddleshrink = true;
 		room.reserved = user.id;
 		this.rooms.set(room.id, room);
 		client.join(room.id);
@@ -232,10 +237,45 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.playerQuit(socket.id);
 	}
 
+	@SubscribeMessage("start_invite")
+	async handleStartInvite(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("pseudo") pseudo: string,
+		@MessageBody("speedball") speedball: boolean,
+		@MessageBody("paddleshrink") paddleshrink: boolean,
+	) {
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id) || user.pseudo === pseudo)
+			return ;
+		let invited: Socket | null = await this.gameService.getSocketByPseudo(pseudo);
+		if (invited == null)
+			return ;
+		this.joined.add(user.id);
+		let room = new Room();
+		room.id = client.id;
+		room.player_left = client.id;
+		room.user_left = user.pseudo;
+		room.board.reset();
+		if (speedball)
+			room.opt_speedball = true;
+		if (paddleshrink)
+			room.opt_paddleshrink = true;
+		room.reserved = user.id;
+		this.rooms.set(room.id, room);
+		client.join(room.id);
+		client.emit("room_player_joined", "left");
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: speedball, paddleshrink: paddleshrink, join: false});
+		
+	}
 
 
 	startGame(room: Room) {
 		room.board.reset();
+		if (room.opt_speedball)
+			room.board.set_speedball(0.5);
+		if (room.opt_paddleshrink)
+			room.board.set_paddleshrink(0.5);
 		room.board.set_ball_dir(-1, 0);
 		this.server.to(room.id).emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
 		room.interval = setInterval((r) => {
@@ -250,12 +290,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(r.update);
 				this.server.to(r.id).emit("reset_game");
 				this.server.to(room.id).emit("update_score", room.score_left, room.score_right);
+				console.log(`room.score_right ${r.score_right}`);
+				console.log(`room.score_left ${r.score_left}`);
 				if (r.score_right == 10)
 					this.setWinner(r, "right");
 				else if (r.score_left == 10)
 					this.setWinner(r, "left");
-				else
+				else {
 					this.startGame(r);
+				}
 			}
 		}, 16, room);
 		room.update = setInterval((r) => {
@@ -263,7 +306,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.to(r.id).emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
 		}, 1000, room);
-		this.server.to(room.id).emit("start_game");
+		this.server.to(room.id).emit("start_game", room.opt_speedball, room.opt_paddleshrink);
 	}
 
 	getRoomFromClientId(client_id: string): Room | null {
@@ -314,6 +357,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				else
 					this.setWinner(room, "left");
 			} else {
+				console.log("room ", room);
 
 				this.server.to(room.id).emit("reset_game");
 				this.server.to(room.id).emit("end_game", "");
@@ -398,6 +442,8 @@ class Room {
 	update: any = null;
 	reserved: string = "";
 	board: Board = new Board();
+	opt_speedball: boolean = false;
+	opt_paddleshrink: boolean = false;
 	score_left: number = 0;
 	score_right: number = 0;
 	player_left: string = "";

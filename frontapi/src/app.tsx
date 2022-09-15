@@ -80,9 +80,8 @@ class App extends React.Component<{}, {userData: {}, isLoggedIn: boolean, checkL
 	
 	render() {
 		if (this.state.code != "") {
-			let code = this.state.code;
 			this.setState({code: ""});
-			return (<Navigate to={"/game/" + code} />);
+			return (<Navigate to="/game" />);
 		}
 		return (
 			<AuthContext.Provider value={this.state}>
