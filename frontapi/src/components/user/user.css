@@ -149,9 +149,11 @@
 #match-history td:nth-child(1)
 {
 	width: 40vw;
+/*
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+*/
 }
 
 #match-history .pseudovs
@@ -165,8 +167,10 @@
 #match-history .pseudo-match
 {
 	display: inline-block;
+	width: 100%;
 }
 
+/*
 #match-history .stats
 {
 	width: 11em;
@@ -184,6 +188,7 @@
 {
 	color: rgba( 255, 0, 0, 0.7 );
 }
+*/
 
 #match-history td:nth-child(2)
 {

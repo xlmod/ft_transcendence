@@ -36,10 +36,10 @@ export function EntryMatch( props :IProps )
 					<Pseudo pseudo={ him.pseudo ? him.pseudo : "" }
 						pseudoClassName="pseudo-match" menuClassName="menu-match" />
 				</div>
-				<span className="stats">
+{/*				<span className="stats">
 					(<span className="victories">V{him.win}</span>|
-				<span className="defeats">D{him.lose}</span>|<span className="elo">E{him.elo}</span>)
-				</span>
+			<span className="defeats">D{him.lose}</span>|<span className="elo">E{him.elo}</span>)
+				</span>*/}
 			</td>
 			<td>
 				<span className={ won ? "won" : "lost" }>
