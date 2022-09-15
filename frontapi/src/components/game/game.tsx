@@ -7,7 +7,6 @@ import { Button } from '../utils/button';
 import { Board } from "./gameTypes/Board";
 import {Vec} from "./gameTypes/Vec";
 import {BASE_WIDTH} from "./gameTypes/base";
-import {GAME_SETTINGS} from "./gameTypes/GameSettings";
 
 import './game.css';
 import {useParams} from "react-router";
@@ -124,8 +123,6 @@ export function Game(props: IProps): JSX.Element {
 		game_socket.socket.on("end_game", (w) => {
 			board.clear();
 			board.reset();
-			GAME_SETTINGS.remove_modifier("accelerate_ball");
-			GAME_SETTINGS.remove_modifier("reduce");
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
@@ -202,22 +199,19 @@ export function Game(props: IProps): JSX.Element {
 			const ctx = canvas?.getContext("2d");
 			canvas.width = 1000;
 			canvas.height = 500;
+			board.set_ratio(canvas.width / BASE_WIDTH);
+			board.set_ctx(ctx)
 			if (props.invitation && code) {
 				const decode = (str:string): string => Buffer.from(str, "base64").toString("binary");
 				const obj = JSON.parse(decode(code));
 				if (obj.speedball)
-					GAME_SETTINGS.add_modifier("accelerate_ball", 2);
+					board.set_speedball(2);
 				if (obj.paddleshrink)
-					GAME_SETTINGS.add_modifier("reduce", 2);
-				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-				board.set_ctx(ctx, GAME_SETTINGS.ratio)
+					board.set_paddleshrink(2);
 				if (obj.join)
 					game_socket.socket.emit("invite_join", obj);
 				else
 					game_socket.socket.emit("invite", obj);
-			} else {
-				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-				board.set_ctx(ctx, GAME_SETTINGS.ratio)
 			}
 		}
 

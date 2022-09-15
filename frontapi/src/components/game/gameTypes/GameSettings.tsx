@@ -1,5 +1,5 @@
 
-class GameSettings {
+export class GameSettings {
 
 	public ratio: number;
 	private _modifier: Map<string, number>;
@@ -27,4 +27,3 @@ class GameSettings {
 
 };
 
-export const GAME_SETTINGS: GameSettings = new GameSettings();
