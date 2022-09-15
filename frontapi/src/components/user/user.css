@@ -47,7 +47,7 @@
 	margin-left: 5%;
 }
 
-#user-id-info * :not(.menu-match) {
+#user-id-info * {
 	padding:0;
 	margin:0;
 	padding-bottom:0.3em;
@@ -61,9 +61,15 @@
 	color: var(--cNeonLight);
 }
 
-#user-id-pseudo :not(.menu-match) {
+#user-id-pseudo {
 	font-size: 0.9em;
 	color: var(--cNeon);
+}
+
+.menu-single-user
+{
+	left: 17em;
+	top: 4.5em;
 }
 
 #user-id-elo {

@@ -79,9 +79,10 @@ export function User() {
 						</div>
 						<div id="user-id-pseudo">
 							{ pseudo && me && me.pseudo !== pseudo
-								? <Pseudo pseudo={ user?user.pseudo:"" }
-									pseudoClassName="pseudo-single" menuClassName="menu-match" />
-								: <p>{ user?user.pseudo:"" }</p> }
+								? /*<Pseudo pseudo={ user?user.pseudo:"" }
+									pseudoClassName="pseudo-single" menuClassName="menu-single-user" />*/
+									<p>{ user?user.pseudo:"" }</p>
+								:	<p>{ user?user.pseudo:"" }</p> }
 						</div>
 						<div id="user-id-elo">
 							<p>{user?user.elo:""}</p>
