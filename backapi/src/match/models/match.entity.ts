@@ -6,13 +6,13 @@ export class Match extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	readonly id: string
 
-	@ManyToOne(() => User, (user: User) => user.id, { eager: true, onDelete: 'CASCADE' })
+	@ManyToOne(() => User, (user: User) => user.id, { eager: true, onDelete: 'SET NULL' })
 	luser: User
 
 	@Column({})
 	lscore: number
 
-	@ManyToOne(() => User, (user: User) => user.id, { eager: true, onDelete: 'CASCADE' })
+	@ManyToOne(() => User, (user: User) => user.id, { eager: true, onDelete: 'SET NULL' })
 	ruser: User
 	
 	@Column({})

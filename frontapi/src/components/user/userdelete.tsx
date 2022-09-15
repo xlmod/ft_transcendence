@@ -18,9 +18,9 @@ export function Userdelete( props :IProps )
 {
 	const {logout} = useContext( AuthContext );
 
-	const waitDelete = async() => {
-		await deleteUser();
-		logout();
+	const waitDelete = async () => {
+		if(await deleteUser())
+			logout();
 	}
 
 	return (
