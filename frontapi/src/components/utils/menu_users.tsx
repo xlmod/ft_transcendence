@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { iaxios } from '../../utils/axios';
 import CSS from 'csstype';
 
+import { IUser, getUser, putFriend, patchBlock } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
 import './menu_users.css';
 
@@ -10,7 +11,6 @@ const FRONT_URL = "http://localhost:3000/";
 //const BACK_URL = "http://localhost:3333/relationship/";
 
 interface IProps {
-	uid :string,
 	pseudo :string,
 	isFriend :boolean,
 	isBlocked :boolean,
@@ -19,30 +19,61 @@ interface IProps {
 
 export function MenuUsers( props: IProps )
 {
-	const clickFriend = () =>
-	{
-		iaxios.get( 'relationship/'
-			+ ( ( !props.isFriend ) ? 'add:' : 'remove:' ) + props.uid )
-			.catch( () => { } );
-		props.isFriend = !props.isFriend;
-	}
+	const [invite, setInvite] = useState< boolean >( false );
 
-	const clickBlock = () =>
-	{
-		iaxios.get( 'relationship/'
-			+ ( ( !props.isBlocked ) ? 'block:' : 'unblock:' ) + props.uid )
-			.catch( () => { } );
-		props.isBlocked = !props.isBlocked;
-	}
+	const [me, setMe] = useState< IUser | null >( null );
+	const [_isFriend, setFriend] = useState< boolean >( props.isFriend );
+	const [_isBlocked, setBlocked] = useState< boolean >( props.isBlocked );
+	const [editFriend, setEditFriend] = useState< boolean >( false );
+	const [editBlock, setEditBlock] = useState< boolean >( false );
 
-	const [invite, setInvite] = useState( false );
+	const waitMe = async () => {
+		const _me :IUser = await getUser("");
+		setMe( _me );
+	};
+
+	const waitFriendBlock = async ( _pseudo :string ) => {
+		if( editFriend )
+		{
+			const _success :boolean = await putFriend( _pseudo, ( _isFriend?"del":"add" ) );
+			if( _success ) setFriend( !_isFriend );
+			setEditFriend( false );
+		}
+		if( editBlock )
+		{
+			const _success :boolean = await patchBlock( _pseudo, ( _isBlocked?"unblock":"block" ) );
+			if( _success ) setBlocked( !_isBlocked );
+			if( _success ) setFriend( false );
+			setEditBlock( false );
+		}
+	};
+
+	useEffect( () => {
+		waitMe();
+		waitFriendBlock( props.pseudo )
+	}, [ editFriend, editBlock ] );
+
+	if( me && props.pseudo === me.pseudo )
+	{
+	return(
+		<div className={ `menu-users ${props.menuClassName}` }>
+			<nav>
+				<NavLink
+					className="nav-users"
+					to={ "/user/" + props.pseudo }>
+					See profile
+				</NavLink>
+			</nav>
+		</div>
+	);
+	}
 
 	return(
 		<div className={ `menu-users ${props.menuClassName}` }>
 			<nav>
 				<NavLink
 					className="nav-users"
-					to={FRONT_URL + "user:" + props.uid}>
+					to={ "/user/" + props.pseudo }>
 					See profile
 				</NavLink>
 				<button
@@ -59,15 +90,15 @@ export function MenuUsers( props: IProps )
 */}
 				<button
 					className="nav-users"
-					onClick={ clickFriend }>
-					{ ( !props.isFriend ) ? "Add friend" : "Remove friend" }
+					onClick={ () => { setEditFriend( true ); } }>
+					{ !_isFriend ? "Add friend" : "Remove friend" }
 				</button>
 				<button
 					className="nav-users"
-					onClick={ clickBlock }>
-					{ ( !props.isBlocked ) ? "Block user" : "Unblock user" }
+					onClick={ () => { setEditBlock( true ); } }>
+					{ !_isBlocked ? "Block user" : "Unblock user" }
 				</button>
-				{ invite && <Gameinvite uid={props.uid} close={ () => { setInvite( false ); } } /> }
+				{ invite && <Gameinvite pseudo={props.pseudo} close={ () => { setInvite( false ); } } /> }
 			</nav>
 		</div>
 	);

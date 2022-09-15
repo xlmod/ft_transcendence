@@ -1,0 +1,40 @@
+@import "../../globals.css";
+
+#qr-parent
+{
+/*	width: 100%;
+	margin-top: 1em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+*/
+}
+
+#qr svg
+{
+	width: 40px;
+	height: 40px;
+}
+
+#qr svg path
+{
+	fill: var( --cNeonDark );
+}
+
+#qr img
+{
+	position: absolute;
+	margin-top: 0;
+	right: 40px;
+/*	margin-left: -17em;*/
+}
+
+@media only screen and ( min-width: 1220px )
+{
+	#qr-parent
+	{ flex-direction: column; padding-bottom: 10em; }
+
+	#qr img
+	{ right: 0; left: 18.5em; }
+}

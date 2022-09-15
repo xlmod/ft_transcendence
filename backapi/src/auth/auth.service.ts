@@ -30,7 +30,7 @@ export class AuthService {
 			await this.userService.create(user);
 			const { id, avatar } = await this.userService.findByEmail(user.email);
 			download(avatar, id);
-			this.userService.update(id, { avatar: id + avatar.substring(avatar.lastIndexOf('.')) });
+			await this.userService.updateavatar(id, (id + avatar.substring(avatar.lastIndexOf('.'))));
 		} finally {
 			return await this.userService.findByEmail(user.email);
 		}

@@ -77,6 +77,13 @@
 	line-height: 1.9;
 
 	width:33.3333%;
+	overflow: hidden;
+}
+
+.menu-leaderboard
+{
+	left: 55%;
+	margin-top: -1.5em;
 }
 
 @media only screen and ( min-width: 1220px )

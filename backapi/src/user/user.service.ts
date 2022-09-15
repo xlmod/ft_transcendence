@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DeleteResult } from 'typeorm';
 import { User } from './user.entity';
@@ -24,7 +24,12 @@ export class UserService {
 	}
 
 	async findById(id: string): Promise<User> {
-		return await this.userRepository.findOne({ id });
+		try {
+			const user = this.userRepository.findOne({ id });
+			if (!user)
+				throw Error;
+			return user;
+		} catch(e) { throw new NotFoundException('User not found by id'); }
 	}
 
 	async findByEmail(email: string): Promise<User> {
@@ -35,11 +40,16 @@ export class UserService {
 		});
 	}
 	async findByPseudo(pseudo: string): Promise<User> {
-		return await this.userRepository.findOne({
-			where: {
-				pseudo: pseudo,
-			},
-		});
+		try {
+			const user = this.userRepository.findOne({
+				where: {
+					pseudo: pseudo,
+				},
+			});
+			if (!user)
+				throw Error;
+			return user;
+		} catch(e) { throw new NotFoundException('User not found by pseudo')}
 	}
 
 	async create(data: CreateUserDto): Promise<void> {
@@ -52,8 +62,8 @@ export class UserService {
 	async update(id: string, data: Partial<UpdateUserDto>): Promise<void> {
 		let user: User;
 		try {
-			user = await this.findById(id); }
-		catch (error) {
+			user = await this.findById(id);
+		} catch (error) {
 			throw new NotFoundException('User not found')
 		}
 		if (data.pseudo) {
@@ -73,7 +83,8 @@ export class UserService {
 		await this.userRepository.update(id, user);
 	}
 
-	async updateavatar(user: User, data: string): Promise<void> {
+	async updateavatar(id: string, data: string): Promise<void> {
+		const user = await this.findById(id);
 		if (!user || !data)
 			throw new BadRequestException();
 		if (user.avatar !== data && fs.existsSync(process.env.STORAGE + user.avatar))
@@ -218,8 +229,9 @@ export class UserService {
 		// return (await this.findById(mid)).blocks;
 		let ret = new Array();
 		const ids = (await this.findById(mid)).blocks;
-		for(const id of ids)
-			ret.push(await this.findById(id));
+		if (ids)
+			for(const id of ids)
+				ret.push(await this.findById(id));
 		return ret;
 	}
 

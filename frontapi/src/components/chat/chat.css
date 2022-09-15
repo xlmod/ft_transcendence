@@ -245,6 +245,12 @@
 	color: var( --cBackground );
 	background-color: var(--cNeon80);
 }
+	
+.menu-friends
+{
+    right: 0;
+    margin-top: -1em;
+}
 
 /* Message 1220px */
 @media only screen and ( min-width: 1220px )
@@ -320,6 +326,10 @@
 		opacity:100%;
 	}
 
+	.menu-friends
+	{
+		margin-right: -3em;
+	}
 }
 
 

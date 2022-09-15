@@ -7,30 +7,32 @@ font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 .menu-users
 {
 	position: absolute;
-	left: 55%;
 	border: 1px solid var( --cNeon );
-	height: 7em;
 	background-color: var( --cBackground );
-	padding: 0.6em;
 }
 
 .menu-users nav
 {
+	height: 7em;
+	padding: 0.7em 0.8em;
+
 	display: flex;
 	flex-direction: column;
-	justify-content: space-around;
+	justify-content: space-between;
 }
 
 .nav-users
 {
 	text-decoration: none;
 	text-align: left;
-	color: var( --cNeon );
+	color: var( --cNeonLight );
 	background-color: var( --cBackground );
 	border: none;
 	font-size: 0.7em;
-	padding: 0.3em;
 	font-family: SkwarLetter;
+	font-weight: 400;
+	margin: 0;
+	padding: 0.5em 0.3em;
 }
 
 .nav-users:hover
@@ -39,3 +41,5 @@ font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	color: var( --cBackground );
 	background-color: var( --cNeon80 );
 }
+
+

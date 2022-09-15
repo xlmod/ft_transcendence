@@ -1,62 +1,62 @@
-import React from 'react';
-import {Message} from './message';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+
+import { AuthContext } from '../../services/auth.service';
+import { iaxios } from '../../utils/axios';
+import { IUser, getFriends } from '../utils/requester';
+import { Message } from './message';
+import { Pseudo } from '../utils/pseudo';
 
 import './chat.css';
 
-interface IProps {}
-
-interface IState {
-	msglist: [React.ReactNode | null],
-}
-
-export class Chat extends React.Component< IProps, IState >
+export function Chat()
+: JSX.Element
 {
+	const {checkLogin} = useContext( AuthContext );
+	checkLogin();
 
-	inRef;
-	msgRef;
-	inelememt: any;
-	msgelement: any;
+	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
+	const [friends, setFriends] = useState< IUser[] | null >([]);
+	const [selectFriends, setSelectFriends] = useState< boolean >( true );
+	const [update,updateState] = useState<{}>();
 
-	constructor(props: IProps) {
-		super(props);
+	let inRef = useRef<HTMLInputElement | null>(null);
+	let msgRef = useRef<HTMLDivElement | null>(null);
 
-		this.inelememt = null;
-		this.inRef = (element: any) => {this.inelememt = element};
-		this.msgelement = null;
-		this.msgRef = (element: any) => {this.msgelement = element};
-
-		this.state = {msglist:[null]};
-
-		this.addMessage = this.addMessage.bind(this);
-	}
-
-
-	addMessage(event:React.FormEvent<HTMLFormElement>) {
+	const addMessage = ( event :React.FormEvent<HTMLFormElement> ) => {
+		checkLogin();
 		event.preventDefault();
 		const d = new Date();
-		let input: HTMLInputElement | null = this.inelememt;
-		if (input) {
+		let input :HTMLInputElement | null = inRef.current;
+		if ( input )
+		{
 			let value = input.value;
-			if (value.trimStart() === "")
+			if( value.trimStart() === "" )
 				return;
 			input.value = "";
-			let l = this.state.msglist;
-			let msg = <Message date={d.toLocaleTimeString()} owner="Me" me={true} body={value} /> ;
-			l.push(msg);
-			msg = <Message date={d.toLocaleTimeString()} owner="Other" me={false} body={value} /> ;
-			l.push(msg);
-			this.setState({msglist:l});
+			let l = msglist;
+			let msg = <Message date={ d.toLocaleTimeString() } owner="Me" me={ true } body={ value } /> ;
+			l.push( msg );
+			msg = <Message date={ d.toLocaleTimeString() } owner="Other" me={ false } body={ value } /> ;
+			l.push( msg );
+			setMsglist( l );
+			updateState({});
 		}
 	}
 
-	componentDidUpdate() {
-		let msgdiv: HTMLDivElement | null = this.msgelement;
+	const waitFriends = async () => {
+		const arrayFriends :IUser[] = await getFriends();
+		setFriends( arrayFriends );
+	};
+
+	useEffect( () => {
+		let msgdiv: HTMLDivElement | null = msgRef.current;
 		if (msgdiv) {
 			msgdiv.scrollTop = msgdiv.scrollHeight;
 		}
-	}
 
-	render() {
+		waitFriends();
+	}, [update] );
+
 		return (
 			<main>
 				<section id="chat-section">
@@ -73,18 +73,25 @@ export class Chat extends React.Component< IProps, IState >
 						</div>
 					</div>
 					<div id="chat-content">
-						<div id="chat-messages" ref={this.msgRef}>
-							{this.state.msglist}
+						<div id="chat-messages" ref={ msgRef }>
+							{ msglist }
 						</div>
-						<form id="chat-form" onSubmit={this.addMessage}>
-							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={this.inRef} />
+						<form id="chat-form" onSubmit={ addMessage }>
+							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={ inRef } />
 							<input id="chat-form-submit" type="submit" value="Send"/>
 						</form>
 					</div>
 					<div id="chat-users" className="menu">
 						<div id="chat-friends" className="chat-block">
 							<div className="chat-title">Friends</div>
-							<div className="chat-list" >
+							<div className="chat-list"  onClick={ () => { updateState({}); } }>
+								{ selectFriends
+									? ( friends ? friends.map( friend => (
+										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" }
+											pseudoClassName="friends" menuClassName="menu-friends" />
+									)) : "" )
+									: ""
+								}
 							</div>
 						</div>
 						<div id="chat-members" className="chat-block">
@@ -96,5 +103,4 @@ export class Chat extends React.Component< IProps, IState >
 				</section>
 			</main>
 		);
-	}
 }

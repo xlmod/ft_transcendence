@@ -18,7 +18,7 @@ export class GameService {
 	async addUserWithSocketId(client: Socket) {
 		let user = await this.authService.JwtVerify(client.handshake.headers.cookie.split('=')[1]);
 		this.userMap.set(client.id, {uid: user.id, socket: client});
-		console.log(this.userMap);
+		// console.log(this.userMap);
 	}
 
 	async getUserBySocketId(client_id: string): Promise<User> {

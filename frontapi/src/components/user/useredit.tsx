@@ -1,13 +1,14 @@
-import {useState} from "react";
+import { useState } from "react";
+import {Navigate} from "react-router";
+
+import { iaxios } from "../../utils/axios";
+import { patchPseudo, postTFAToggle, patchTFAToggle, postAvatar } from '../utils/requester';
 import {Button} from "../utils/button";
 import {Fileinput} from "../utils/fileinput";
 import {Textinput} from "../utils/textinput";
-
-import { iaxios } from "../../utils/axios";
+import {ToggleSwitch} from "../utils/toggleswitch";
 
 import './useredit.css'
-import {Navigate} from "react-router";
-import {ToggleSwitch} from "../utils/toggleswitch";
 
 interface IProps {
 	pseudo: string,
@@ -41,6 +42,8 @@ export function Useredit(props: IProps) {
 		} else {
 			setAvatarerror(false);
 		}
+//		console.log( 'avatar ' + avatarerror );
+//		console.log( file );
 		setAvatar(file);
 	};
 
@@ -53,17 +56,17 @@ export function Useredit(props: IProps) {
 			return ;
 		}
 		if (pseudo != props.pseudo) {
-			let connected = await iaxios.patch("/user/", {pseudo: pseudo}).then(() => {return true}).catch(() => {return false});
+			let connected = await patchPseudo( pseudo );
 			if (!connected)
 				setConnected(connected);
 		}
 		if (avatar != null) {
-			let connected = await iaxios.post("/user/upload/avatar", {file:avatar}).then(() => {return true}).catch(() => {return false});
+			let connected = await postAvatar( avatar );
 			if (!connected)
 				setConnected(connected);
 		}
 		if (tfa != props.tfa) {
-			let connected = await iaxios.patch("/user/", {TwoFactorAuthToggle: tfa}).then(() => {return true}).catch(() => {return false});
+			let connected = await tfa?postTFAToggle():patchTFAToggle( false );
 			if (!connected)
 				setConnected(connected);
 		}

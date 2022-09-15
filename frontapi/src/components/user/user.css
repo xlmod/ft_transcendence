@@ -17,8 +17,6 @@
 	color: var(--cNeon);
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	font-weight: 350;
-
-
 }
 
 #user-id {
@@ -38,7 +36,6 @@
 	border-radius: 10em;
 
 	align-self:flex-start;
-
 }
 
 #user-id-info {
@@ -50,7 +47,7 @@
 	margin-left: 5%;
 }
 
-#user-id-info * {
+#user-id-info * :not(.menu-match) {
 	padding:0;
 	margin:0;
 	padding-bottom:0.3em;
@@ -62,10 +59,9 @@
 	line-height: 1.7;
 
 	color: var(--cNeonLight);
-
 }
 
-#user-id-pseudo {
+#user-id-pseudo :not(.menu-match) {
 	font-size: 0.9em;
 	color: var(--cNeon);
 }
@@ -73,15 +69,22 @@
 #user-id-elo {
 	font-size: 0.8em;
 	color: var(--cNeonDark);
-	margin-bottom:1em;
+	margin-bottom: 1em;
+	height: 30px;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+
 }
 
 #user-matchhistory {
-	margin: 5%;
-	margin-top: 0;
+/*	margin: 5%; */
+	margin-top: 3em;
 	display:flex;
 	flex-direction:column;
-	overflow-y: scroll;
+/*	overflow-y: scroll;*/
 }
 
 .user-title {
@@ -94,18 +97,23 @@
 	align-self:center;
 
 	margin-bottom: 1em;
+/*
+	margin-top: 2em;
+*/
 }
 
 .user-list {
 	color: var( --cNeon );
 
+/*
 	overflow-wrap: anywhere;
 	overflow-y:scroll;
+*/
 
-	align-self: flex-start;
+/*	align-self: flex-start;*/
 
-	width:100%;
-	height:100%;
+/*	width:100%;
+	height:100%;*/
 
 	font-family: SkwarLetter;
 	line-height: 1.7;
@@ -115,11 +123,109 @@
 
 }
 
+#match-history
+{
+	width: 100%;
+}
+
+#match-history th
+{
+	color: var( --cNeonLight );
+	padding-bottom: 1em;
+	font-size: 1.5em;
+	font-weight: 450;
+}
+
+#match-history td
+{
+	border-top: 1px solid rgba( 89, 168, 15, 0.3 );
+	color: var( --cNeon );
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+	font-size: 1rem;
+	font-weight: 350;
+	line-height: 2;
+}
+
+#match-history td:nth-child(1)
+{
+	width: 40vw;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+#match-history .pseudovs
+{
+	height: 2.1em;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-right: 0.5em;
+}
+
+#match-history .pseudo-match
+{
+	display: inline-block;
+}
+
+#match-history .stats
+{
+	width: 11em;
+	height: 2.1em;
+	white-space: nowrap;
+	overflow: visible;
+}
+
+#match-history .victories
+{
+	color: var( --cNeonLight );
+}
+
+#match-history .defeats
+{
+	color: rgba( 255, 0, 0, 0.7 );
+}
+
+#match-history td:nth-child(2)
+{
+	width: 15vw;
+	height: 2.1em;
+	padding-left: 1em;
+	padding-right: 1em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: center;
+}
+
+#match-history .won
+{
+	color: var( --cNeonLight );
+}
+
+#match-history .lost
+{
+	color: rgba( 255, 0, 0, 0.7 );
+}
+
+#match-history td:nth-child(3)
+{
+	width: 25vw;
+	height: 2.1em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: center;
+}
+
+.menu-match
+{
+	margin-left: 5em;
+	margin-top: -1em;
+}
 
 @media only screen and ( min-width: 1220px ) {
 	#user-section {
 		flex-direction:row;
-		height:60%;
+		justify-content: space-between;
+/*		height:60%;*/
 	}
 
 	#user-id {
@@ -144,8 +250,17 @@
 	}
 
 	#user-matchhistory {
-		height: 70%;
-		width:67%;
+/*		height: 70%;*/
+		width:72%;
+
+/*		display: flex;
+		flex-direction: column;
+		justify-content: end;*/
+	}
+	
+	#match-history td:nth-child(1)
+	{
+		width: 30vw;
 	}
 
 }
