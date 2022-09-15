@@ -1,5 +1,4 @@
 import { useContext, useRef, useEffect, useState } from "react";
-import {Buffer} from "buffer";
 
 import { AuthContext } from '../../services/auth.service';
 import { game_socket } from "../../socket";
@@ -10,7 +9,6 @@ import {Vec} from "./gameTypes/Vec";
 import {BASE_WIDTH} from "./gameTypes/base";
 
 import './game.css';
-import {Navigate, useParams} from "react-router";
 
 type Room = {
 	id: string,
@@ -25,7 +23,6 @@ type Room = {
 }
 
 interface IProps {
-	invitation?: boolean,
 }
 
 export function Game(props: IProps): JSX.Element {
@@ -43,11 +40,6 @@ export function Game(props: IProps): JSX.Element {
 	const [obsname, setObsname] = useState<string>("");
 	const [end, setEnd] = useState<boolean>(false);
 	const [winner, setWinner] = useState<string>("");
-	const [opt_speedball, setOpt_speedball] = useState<boolean>(false);
-	const [opt_paddleshrink, setOpt_paddleshrink] = useState<boolean>(false);
-	const [reload, setReload] = useState<boolean>(false);
-
-	const {code} = useParams();
 
 	const board = new Board();
 	board.reset();
@@ -136,8 +128,6 @@ export function Game(props: IProps): JSX.Element {
 			game_interval = null;
 			board.clear();
 			board.reset();
-			setOpt_speedball(false);
-			setOpt_paddleshrink(false);
 			if (w !== "") {
 				setWinner(w);
 				setEnd(true);
@@ -149,8 +139,6 @@ export function Game(props: IProps): JSX.Element {
 					setRight(0);
 					setEnd(false);
 					setWinner("");
-					setReload(true);
-					
 				}, 1500);
 			} else {
 				setState("");
@@ -158,7 +146,6 @@ export function Game(props: IProps): JSX.Element {
 				setRightplayer("Player");
 				setLeft(0);
 				setRight(0);
-				setReload(true);
 			}
 		});
 
@@ -221,21 +208,6 @@ export function Game(props: IProps): JSX.Element {
 			canvas.height = 500;
 			board.set_ratio(canvas.width / BASE_WIDTH);
 			board.set_ctx(ctx)
-//			if (props.invitation && code) {
-//				const decode = (str:string): string => Buffer.from(str, "base64").toString("binary");
-//				const obj = JSON.parse(decode(code));
-//				if (obj.speedball)
-//					setOpt_speedball(true);
-//				if (obj.paddleshrink)
-//					setOpt_paddleshrink(true);
-//				console.log("setup")
-//				console.log(opt_speedball);
-//				console.log(opt_paddleshrink);
-//				if (obj.join)
-//					game_socket.socket.emit("invite_join", obj);
-//				else
-//					game_socket.socket.emit("invite", obj);
-//			}
 		}
 
 		return () => {
