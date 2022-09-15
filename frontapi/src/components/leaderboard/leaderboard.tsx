@@ -1,7 +1,6 @@
-import {useContext, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 
-import { AuthContext } from '../../services/auth.service';
-import {iaxios} from '../../utils/axios';
+import { useAuth } from '../../services/auth.service';
 import { ILeaderboard, getLeaderboard } from '../utils/requester';
 import { Entry } from './entry';
 
@@ -9,8 +8,8 @@ import './leaderboard.css';
 
 export function Leaderboard() {
 
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
+	const {checkLogin} = useAuth();
+	// checkLogin();
 
 	const [leaderboard, setLeaderboard] = useState< ILeaderboard[] | null >([]);
 

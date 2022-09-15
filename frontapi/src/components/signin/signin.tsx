@@ -1,11 +1,18 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../../services/auth.service';
+import React  from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../services/auth.service';
 import './signin.css';
 
 export const Signin = () =>
 {
-	const {checkLogin} = useContext(AuthContext)
-	checkLogin();
+	const {isLoading, isLoggedIn, isTFA, checkLogin} = useAuth();
+	// checkLogin();
+	if (isLoading)
+		return (<div id="loader"></div>);
+	else if (isTFA)
+		return (<Navigate to="/tfa" />);
+	else if (isLoggedIn)
+		return (<Navigate to="/game" />);
 	return (
 		<main>
 			<section id="sectionSignin">

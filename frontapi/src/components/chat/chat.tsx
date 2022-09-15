@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
-import { AuthContext } from '../../services/auth.service';
-import { iaxios } from '../../utils/axios';
 import { IUser, getFriends } from '../utils/requester';
 import { Message } from './message';
 import { Pseudo } from '../utils/pseudo';
@@ -11,8 +9,8 @@ import './chat.css';
 export function Chat()
 : JSX.Element
 {
-	const {checkLogin} = useContext( AuthContext );
-	checkLogin();
+	// const {checkLogin} = useContext( AuthContext );
+	// checkLogin();
 
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
@@ -23,7 +21,7 @@ export function Chat()
 	let msgRef = useRef<HTMLDivElement | null>(null);
 
 	const addMessage = ( event :React.FormEvent<HTMLFormElement> ) => {
-		checkLogin();
+		// checkLogin();
 		event.preventDefault();
 		const d = new Date();
 		let input :HTMLInputElement | null = inRef.current;
