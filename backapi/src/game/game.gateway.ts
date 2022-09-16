@@ -169,34 +169,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-	@SubscribeMessage("invite")
-	async handleInvite(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
-	{
-		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id) || user.pseudo === obj.uid)
-			return ;
-		let invited: Socket | null = await this.gameService.getSocketByPseudo(obj.uid);
-		if (invited == null)
-			return ;
-		this.joined.add(user.id);
-		let room = new Room();
-		room.id = client.id;
-		room.player_left = client.id;
-		room.user_left = user.pseudo;
-		room.board.reset();
-		if (obj.speedball)
-			room.opt_speedball = true;
-		if (obj.paddleshrink)
-			room.opt_paddleshrink = true;
-		room.reserved = user.id;
-		this.rooms.set(room.id, room);
-		client.join(room.id);
-		client.emit("room_player_joined", "left");
-		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
-		obj.uid = user.id;
-		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: obj.speedball, paddleshrink: obj.paddleshrink, join: obj.join});
-	}
-
 	@SubscribeMessage("invite_join")
 	async handleInviteJoin(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
