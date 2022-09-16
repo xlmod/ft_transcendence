@@ -32,7 +32,6 @@ interface IProps {
 export function Game(props: IProps): JSX.Element {
 
 	const {checkLogin} = useAuth();
-	// checkLogin();
 
 	let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -82,6 +81,7 @@ export function Game(props: IProps): JSX.Element {
 	};
 
 	useEffect(() => {
+		checkLogin();
 
 		var side: string = "";
 		var game_interval: any = null;

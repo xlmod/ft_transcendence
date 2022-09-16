@@ -80,8 +80,10 @@ export class AuthProvider extends Component<PropsWithChildren, AuthState> {
     initializeAuth = async () => {
         const authState = await this.checkLogin();
         const tfa = await getTFAAuth();
-        this.setState( authState );
-        this.setState({isTFA:tfa});
+		if (this.state.isLoggedIn !== authState.isLoggedIn)
+        	this.setState( authState );
+		if (this.state.isTFA !== tfa)
+        	this.setState({isTFA:tfa});
         // check to see if they have been redirected after login
         if (!authState.isLoggedIn && !tfa) {
 			this.setState({isLoading:true});

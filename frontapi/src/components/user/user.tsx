@@ -17,7 +17,6 @@ import './user.css';
 export function User() {
 
 	const {checkLogin} = useAuth();
-	// checkLogin();
 
 	const [edit, setEdit] = useState<boolean>(false);
 	const [del, setDel] = useState< boolean >( false );
@@ -54,7 +53,7 @@ export function User() {
 	}; 
 
 	useEffect(() => {
-		// checkLogin();
+		checkLogin();
 		waitMe();
 //		waitFriends();
 //		waitBlocked();

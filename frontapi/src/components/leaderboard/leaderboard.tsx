@@ -9,7 +9,6 @@ import './leaderboard.css';
 export function Leaderboard() {
 
 	const {checkLogin} = useAuth();
-	// checkLogin();
 
 	const [leaderboard, setLeaderboard] = useState< ILeaderboard[] | null >([]);
 
@@ -19,6 +18,7 @@ export function Leaderboard() {
 	};
 
 	useEffect( () => {
+		checkLogin();
 		waitLeaderboard();
 	}, [] );
 
