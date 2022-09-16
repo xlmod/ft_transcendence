@@ -33,7 +33,7 @@ export function EntryMatch( props :IProps )
 			<td>
 				<div className="pseudovs">
 					<span className="VS">VS </span>
-					<Pseudo pseudo={ him?.pseudo ? him.pseudo : "..." }
+					<Pseudo pseudo={ him?.pseudo ? him.pseudo : "..." } isDeleted={ him ? false : true }
 						pseudoClassName="pseudo-match" menuClassName="menu-match" />
 				</div>
 {/*				<span className="stats">

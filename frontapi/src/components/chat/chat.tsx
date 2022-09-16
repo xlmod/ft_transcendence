@@ -87,7 +87,7 @@ export function Chat()
 							<div className="chat-list"  onClick={ () => { updateState({}); } }>
 								{ selectFriends
 									? ( friends ? friends.map( friend => (
-										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" }
+										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}
 											pseudoClassName="friends" menuClassName="menu-friends" />
 									)) : "" )
 									: ""
