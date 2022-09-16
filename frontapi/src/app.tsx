@@ -6,7 +6,6 @@ import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import axios from "axios";
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
 import {game_socket} from './socket';
@@ -14,17 +13,14 @@ import {Gameinvitation} from './components/game/gameinvitation';
 
 import { TFA } from './components/tfa/tfa';
 
-const API_URL = "http://localhost:3333/";
-
+import { iaxios } from './utils/axios';
 
 function App() {
 	const [userData, setUserData] = useState<{}>({});
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
 	const checkLogin = async () => {
-		console.log(isLoggedIn);
-		await axios
-			.get(API_URL + "user/me", {withCredentials: true})
+		await iaxios.get("user/me")
 			.then((response) => {
 				if (!isLoggedIn)
 				{
@@ -42,8 +38,8 @@ function App() {
 				return false;
 			});
 	};
-	const logout = () => {
-		axios.get( 'http://localhost:3333/auth/logout', { withCredentials: true } );
+	const logout = async () => {
+		await iaxios.get("auth/logout");
 		setUserData({});
 		setIsLoggedIn(false);
 		game_socket.socket.disconnect();
