@@ -17,10 +17,16 @@ export function Gameinvitation(props: IProps) {
 
 	const [code, setCode] = useState<string>("");
 
-	const onInvite = () => {
-		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
+	const onInviteAccept = () => {
 		let obj = {uid: props.obj.uid, speedball:props.obj.speedball, paddleshrink:props.obj.paddleshrink, join:true};
-		props.close(encode(JSON.stringify(obj)));
+		game_socket.socket.emit("invite_join", obj);
+		console.log("ACCEPT");
+		props.close("move");
+	};
+
+	const onInviteDecline = () => {
+		game_socket.socket.emit("invite_decline", props.obj);
+		props.close("");
 	};
 
 	return (
@@ -32,8 +38,8 @@ export function Gameinvitation(props: IProps) {
 				<div id="gameinvite-input">
 				</div>
 				<div id="gameinvite-button">
-					<Button id="gameinvite-button-cancel" value="decline" fontSize={0.8} onClick={() => {game_socket.socket.emit("invite_decline", props.obj) ;props.close("")}} />
-					<Button id="gameinvite-button-save" value="accept" fontSize={0.8} onClick={onInvite} />
+					<Button id="gameinvite-button-cancel" value="decline" fontSize={0.8} onClick={onInviteDecline} />
+					<Button id="gameinvite-button-save" value="accept" fontSize={0.8} onClick={onInviteAccept} />
 				</div>
 			</div>
 		</section>

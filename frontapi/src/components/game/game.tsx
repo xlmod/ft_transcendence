@@ -1,5 +1,4 @@
 import { useContext, useRef, useEffect, useState } from "react";
-import {Buffer} from "buffer";
 
 import { AuthContext } from '../../services/auth.service';
 import { game_socket } from "../../socket";
@@ -8,10 +7,8 @@ import { Button } from '../utils/button';
 import { Board } from "./gameTypes/Board";
 import {Vec} from "./gameTypes/Vec";
 import {BASE_WIDTH} from "./gameTypes/base";
-import {GAME_SETTINGS} from "./gameTypes/GameSettings";
 
 import './game.css';
-import {useParams} from "react-router";
 
 type Room = {
 	id: string,
@@ -25,11 +22,7 @@ type Room = {
 	user_right: string,
 }
 
-interface IProps {
-	invitation?: boolean,
-}
-
-export function Game(props: IProps): JSX.Element {
+export function Game(): JSX.Element {
 
 	const {checkLogin} = useContext( AuthContext );
 	checkLogin();
@@ -44,8 +37,6 @@ export function Game(props: IProps): JSX.Element {
 	const [obsname, setObsname] = useState<string>("");
 	const [end, setEnd] = useState<boolean>(false);
 	const [winner, setWinner] = useState<string>("");
-
-	const {code} = useParams();
 
 	const board = new Board();
 	board.reset();
@@ -104,10 +95,13 @@ export function Game(props: IProps): JSX.Element {
 			setRight(room.score_right);
 		});
 
-		game_socket.socket.on("start_game", () => {
+		game_socket.socket.on("start_game", (speedball: boolean, paddleshrink: boolean) => {
 			board.reset();
+			if (speedball)
+				board.set_speedball(0.5);
+			if (paddleshrink)
+				board.set_paddleshrink(0.5);
 			board.set_ball_dir(-1, 0);
-			console.log(`start: ${game_interval}`)
 			if (game_interval == null) {
 				game_interval = setInterval(() => {
 					board.tick();
@@ -126,13 +120,11 @@ export function Game(props: IProps): JSX.Element {
 		});
 
 		game_socket.socket.on("end_game", (w) => {
-			board.clear();
-			board.reset();
-			GAME_SETTINGS.remove_modifier("accelerate_ball");
-			GAME_SETTINGS.remove_modifier("reduce");
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
+			board.clear();
+			board.reset();
 			if (w !== "") {
 				setWinner(w);
 				setEnd(true);
@@ -206,23 +198,8 @@ export function Game(props: IProps): JSX.Element {
 			const ctx = canvas?.getContext("2d");
 			canvas.width = 1000;
 			canvas.height = 500;
-			if (props.invitation && code) {
-				const decode = (str:string): string => Buffer.from(str, "base64").toString("binary");
-				const obj = JSON.parse(decode(code));
-				if (obj.speedball)
-					GAME_SETTINGS.add_modifier("accelerate_ball", 2);
-				if (obj.paddleshrink)
-					GAME_SETTINGS.add_modifier("reduce", 2);
-				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-				board.set_ctx(ctx, GAME_SETTINGS.ratio)
-				if (obj.join)
-					game_socket.socket.emit("invite_join", obj);
-				else
-					game_socket.socket.emit("invite", obj);
-			} else {
-				GAME_SETTINGS.ratio = ((canvas.width / BASE_WIDTH));
-				board.set_ctx(ctx, GAME_SETTINGS.ratio)
-			}
+			board.set_ratio(canvas.width / BASE_WIDTH);
+			board.set_ctx(ctx)
 		}
 
 		return () => {

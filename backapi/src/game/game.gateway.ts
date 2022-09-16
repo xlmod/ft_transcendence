@@ -138,7 +138,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage("observe_room")
 	async handleObserveRoom(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
-		console.log(data);
 		const user = await this.gameService.getUserBySocketId(client.id);
 		if (this.joined.has(user.id))
 			return ;
@@ -170,30 +169,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-	@SubscribeMessage("invite")
-	async handleInvite(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
-	{
-		let user = await this.gameService.getUserBySocketId(client.id);
-		if (this.joined.has(user.id) || user.pseudo === obj.uid)
-			return ;
-		let invited: Socket | null = await this.gameService.getSocketByPseudo(obj.uid);
-		if (invited == null)
-			return ;
-		this.joined.add(user.id);
-		let room = new Room();
-		room.id = client.id;
-		room.player_left = client.id;
-		room.user_left = user.pseudo;
-		room.board.reset();
-		room.reserved = user.id;
-		this.rooms.set(room.id, room);
-		client.join(room.id);
-		client.emit("room_player_joined", "left");
-		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
-		obj.uid = user.id;
-		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: obj.speedball, paddleshrink: obj.paddleshrink, join: obj.join});
-	}
-
 	@SubscribeMessage("invite_join")
 	async handleInviteJoin(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
@@ -223,19 +198,51 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleInviteDecline(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
 		let user = await this.gameService.getUserBySocketId(client.id);
-		console.log(user.id);
-		console.log(obj);
 		let socket: Socket | null = this.gameService.getSocketByUid(obj.uid);
-		console.log(socket);
 		if (socket == null)
 			return;
 		this.playerQuit(socket.id);
 	}
 
+	@SubscribeMessage("start_invite")
+	async handleStartInvite(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("pseudo") pseudo: string,
+		@MessageBody("speedball") speedball: boolean,
+		@MessageBody("paddleshrink") paddleshrink: boolean,
+	) {
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (this.joined.has(user.id) || user.pseudo === pseudo)
+			return ;
+		let invited: Socket | null = await this.gameService.getSocketByPseudo(pseudo);
+		if (invited == null)
+			return ;
+		this.joined.add(user.id);
+		let room = new Room();
+		room.id = client.id;
+		room.player_left = client.id;
+		room.user_left = user.pseudo;
+		room.board.reset();
+		if (speedball)
+			room.opt_speedball = true;
+		if (paddleshrink)
+			room.opt_paddleshrink = true;
+		room.reserved = user.id;
+		this.rooms.set(room.id, room);
+		client.join(room.id);
+		client.emit("room_player_joined", "left");
+		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
+		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: speedball, paddleshrink: paddleshrink, join: false});
+		
+	}
 
 
 	startGame(room: Room) {
 		room.board.reset();
+		if (room.opt_speedball)
+			room.board.set_speedball(0.5);
+		if (room.opt_paddleshrink)
+			room.board.set_paddleshrink(0.5);
 		room.board.set_ball_dir(-1, 0);
 		this.server.to(room.id).emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
 		room.interval = setInterval((r) => {
@@ -254,8 +261,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.setWinner(r, "right");
 				else if (r.score_left == 10)
 					this.setWinner(r, "left");
-				else
+				else {
 					this.startGame(r);
+				}
 			}
 		}, 16, room);
 		room.update = setInterval((r) => {
@@ -263,7 +271,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.to(r.id).emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
 		}, 1000, room);
-		this.server.to(room.id).emit("start_game");
+		this.server.to(room.id).emit("start_game", room.opt_speedball, room.opt_paddleshrink);
 	}
 
 	getRoomFromClientId(client_id: string): Room | null {
@@ -310,11 +318,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(room.interval);
 				clearInterval(room.update);
 				if (room.player_left === client_id)
-					this.setWinner(room, "right");
+					await this.setWinner(room, "right");
 				else
-					this.setWinner(room, "left");
+					await this.setWinner(room, "left");
 			} else {
-
 				this.server.to(room.id).emit("reset_game");
 				this.server.to(room.id).emit("end_game", "");
 				this.gameService.getSocketBySocketId(client_id).leave(room.id);
@@ -336,13 +343,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
 			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
-			// await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
-			// await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
 			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
-			// await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
-			// await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game", side);
@@ -398,6 +401,8 @@ class Room {
 	update: any = null;
 	reserved: string = "";
 	board: Board = new Board();
+	opt_speedball: boolean = false;
+	opt_paddleshrink: boolean = false;
 	score_left: number = 0;
 	score_right: number = 0;
 	player_left: string = "";
