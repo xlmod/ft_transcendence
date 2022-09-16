@@ -20,7 +20,7 @@ export class Button extends React.Component< IProps, IState > {
 		super(props);
 		this.state = {
 			style: {
-				fontSize: this.props.fontSize + "em",
+				fontSize: this.props.fontSize + "rem",
 			}
 		}
 	}

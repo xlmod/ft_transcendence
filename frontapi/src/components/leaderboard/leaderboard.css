@@ -56,8 +56,7 @@
 
 #leaderboard-entry-list {
 
-	height:100%;
-	overflow-y: scroll;
+	padding-bottom: 6.5em;
 }
 
 .leaderboard-entry {
