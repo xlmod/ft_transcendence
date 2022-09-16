@@ -133,13 +133,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleQuit(
 		@ConnectedSocket() client: Socket,
 	) {
-		console.log("PLAYER QUIT ", client.id);
 		this.playerQuit(client.id);
 	}
 
 	@SubscribeMessage("observe_room")
 	async handleObserveRoom(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
-		console.log(data);
 		const user = await this.gameService.getUserBySocketId(client.id);
 		if (this.joined.has(user.id))
 			return ;
@@ -228,10 +226,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleInviteDecline(@ConnectedSocket() client: Socket, @MessageBody() obj: any)
 	{
 		let user = await this.gameService.getUserBySocketId(client.id);
-		console.log(user.id);
-		console.log(obj);
 		let socket: Socket | null = this.gameService.getSocketByUid(obj.uid);
-		console.log(socket);
 		if (socket == null)
 			return;
 		this.playerQuit(socket.id);
@@ -290,8 +285,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(r.update);
 				this.server.to(r.id).emit("reset_game");
 				this.server.to(room.id).emit("update_score", room.score_left, room.score_right);
-				console.log(`room.score_right ${r.score_right}`);
-				console.log(`room.score_left ${r.score_left}`);
 				if (r.score_right == 10)
 					this.setWinner(r, "right");
 				else if (r.score_left == 10)
@@ -353,12 +346,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				clearInterval(room.interval);
 				clearInterval(room.update);
 				if (room.player_left === client_id)
-					this.setWinner(room, "right");
+					await this.setWinner(room, "right");
 				else
-					this.setWinner(room, "left");
+					await this.setWinner(room, "left");
 			} else {
-				console.log("room ", room);
-
 				this.server.to(room.id).emit("reset_game");
 				this.server.to(room.id).emit("end_game", "");
 				this.gameService.getSocketBySocketId(client_id).leave(room.id);
@@ -380,13 +371,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
 			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
-			// await this.userService.update(user_left.id, {win: user_left.win + 1, elo: rl});
-			// await this.userService.update(user_right.id, {lose: user_right.lose + 1, elo: rr});
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
 			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
-			// await this.userService.update(user_right.id, {win: user_right.win + 1, elo: rr});
-			// await this.userService.update(user_left.id, {lose: user_left.lose + 1, elo: rl});
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game", side);

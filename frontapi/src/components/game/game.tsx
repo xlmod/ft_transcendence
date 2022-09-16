@@ -22,10 +22,7 @@ type Room = {
 	user_right: string,
 }
 
-interface IProps {
-}
-
-export function Game(props: IProps): JSX.Element {
+export function Game(): JSX.Element {
 
 	const {checkLogin} = useContext( AuthContext );
 	checkLogin();
@@ -196,11 +193,6 @@ export function Game(props: IProps): JSX.Element {
 			}
 		});
 
-		game_socket.socket.on("", () => {
-			console.log("RECU");
-
-		});
-
 		if (canvasRef.current) {
 			let canvas = canvasRef.current;
 			const ctx = canvas?.getContext("2d");
@@ -214,7 +206,6 @@ export function Game(props: IProps): JSX.Element {
 			if (game_interval != null)
 				clearInterval(game_interval);
 			game_interval = null;
-			console.log("STOP RENDER");
 			game_socket.socket.emit("quit");
 			game_socket.socket.emit("observe_quit");
 
@@ -229,7 +220,6 @@ export function Game(props: IProps): JSX.Element {
 			game_socket.socket.off("update_status");
 			game_socket.socket.off("update_paddle");
 			game_socket.socket.off("update_hard_paddle");
-			game_socket.socket.off("test_echo");
 		}
 
 	}, []);
