@@ -269,7 +269,7 @@ export class UserService {
 		try {
 			const user = await this.getfriends(mid);
 			const toblock = await this.findByPseudo(pseudo);
-			if (mid === toblock.id)
+			if (mid === toblock?.id)
 				throw new BadRequestException('Cannot blocked yourself');
 			if (!user || !toblock)
 				throw new NotFoundException('User not found');
