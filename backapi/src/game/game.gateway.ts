@@ -60,11 +60,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
-		await this.gameService.addUserWithSocketId(client);
+		const user = await this.gameService.addUserWithSocketId(client);
+		this.onlined.add(user.id);
 		await this.sendStatusUpdate(client, "online");
-		const user = await this.gameService.getUserBySocketId(client.id);
-		if (user)
-			this.onlined.add(user.id);
 	}
 
 	async handleDisconnect(client: Socket) {
@@ -269,7 +267,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleGetOnlineUser(
 		@ConnectedSocket() client: Socket,
 	) {
-		for (const [uid] of this.onlined) {
+		for (const uid of this.onlined) {
 			if (this.joined.has(uid))
 				client.emit("update_userstatus", uid, "ingame");
 			else
@@ -282,12 +280,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client: Socket,
 		status: string,
 	) {
-		console.log("STATUS in")
 		let user = await this.gameService.getUserBySocketId(client.id);
 		if (user == null)
 			return ;
-		console.log("STATUS out")
-		this.server.emit("echo", status);
 		if (status === "disconnected")
 			this.server.emit("user_disconnect", user.id);
 		else
@@ -301,7 +296,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (room.opt_speedball)
 			room.board.set_speedball(0.5);
 		if (room.opt_paddleshrink)
-			room.board.set_paddleshrink(0.5);
+			room.board.set_paddleshrink(2);
 		room.board.set_ball_dir(-1, 0);
 		this.server.to(room.id).emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
 		room.interval = setInterval((r) => {
@@ -329,7 +324,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.to(r.id).emit("update_ball", r.board.get_ball_pos(), r.board.get_ball_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
-		}, 1000, room);
+		}, 250, room);
 		this.server.to(room.id).emit("start_game", room.opt_speedball, room.opt_paddleshrink);
 	}
 
@@ -392,9 +387,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.joined.delete(user.id);
 				}
 				this.rooms.delete(room.id);
+				const client = this.gameService.getSocketBySocketId(client_id);
+				await this.sendStatusUpdate(client, "online");
 			}
-			const client = this.gameService.getSocketBySocketId(client_id);
-			await this.sendStatusUpdate(client, "online");
 		}
 	}
 
@@ -403,20 +398,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let user_right = await this.gameService.getUserBySocketId(room.player_right);
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
-			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr, true);
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
-			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr, false);
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game", side);
 		this.joined.delete(user_left.id);
 		this.joined.delete(user_right.id);
-		this.gameService.getSocketBySocketId(room.player_left).leave(room.id);
-		this.gameService.getSocketBySocketId(room.player_right).leave(room.id);
+		const lclient = this.gameService.getSocketBySocketId(room.player_left);
+		lclient.leave(room.id);
+		await this.sendStatusUpdate(lclient, "online");
+		const rclient = this.gameService.getSocketBySocketId(room.player_right);
+		rclient.leave(room.id);
+		await this.sendStatusUpdate(rclient, "online");
 		for (const [id, _] of room.observer.entries()) {
-			this.gameService.getSocketBySocketId(id).leave(room.id);
-			let user = await this.gameService.getUserBySocketId(id);
+			const client = this.gameService.getSocketBySocketId(id);
+			oclient.leave(room.id);
+			await this.sendStatusUpdate(oclient, "online");
+			const user = await this.gameService.getUserBySocketId(id);
 			this.joined.delete(user.id);
 		}
 		this.rooms.delete(room.id);

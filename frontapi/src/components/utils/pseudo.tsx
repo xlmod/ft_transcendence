@@ -17,7 +17,6 @@ interface IProps {
 export function Pseudo( props: IProps )
 {
 	const {checkLogin} = useContext( AuthContext );
-
 	const [friends, setFriends] = useState< IUser[] >([]);
 	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
@@ -36,7 +35,8 @@ export function Pseudo( props: IProps )
 
 	useEffect(() => {
 		game_socket.socket.on("update_userstatus_reload", async () => {
-			console.log(`STATUS ${props.pseudo} -> ${uid}`);
+			if (props.isDeleted)
+				return ;
 			const uid_user = await getUser(props.pseudo);
 			const _status = game_socket.status.get(uid_user.id);
 			if (_status)

@@ -22,13 +22,11 @@ class GameSocket {
 
 		this.socket.on("update_userstatus", (uid, status) => {
 			this.status.set(uid, status);
-			console.log("STATUS UPDATE", this.status);
 			this.status_change += 1;
 		});
 		this.socket.on("user_disconnect", (uid) => {
 			this.status.delete(uid);
 		});
-		this.socket.on("echo", (data) => {console.log("ECHO ", data)})
 	}
 }
 

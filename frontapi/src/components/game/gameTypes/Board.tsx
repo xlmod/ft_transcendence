@@ -154,7 +154,7 @@ export class Board {
 
 	public set_speedball(speedball: number) {
 		this.setting.add_modifier("accelerate_ball", speedball);
-		this.setting.add_modifier("accelerate_paddle", speedball);
+		this.setting.add_modifier("accelerate_paddle", speedball * 1.5);
 	}
 
 	public set_paddleshrink(shrink: number) {
