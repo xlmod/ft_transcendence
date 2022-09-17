@@ -1,24 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RequireAuth } from './services/auth.service';
 import { Signin } from './components/signin/signin';
 import { Game } from './components/game/game';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
-<<<<<<< HEAD
-import { Routes, Route } from 'react-router-dom';
-=======
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
->>>>>>> origin/develop
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
 import { TFA } from './components/tfa/tfa';
 
 import { Gameinvitation } from './components/game/gameinvitation';
+import { game_socket } from './socket';
 
 function App (){
+	const [pseudo, setPseudo] = useState<string>("");
+	const [obj, setObj] = useState<{}>({});
+	const [code, setCode] = useState<string>("");
 
-		const {pseudo, obj, removeInvite} = useAuth();
+	const location = useLocation();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		game_socket.socket.on("invitation", (pseudo_l, obj_l) => { 
+			setPseudo(pseudo_l);
+			setObj(obj_l);
+		});
+
+		return () => {
+			game_socket.socket.off("invitation");
+		}
+
+	}, []);
+
+	const removeInvite = (code_l: string) => {
+		if (code === "")
+			setCode(code_l);
+		setPseudo("");
+	};
+	
+	if (code !== "") {
+		setCode("");
+		if (location.pathname !== "/game")
+			navigate("/game");
+	}
+
 		return (
 			<div className='App'>
 				<Header />
@@ -27,7 +53,6 @@ function App (){
 					<Route index element={<RequireAuth cmp={<Game />}/>} />
 					<Route path="signin" element={<Signin />} />
 					<Route path="game" element={<RequireAuth cmp={<Game />}/>}/>
-					<Route path="game/:code" element={<RequireAuth cmp={<Game invitation={true} />}/>}/>
 					<Route path="leaderboard" element={<RequireAuth cmp={<Leaderboard />}/>} />
 					<Route path="chat" element={<RequireAuth cmp={<Chat />}/>}/>
 					<Route path="user" element={<RequireAuth cmp={<User />}/>}/>
