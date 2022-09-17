@@ -334,7 +334,6 @@ export class UserService {
 
 	// Match History
 	async endGame(lid: string, rid: string, lscore: number, rscore: number, lelo: number, relo: number, lwin: boolean) {
-		let leftwin: boolean = false;
 		const luser = await this.findById(lid);
 		const ruser = await this.findById(rid);
 		if (!luser || !ruser)
@@ -344,7 +343,6 @@ export class UserService {
 		if (lwin) {
 			++luser.win;
 			++ruser.lose;
-			leftwin = true;
 		} else {
 			++luser.lose;
 			++ruser.win;
@@ -354,7 +352,7 @@ export class UserService {
 		await this.matchService.create({ 
 			luser: luser, lscore: lscore,
 			ruser: ruser, rscore: rscore,
-			leftwin: leftwin
+			leftwin: lwin
 		} as MatchDto);
 	}
 
