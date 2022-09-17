@@ -5,7 +5,7 @@ import { Game } from './components/game/game';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
 import {game_socket} from './socket';
@@ -50,6 +50,7 @@ function App() {
 	const [code, setCode] = useState<string>("");
 
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		game_socket.socket.on("invitation", (pseudo_l, obj_l) => { 
@@ -64,15 +65,15 @@ function App() {
 	}, []);
 
 	const removeInvite = (code_l: string) => {
-		if (code !== "")
+		if (code === "")
 			setCode(code_l);
 		setPseudo("");
 	};
 	
-	if (code != "") {
-		this.setState({code: ""});
+	if (code !== "") {
+		setCode("");
 		if (location.pathname !== "/game")
-			return (<Navigate to="/game" />);
+			navigate("/game");
 	}
 	return (
 		<AuthContext.Provider value={{userData: userData, isLoggedIn: isLoggedIn, checkLogin: checkLogin, logout: logout}}>
