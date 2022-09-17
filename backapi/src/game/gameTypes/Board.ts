@@ -1,5 +1,18 @@
 import {Ball} from "./Ball";
-import {BASE_BALL_POS_X, BASE_BALL_POS_Y, BASE_COLOR_BOARD, BASE_COLOR_FILL, BASE_COLOR_SHADOW, BASE_HEIGHT, BASE_PADDLE_LEFT_POS_X, BASE_PADDLE_LEFT_POS_Y, BASE_PADDLE_RIGHT_POS_X, BASE_PADDLE_RIGHT_POS_Y, BASE_WIDTH} from "./base";
+import {
+	BASE_BALL_POS_X,
+	BASE_BALL_POS_Y,
+	BASE_COLOR_BOARD,
+	BASE_COLOR_FILL,
+	BASE_COLOR_SHADOW,
+	BASE_HEIGHT,
+	BASE_PADDLE_LEFT_POS_X,
+	BASE_PADDLE_LEFT_POS_Y,
+	BASE_PADDLE_RIGHT_POS_X,
+	BASE_PADDLE_RIGHT_POS_Y,
+	BASE_WIDTH,
+} from "./base";
+import {GameSettings} from "./GameSettings";
 import {Paddle} from "./Paddle";
 import {Vec} from "./Vec";
 
@@ -10,12 +23,16 @@ export class Board {
 	private right: Paddle;
 	private ball: Ball;
 	private winner: number;
+	private ctx: CanvasRenderingContext2D | null;
+	public setting: GameSettings;
 
 	public constructor() {
 		this.left = new Paddle(BASE_PADDLE_LEFT_POS_X, BASE_PADDLE_LEFT_POS_Y, 0, 0);
 		this.right = new Paddle(BASE_PADDLE_RIGHT_POS_X, BASE_PADDLE_RIGHT_POS_Y, 0, 0);
 		this.ball = new Ball(BASE_BALL_POS_X, BASE_BALL_POS_Y, 0, 0);
 		this.winner = 0;
+		this.ctx = null;
+		this.setting = new GameSettings();
 	}
 
 	public copy(): Board {
@@ -29,7 +46,7 @@ export class Board {
 	public tick(): boolean {
 		this.left.move();
 		this.right.move();
-		this.ball.move(this.left, this.right);
+		this.ball.move(this.left, this.right, this.setting);
 		const ballpos: Vec = this.ball.get_pos();
 		if (ballpos.x < 0) {
 			this.winner = 2;
@@ -97,25 +114,51 @@ export class Board {
 		return this.winner;
 	}
 
-	public draw(ctx: CanvasRenderingContext2D | null, ratio: number) {
-		if (ctx) {
-			ctx.fillStyle = BASE_COLOR_BOARD;
-			ctx.fillRect(
+	public draw() {
+		if (this.ctx) {
+			this.ctx.fillStyle = BASE_COLOR_BOARD;
+			this.ctx.fillRect(
 				0,
 				0,
-				BASE_WIDTH * ratio,
-				BASE_HEIGHT * ratio
+				BASE_WIDTH * this.setting.ratio,
+				BASE_HEIGHT * this.setting.ratio
 			);
-			ctx.shadowColor = BASE_COLOR_SHADOW;
-			ctx.shadowBlur = 20;
-			ctx.fillStyle = BASE_COLOR_FILL;
-			this.left.draw(ctx, ratio);
-			this.right.draw(ctx, ratio);
-			this.ball.draw(ctx, ratio);
-	//		ctx.strokeStyle = BASE_COLOR_FILL;
-	//		ctx.lineWidth = 2;
-	//		ctx.strokeRect(0, 0, BASE_WIDTH * ratio, BASE_HEIGHT * ratio);
+			this.ctx.shadowColor = BASE_COLOR_SHADOW;
+			this.ctx.shadowBlur = 20;
+			this.ctx.fillStyle = BASE_COLOR_FILL;
+			this.left.draw(this.ctx, this.setting.ratio);
+			this.right.draw(this.ctx, this.setting.ratio);
+			this.ball.draw(this.ctx, this.setting.ratio);
 		}
+	}
+
+	public clear() {
+		if (this.ctx) {
+			this.ctx.fillStyle = BASE_COLOR_BOARD;
+			this.ctx.fillRect(
+				0,
+				0,
+				BASE_WIDTH * this.setting.ratio,
+				BASE_HEIGHT * this.setting.ratio
+			);
+		}
+	}
+
+	public set_ctx(ctx: CanvasRenderingContext2D | null) {
+		this.ctx = ctx;
+	}
+
+	public set_ratio(ratio: number) {
+		this.setting.ratio = ratio;
+	}
+
+	public set_speedball(speedball: number) {
+		this.setting.add_modifier("accelerate_ball", speedball);
+		this.setting.add_modifier("accelerate_paddle", speedball);
+	}
+
+	public set_paddleshrink(shrink: number) {
+		this.setting.add_modifier("reduce", shrink);
 	}
 
 	public reset() {
@@ -123,6 +166,9 @@ export class Board {
 		this.right = new Paddle(BASE_PADDLE_RIGHT_POS_X, BASE_PADDLE_RIGHT_POS_Y, 0, 0);
 		this.ball = new Ball(BASE_BALL_POS_X, BASE_BALL_POS_Y, 0, 0);
 		this.winner = 0;
+		this.setting.remove_modifier("accelerate_ball");
+		this.setting.remove_modifier("accelerate_paddle");
+		this.setting.remove_modifier("reduce");
 	}
 
 }

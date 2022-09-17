@@ -6,6 +6,7 @@ import {Button} from "../utils/button";
 import {ToggleSwitch} from "../utils/toggleswitch";
 
 import './gameinvite.css'
+import {game_socket} from "../../socket";
 
 interface IProps {
 	pseudo: string,
@@ -29,12 +30,13 @@ export function Gameinvite(props: IProps) {
 
 	const onInvite = () => {
 		const encode = (str:string): string => Buffer.from(str, "binary").toString("base64");
-		let obj = {uid: props.pseudo, speedball:speedball, paddleshrink:paddleshrink, join:false};
+		let obj = {pseudo: props.pseudo, speedball:speedball, paddleshrink:paddleshrink, join:false};
+		game_socket.socket.emit("start_invite", obj);
 		setCode(encode(JSON.stringify(obj)));
 	};
 
 	if (code !== "")
-		return (<Navigate to={"/game/" + code} />);
+		return (<Navigate to="/game" />);
 	return (
 		<section id="gameinvite-section">
 			<div id="gameinvite-wall">

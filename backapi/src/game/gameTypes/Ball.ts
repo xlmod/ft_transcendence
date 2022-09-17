@@ -1,6 +1,6 @@
 
 import {BASE_BALL_SIZE, BASE_BALL_SPEED, BASE_HEIGHT} from "./base";
-import {GAME_SETTINGS} from "./GameSettings";
+import {GameSettings} from "./GameSettings";
 import {Paddle} from "./Paddle";
 import { Vec } from "./Vec";
 
@@ -89,26 +89,26 @@ export class Ball {
 		}
 	}
 
-	public move(left: Paddle, right: Paddle) {
+	public move(left: Paddle, right: Paddle, setting: GameSettings) {
 		const nextpos: Vec = this.dir.mul(this.speed).add_vec(this.pos);
 		if (this.collision_paddle_left(left, nextpos) !== undefined)
-			this.apply_modifier(left);
+			this.apply_modifier(left, setting);
 		else if (this.collision_paddle_right(right, nextpos) !== undefined)
-			this.apply_modifier(right);
+			this.apply_modifier(right, setting);
 		else if (this.collision_wall(nextpos) === undefined)
 			this.pos = nextpos;
 	}
 
-	public apply_modifier(paddle: Paddle) {
-		const reduce: number | undefined = GAME_SETTINGS.get_modifier("reduce");
+	public apply_modifier(paddle: Paddle, setting: GameSettings) {
+		const reduce: number | undefined = setting.get_modifier("reduce");
 		if (reduce !== undefined)
 			paddle.reduce(reduce);
 
-		const accelerate_ball: number | undefined = GAME_SETTINGS.get_modifier("accelerate_ball");
+		const accelerate_ball: number | undefined = setting.get_modifier("accelerate_ball");
 		if (accelerate_ball !== undefined)
 			this.speed += accelerate_ball;
 
-		const accelerate_paddle: number | undefined = GAME_SETTINGS.get_modifier("accelerate_paddle");
+		const accelerate_paddle: number | undefined = setting.get_modifier("accelerate_paddle");
 		if (accelerate_paddle !== undefined)
 			paddle.add_speed(accelerate_paddle);
 	}

@@ -10,7 +10,8 @@
 	cursor: pointer;
 
 	border: 1px solid var(--cNeon);
-	padding: 0.5em;
+	padding: 0.5rem;
+	font-size:1rem;
 	font-weight:550;
 }
 

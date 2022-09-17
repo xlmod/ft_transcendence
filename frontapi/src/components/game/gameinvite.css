@@ -17,15 +17,15 @@
 #gameinvite-window {
 	position: fixed;
 
-	left: calc(50% - 10em);
-	top: calc(50% - 5em);
+	left: calc(50% - 10rem);
+	top: calc(50% - 5rem);
 
 	background-color: var(--cBackground);
 
 	border:1px solid var(--cNeon);
 
-	width:20em;
-	height:10em;
+	width:25rem;
+	height:12rem;
 
 	display:flex;
 	flex-direction: column;
@@ -35,7 +35,7 @@
 #gameinvite-title {
 	color:var(--cNeon);
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
-	font-size:1em;
+	font-size:1rem;
 	text-align:center;
 	padding:0.3em;
 	font-weight:650;
@@ -57,16 +57,17 @@
 }
 
 #gameinvite-input {
-	margin:0.4em;
-	width:calc(100% - 0.8em);
+	margin:0.4rem;
+	width:calc(100% - 0.8rem);
 	height:100%;
 	padding:0;
 	display:flex;
 	flex-direction: column;
+	text-align:left;
 }
 
 #gameinvite-input label {
-	margin:0.2em;
+	margin:0.2rem;
 }
 
 
@@ -74,9 +75,9 @@
 	display:inline-block;
 	color:var(--cNeon);
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
-	font-size:0.8em;
-	margin-right: 1em;
-	margin-left: 1em;
-	width:15em;
+	font-size:0.8rem;
+	margin-right: 1rem;
+	margin-left: 1rem;
+	width:15rem;
 	font-weight:550;
 }

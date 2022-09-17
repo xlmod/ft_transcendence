@@ -7,6 +7,7 @@ import { MenuUsers } from './menu_users';
 
 interface IProps {
 	pseudo :string,
+	isDeleted :boolean,
 	pseudoClassName :string,
 	menuClassName :string
 }
@@ -41,7 +42,7 @@ export function Pseudo( props: IProps )
 			onMouseLeave={ () => { setFocus( false ); } }
 			className={ props.pseudoClassName }>
 			{ props.pseudo }
-			{ isFocus && <MenuUsers pseudo={ props.pseudo }
+			{ isFocus && !props.isDeleted && <MenuUsers pseudo={ props.pseudo }
 				isFriend={ friends.find( user => user.pseudo === props.pseudo ) ? true : false }
 				isBlocked={ blocked.find( user => user.pseudo === props.pseudo ) ? true : false }
 				menuClassName={ props.menuClassName } />  }
