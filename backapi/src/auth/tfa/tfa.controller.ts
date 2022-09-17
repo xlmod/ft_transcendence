@@ -28,7 +28,7 @@ export class TwoFactorAuthenticationController {
 
 	@Get('me')
 	@UseGuards(TwoFactorAuthGuard)
-	async Getmy2faToken(@Res() res: Response) {
+	async Getmy2faToken(@Res(({ passthrough: true })) res: Response) {
 		return this.userService.findById(res.locals.uuid);
 	}
 

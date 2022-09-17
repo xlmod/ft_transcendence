@@ -1,6 +1,6 @@
 import { useContext, useRef, useEffect, useState } from "react";
 
-import { AuthContext } from '../../services/auth.service';
+import { useAuth } from '../../services/auth.service';
 import { game_socket } from "../../socket";
 import { Button } from '../utils/button';
 
@@ -24,8 +24,7 @@ type Room = {
 
 export function Game(): JSX.Element {
 
-	const {checkLogin} = useContext( AuthContext );
-	checkLogin();
+	const {checkLogin} = useAuth();
 
 	let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -73,6 +72,7 @@ export function Game(): JSX.Element {
 	};
 
 	useEffect(() => {
+		checkLogin();
 
 		var side: string = "";
 		var game_interval: any = null;
