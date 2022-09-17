@@ -7,8 +7,6 @@ import { IUser, getUser, putFriend, patchBlock } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
 import './menu_users.css';
 
-const FRONT_URL = "http://localhost:3000/";
-//const BACK_URL = "http://localhost:3333/relationship/";
 
 interface IProps {
 	pseudo :string,
@@ -81,13 +79,6 @@ export function MenuUsers( props: IProps )
 					onClick={ () => { setInvite( true ); } }>
 					Invite to play
 				</button>
-{/*
-				<NavLink
-					className="nav-users"
-					to={FRONT_URL + "chat:" + id}>
-					Send message
-				</NavLink>
-*/}
 				<button
 					className="nav-users"
 					onClick={ () => { setEditFriend( true ); } }>
