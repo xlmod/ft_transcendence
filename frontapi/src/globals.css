@@ -41,6 +41,11 @@
 	--cNeon20: rgba(89, 168, 15, 0.2); 
 }
 
+* {
+	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
+}
+
+
 body
 {
 	background-color: var( --cBackground );

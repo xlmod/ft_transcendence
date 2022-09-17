@@ -21,18 +21,32 @@ export class GameService {
 	}
 
 	async getUserBySocketId(client_id: string): Promise<User> {
-		let uid = this.userMap.get(client_id).uid;
-		return await this.userService.findById(uid);
+		const user = this.userMap.get(client_id);
+		if (user) {
+			const uid = user.uid;
+			return await this.userService.findById(uid);
+		}
+		return undefined;
 	}
 
 	getSocketBySocketId(client_id: string): Socket {
 		return this.userMap.get(client_id).socket;
 	}
 
-	async getSocketByPseudo(uid: string): Promise<Socket | null> {
+	async getUidByPseudo(pseudo: string): Promise<string> {
 		for (const [_, obj] of this.userMap.entries()) {
 			const user = await this.userService.findById(obj.uid);
-			if (user.pseudo === uid) {
+			if (user.pseudo === pseudo) {
+				return obj.uid;
+			}
+		}
+		return undefined;
+	}
+
+	async getSocketByPseudo(pseudo: string): Promise<Socket | null> {
+		for (const [_, obj] of this.userMap.entries()) {
+			const user = await this.userService.findById(obj.uid);
+			if (user.pseudo === pseudo) {
 				return obj.socket;
 			}
 		}
