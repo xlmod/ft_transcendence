@@ -43,6 +43,14 @@ export function getUser( pseudo :string )
 		.catch( error => { console.log( error ); return ; } );
 }
 
+export function getAllUsers()
+: Promise< IUser[] >
+{
+	return iaxios.get( '/user/' )
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return; } );
+}
+
 export function getAvatar( uid :string )
 : Promise< Blob >
 {

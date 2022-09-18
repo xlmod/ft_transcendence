@@ -161,7 +161,7 @@
 .chat-list {
 	color: var( --cNeon );
 
-	overflow-wrap: anywhere;
+/*	overflow-wrap: anywhere;*/
 	overflow-y:scroll;
 
 	align-self: flex-start;
@@ -300,6 +300,31 @@
 {
     right: 0;
     margin-top: -1em;
+}
+
+#chat-friends #users-friends-titles
+{
+	font-size: 0.53em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
+.friends-title:not(.selected), .users-title:not(.selected)
+{
+	color: var( --cNeon30 );
+	cursor: pointer;
+}
+
+.friends-title.selected, .users-title.selected
+{
+	color: var( --cNeonLight );
+}
+
+.friends-title:not(.selected):hover, .users-title:not(.selected):hover
+{
+	color: var( --cNeonLight );
 }
 
 /* Message 1220px */

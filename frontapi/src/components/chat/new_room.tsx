@@ -19,11 +19,10 @@ export function NewRoom ( props :IProps ) {
 	const [priv, setPriv] = useState< boolean >( false );
 	const [password, setPassword] = useState< string >( "" );
 	const [nameError, setNameError] = useState< boolean >( false );
-	const [passwordError, setPasswordError] = useState< boolean >( false );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
-		( value === "" || value.length > 10 )
+		( value === "" || value.length > 15 )
 			? setNameError( true )
 			: setNameError( false );
 		setName( value );
@@ -35,9 +34,6 @@ export function NewRoom ( props :IProps ) {
 
 	const passwordChange = ( event :any ) => {
 		let value :string = event.target.value;
-		( value === "" || value.length > 10 )
-			? setPasswordError( true )
-			: setPasswordError( false );
 		setPassword( value );
 	};
 
@@ -63,7 +59,7 @@ export function NewRoom ( props :IProps ) {
 						value={name}
 						style={{fontSize: '0.8em'}}
 						error={nameError}
-						tooltiperror="max 10 characters"
+						tooltiperror="max 15 characters"
 					/>
 
 					<div>
@@ -82,8 +78,7 @@ export function NewRoom ( props :IProps ) {
 						onChange={passwordChange}
 						value={password}
 						style={{fontSize: '0.8em'}}
-						error={passwordError}
-						tooltiperror="max 10 characters"
+						type="password"
 					/>
 
 				</div>

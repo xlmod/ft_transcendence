@@ -24,19 +24,14 @@ export function JoinRoom ( props :IProps ) {
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
-/*
-		( value === "" || value.length > 10 )
+		( value === "" || value.length > 15 )
 			? setNameError( true )
 			: setNameError( false );
-*/
 		setName( value );
 	};
 
 	const passwordChange = ( event :any ) => {
 		let value :string = event.target.value;
-		( value === "" || value.length > 10 )
-			? setPasswordError( true )
-			: setPasswordError( false );
 		setPassword( value );
 	};
 
@@ -64,7 +59,7 @@ export function JoinRoom ( props :IProps ) {
 						value={name}
 						style={{fontSize: '0.8em'}}
 						error={nameError}
-						tooltiperror="max 10 characters"
+						tooltiperror="max 15 characters"
 					/>
 
 					{ ( nameFocus || guessFocus ) &&
@@ -88,7 +83,8 @@ export function JoinRoom ( props :IProps ) {
 						value={password}
 						style={{fontSize: '0.8em'}}
 						error={passwordError}
-						tooltiperror="max 10 characters"
+						tooltiperror="erroneous password"
+						type="password"
 					/>
 
 				</div>

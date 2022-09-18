@@ -5,6 +5,8 @@ import { IUser, getFriends, getBlocked, getUser } from './requester';
 import { MenuUsers } from './menu_users';
 import {game_socket} from '../../socket';
 
+import '../../globals.css';
+
 
 interface IProps {
 	pseudo :string,
@@ -62,11 +64,12 @@ export function Pseudo( props: IProps )
 	return(
 		<div onMouseEnter={ () => { setFocus( true ); } }
 			onMouseLeave={ () => { setFocus( false ); } }
-			className={ props.pseudoClassName }>
-			{ status === "online" && "* " }
-			{ status === "ingame" && "G " }
-			{ status === "observer" && "O " }
-			{ props.pseudo }
+			className={ `pseudos ${props.pseudoClassName}` }>
+			{ status === "online" && <span className="status online">&bull;</span> }
+			{ status === "ingame" && <span className="status playing">&bull;</span> }
+			{ status === "observer" && <span className="status observing">&bull;</span> }
+			{ status === "disconnected" && <span className="status disconnected">&bull;</span> }
+			<span className="">{ props.pseudo }</span>
 			{ isFocus && !props.isDeleted && <MenuUsers pseudo={ props.pseudo }
 				isFriend={ friends.find( user => user.pseudo === props.pseudo ) ? true : false }
 				isBlocked={ blocked.find( user => user.pseudo === props.pseudo ) ? true : false }

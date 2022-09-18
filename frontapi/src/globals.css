@@ -51,6 +51,36 @@ body
 	background-color: var( --cBackground );
 }
 
+.pseudos
+{
+	overflow: hidden;
+}
+
+.status
+{
+	margin-right: 5px;
+}
+
+.status.online
+{
+	color: green;
+}
+
+.status.playing
+{
+	color: orange;
+}
+
+.status.observing
+{
+	color: orange;
+}
+
+.status.disconnected
+{
+	color: var( --cBackground );
+}
+
 /* Animation */
 
 /*neon-blink-animation*/

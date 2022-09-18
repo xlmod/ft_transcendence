@@ -12,6 +12,7 @@ interface IProps {
 	style?: CSS.Properties,
 	error?: boolean,
 	tooltiperror?: string,
+	type? :string,
 }
 
 export function Textinput(props: IProps) {
@@ -26,7 +27,7 @@ export function Textinput(props: IProps) {
 			style={props.style}
 			placeholder={props.placeholder}
 			value={props.value}
-			type="text"
+			type={props.type?props.type:"text"}
 		/>
 	);
 }
