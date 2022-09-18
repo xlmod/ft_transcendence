@@ -1,8 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 
-import { AuthContext } from '../../services/auth.service';
-import { iaxios } from "../../utils/axios";
+import { useAuth } from '../../services/auth.service';
 
 import { IUser, IMatchHistory,
 		getUser, getAvatar, getMatchHistory } from '../utils/requester';
@@ -17,8 +16,7 @@ import './user.css';
 
 export function User() {
 
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
+	const {checkLogin} = useAuth();
 
 	const [edit, setEdit] = useState<boolean>(false);
 	const [del, setDel] = useState< boolean >( false );

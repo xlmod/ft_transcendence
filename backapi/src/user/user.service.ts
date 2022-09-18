@@ -333,18 +333,16 @@ export class UserService {
 	}
 
 	// Match History
-	async endGame(lid: string, rid: string, lscore: number, rscore: number, lelo: number, relo: number) {
-		let leftwin: boolean = false;
+	async endGame(lid: string, rid: string, lscore: number, rscore: number, lelo: number, relo: number, lwin: boolean) {
 		const luser = await this.findById(lid);
 		const ruser = await this.findById(rid);
 		if (!luser || !ruser)
 			throw new NotFoundException('User not found');
 		luser.elo = lelo;
 		ruser.elo = relo;
-		if (lscore > rscore) {
+		if (lwin) {
 			++luser.win;
 			++ruser.lose;
-			leftwin = true;
 		} else {
 			++luser.lose;
 			++ruser.win;
@@ -354,7 +352,7 @@ export class UserService {
 		await this.matchService.create({ 
 			luser: luser, lscore: lscore,
 			ruser: ruser, rscore: rscore,
-			leftwin: leftwin
+			leftwin: lwin
 		} as MatchDto);
 	}
 

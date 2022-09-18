@@ -4,24 +4,16 @@ import NumericInput from 'react-numeric-input';
 import AuthCode from 'react-auth-code-input';
 
 import { iaxios } from '../../utils/axios';
-import { AuthContext } from '../../services/auth.service';
+import { AuthContext, useAuth } from '../../services/auth.service';
 import { getTFAAuth, postTFACode } from '../utils/requester';
 
 import './tfa.css';
 
 export function TFA()
 {
-	const {checkLogin} = useContext(AuthContext);
-	checkLogin();
-	const [connected, setConnected] = useState< boolean >( true );
+	const {isTFA, waitPostTFACode, isLoggedIn, isLoading} = useAuth();
 	const [input, setInput] = useState("");
 	const [failed, setFailed] = useState("");
-	const [auth, setAuth] = useState< boolean >( false );
-
-	const waitPostTFACode = async( _code :string ) => {
-		const _auth :boolean = await postTFACode( _code );
-		setAuth( _auth );
-	};
 
 	const handleOnChange = ( res: string ) => {
 		setInput( res );
@@ -31,29 +23,24 @@ export function TFA()
 		}
 	};
 
-	const waitTFAAuth = async() => {
-		const _connected :boolean = await getTFAAuth();
-		setConnected( _connected );
-	};
-
-	useEffect( () => {
-		waitTFAAuth();
-	}, [] );
-
-	if( !connected || auth )
-		return( <Navigate to="/" /> );
-
-	return (
-		<main>
-			<section id="sectionTFA">
-				<h1>Two-Factor Authentication</h1>
-				<AuthCode
-					inputClassName={ `inputs-children ${failed}` }
-					containerClassName="inputs-parent"
-					autoFocus={true}
-					allowedCharacters='numeric'
-					onChange={handleOnChange} />;
-			</section>
-		</main>
-	);
+	if (isLoading)
+		return (<div id="loader"></div>);
+	else if (isTFA)
+		return (
+			<main>
+				<section id="sectionTFA">
+					<h1>Two-Factor Authentication</h1>
+					<AuthCode
+						inputClassName={ `inputs-children ${failed}` }
+						containerClassName="inputs-parent"
+						autoFocus={true}
+						allowedCharacters='numeric'
+						onChange={handleOnChange} />;
+				</section>
+			</main>
+		);
+	else if (isLoggedIn)
+		return (<Navigate to="/game" />)
+	else
+		return(<Navigate to="/signin" />)
 }
