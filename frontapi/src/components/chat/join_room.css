@@ -1,0 +1,74 @@
+@import '../../globals.css';
+
+#join-room-wall {
+	position: fixed;
+
+	left: 0;
+	top: 0;
+
+	width: 100%;
+	height:100%;
+
+	background-color: rgba(0,0,0,0.2);
+
+	backdrop-filter: blur(0.3em);
+
+	z-index: 1;
+}
+
+#join-room-window {
+	position: fixed;
+
+	left: calc(50% - 10em);
+	top: calc(50% - 5em);
+
+	background-color: var(--cBackground);
+
+	border:1px solid var(--cNeon);
+
+	width:20em;
+	height:10em;
+
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
+
+	z-index: 2;
+}
+
+#join-room-button Button{
+	width:calc(50% - 0.8em);
+	margin:0.4em;
+}
+
+#join-room-button-cancel {
+	border: 1px solid rgba(255, 0, 0, .5);
+	color: rgba(255, 0, 0, .5);
+}
+
+#join-room-button-cancel:hover {
+	color: var(--cBackground);
+	background-color: rgba(255, 0, 0, .5);
+}
+
+#join-room-input {
+	margin:0.4em;
+	width:calc(100% - 0.8em);
+	height:100%;
+	padding:0;
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
+}
+
+#join-input-name {
+	margin:0;
+	width:calc(100% - 1em);
+
+}
+
+#join-input-password {
+	margin:0;
+	width:calc(100% - 1em);
+
+}

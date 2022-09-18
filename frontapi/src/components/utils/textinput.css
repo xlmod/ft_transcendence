@@ -7,7 +7,7 @@
 
 	font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 
-	cursor: pointer;
+	cursor: text;
 
 	border: 1px solid var(--cNeon80);
 	outline:none;

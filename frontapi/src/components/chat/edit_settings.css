@@ -1,0 +1,65 @@
+@import '../../globals.css';
+
+#edit-settings-wall {
+	position: fixed;
+
+	left: 0;
+	top: 0;
+
+	width: 100%;
+	height:100%;
+
+	background-color: rgba(0,0,0,0.2);
+
+	backdrop-filter: blur(0.3em);
+
+	z-index: 1;
+}
+
+#edit-settings-window {
+	position: fixed;
+
+	left: calc(50% - 13em);
+	top: calc(50% - 20em);
+
+	background-color: var(--cBackground);
+
+	border:1px solid var(--cNeon);
+
+	width:26em;
+	height:40em;
+
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
+
+	z-index: 2;
+}
+
+#edit-settings-window ul
+{
+	height: 100%;
+
+	border: 1px solid blue;
+}
+
+#edit-settings-button
+{
+	display: flex;
+	justify-content: center;
+}
+
+#edit-settings-button Button{
+	width:calc(50% - 0.8em);
+	margin:0.4em;
+}
+
+#edit-settings-button-cancel {
+	border: 1px solid rgba(255, 0, 0, .5);
+	color: rgba(255, 0, 0, .5);
+}
+
+#edit-settings-button-cancel:hover {
+	color: var(--cBackground);
+	background-color: rgba(255, 0, 0, .5);
+}

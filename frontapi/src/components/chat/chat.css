@@ -133,6 +133,13 @@
 	max-height:20%;
 }
 
+#chat-rooms #rooms-controls
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
 #chat-users .chat-block {
 	max-height:45%;
 

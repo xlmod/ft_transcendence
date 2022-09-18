@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+import { useAuth } from '../../services/auth.service';
 import { IUser, getFriends } from '../utils/requester';
+
 import { Message } from './message';
 import { Pseudo } from '../utils/pseudo';
+import { Button } from '../utils/button';
+import { NewRoom } from './new_room';
+import { JoinRoom } from './join_room';
+import { EditSettings } from './edit_settings';
 
 import './chat.css';
-import { useAuth } from '../../services/auth.service';
 
 export function Chat()
 : JSX.Element
@@ -16,6 +21,9 @@ export function Chat()
 	const [friends, setFriends] = useState< IUser[] | null >([]);
 	const [selectFriends, setSelectFriends] = useState< boolean >( true );
 	const [update,updateState] = useState<{}>();
+	const [newRoom, setNewRoom] = useState< boolean >( false );
+	const [joinRoom, setJoinRoom] = useState< boolean >( false );
+	const [editSettings, setEditSettings] = useState< boolean >( false );
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
@@ -61,6 +69,14 @@ export function Chat()
 					<div id="chat-rooms">
 						<div id="chat-joined-rooms" className="chat-block">
 							<div className="chat-title">Rooms</div>
+							<div id="rooms-controls">
+								<Button id="new-room" value="new"
+										fontSize={0.6} onClick={ () => {setNewRoom( true ); } } />
+								{ newRoom && <NewRoom close={setNewRoom} /> }
+								<Button id="join-room" value="join"
+										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
+								{ joinRoom && <JoinRoom close={setJoinRoom} /> }
+							</div>
 							<div className="chat-list" >
 							</div>
 						</div>
@@ -75,10 +91,10 @@ export function Chat()
 							<div id="chat-name">
 								Channel Name
 							</div>
-							<div id="iconSettings">
+							<div id="iconSettings" onClick={ () => { setEditSettings( true ); } }>
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
 <g>
-    <path d="M51.22,21h-5.052c-0.812,0-1.481-0.447-1.792-1.197s-0.153-1.54,0.42-2.114l3.572-3.571
+<path d="M51.22,21h-5.052c-0.812,0-1.481-0.447-1.792-1.197s-0.153-1.54,0.42-2.114l3.572-3.571
         c0.525-0.525,0.814-1.224,0.814-1.966c0-0.743-0.289-1.441-0.814-1.967l-4.553-4.553c-1.05-1.05-2.881-1.052-3.933,0l-3.571,3.571
         c-0.574,0.573-1.366,0.733-2.114,0.421C33.447,9.313,33,8.644,33,7.832V2.78C33,1.247,31.753,0,30.22,0H23.78
         C22.247,0,21,1.247,21,2.78v5.052c0,0.812-0.447,1.481-1.197,1.792c-0.748,0.313-1.54,0.152-2.114-0.421l-3.571-3.571
@@ -106,6 +122,7 @@ export function Chat()
 </g>
 </svg>
 							</div>
+							{ editSettings && <EditSettings close={setEditSettings} /> }
 						</div>
 						<div id="chat-messages" ref={ msgRef }>
 							{ msglist }
