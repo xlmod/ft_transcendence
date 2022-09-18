@@ -100,7 +100,7 @@ export function Game(): JSX.Element {
 			if (speedball)
 				board.set_speedball(0.5);
 			if (paddleshrink)
-				board.set_paddleshrink(0.5);
+				board.set_paddleshrink(2);
 			board.set_ball_dir(-1, 0);
 			if (game_interval == null) {
 				game_interval = setInterval(() => {

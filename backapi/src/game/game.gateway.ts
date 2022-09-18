@@ -42,6 +42,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	private logger: Logger = new Logger('GameGateway');
 	private rooms: Map<string, Room> = new Map();
 	private joined: Set<string> = new Set();
+	private onlined: Set<string> = new Set();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
@@ -59,14 +60,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
-		this.gameService.addUserWithSocketId(client);
+		const user = await this.gameService.addUserWithSocketId(client);
+		this.onlined.add(user.id);
+		await this.sendStatusUpdate(client, "online");
 	}
 
 	async handleDisconnect(client: Socket) {
 		await this.playerQuit(client.id)
+		await this.sendStatusUpdate(client, "disconnected");
+		const user = await this.gameService.getUserBySocketId(client.id);
+		if (user)
+			this.onlined.delete(user.id);
 		this.gameService.removeUserWithSocketId(client.id);
 		this.logger.log(`Client disconnected: ${client.id}`);
-		
 	}
 
 	@SubscribeMessage("join_room")
@@ -83,6 +89,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				break ;
 			}
 		}
+		await this.sendStatusUpdate(client, "ingame");
 		if (room != null) {
 			room.player_right = client.id;
 			room.user_right = user.pseudo;
@@ -154,6 +161,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (room.full) {
 			client.emit("start_game");
 			client.emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
+			await this.sendStatusUpdate(client, "observer");
 		}
 	}
 
@@ -166,6 +174,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ;
 		if (room.observer.has(client.id)) {
 			this.observerQuit(room, client.id);
+			await this.sendStatusUpdate(client, "online");
 		}
 	}
 
@@ -183,6 +192,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 		if (room != null) {
+			await this.sendStatusUpdate(client, "ingame");
 			this.joined.add(user.id);
 			room.player_right = client.id;
 			room.user_right = user.pseudo;
@@ -233,7 +243,51 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.emit("room_player_joined", "left");
 		this.server.to(room.id).emit("room_setting", new SerialRoom(room));
 		invited.emit("invitation", user.pseudo, {uid: user.id, speedball: speedball, paddleshrink: paddleshrink, join: false});
+		await this.sendStatusUpdate(client, "ingame");
 		
+	}
+
+	@SubscribeMessage("get_uid")
+	async handleGetUid(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() pseudo: string,
+	) {
+		const uid = await this.gameService.getUidByPseudo(pseudo);
+		client.emit("get_uid", uid);
+	}
+
+	@SubscribeMessage("get_update_status")
+	async handleGetUpdateStatus(
+		@ConnectedSocket() client: Socket,
+	) {
+		client.emit("update_userstatus_reload");
+	}
+
+	@SubscribeMessage("get_onlineuser")
+	async handleGetOnlineUser(
+		@ConnectedSocket() client: Socket,
+	) {
+		for (const uid of this.onlined) {
+			if (this.joined.has(uid))
+				client.emit("update_userstatus", uid, "ingame");
+			else
+				client.emit("update_userstatus", uid, "online");
+		}
+		client.emit("update_userstatus_reload");
+	}
+
+	async sendStatusUpdate(
+		client: Socket,
+		status: string,
+	) {
+		let user = await this.gameService.getUserBySocketId(client.id);
+		if (user == null)
+			return ;
+		if (status === "disconnected")
+			this.server.emit("user_disconnect", user.id);
+		else
+			this.server.emit("update_userstatus", user.id, status);
+		this.server.emit("update_userstatus_reload");
 	}
 
 
@@ -242,7 +296,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (room.opt_speedball)
 			room.board.set_speedball(0.5);
 		if (room.opt_paddleshrink)
-			room.board.set_paddleshrink(0.5);
+			room.board.set_paddleshrink(2);
 		room.board.set_ball_dir(-1, 0);
 		this.server.to(room.id).emit("update_ball", room.board.get_ball_pos(), room.board.get_ball_dir());
 		room.interval = setInterval((r) => {
@@ -270,7 +324,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.to(r.id).emit("update_ball", r.board.get_ball_pos(), r.board.get_ball_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "left", room.board.get_left_pos(), room.board.get_left_dir());
 			this.server.to(r.id).emit("update_hard_paddle", "right", room.board.get_right_pos(), room.board.get_right_dir());
-		}, 1000, room);
+		}, 250, room);
 		this.server.to(room.id).emit("start_game", room.opt_speedball, room.opt_paddleshrink);
 	}
 
@@ -333,6 +387,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.joined.delete(user.id);
 				}
 				this.rooms.delete(room.id);
+				const client = this.gameService.getSocketBySocketId(client_id);
+				await this.sendStatusUpdate(client, "online");
 			}
 		}
 	}
@@ -342,20 +398,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let user_right = await this.gameService.getUserBySocketId(room.player_right);
 		if (side === "left") {
 			const [rl, rr] = this.gameService.calcElo(user_left.elo , user_right.elo)
-			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr, true);
 		} else if (side === "right") {
 			const [rr, rl] = this.gameService.calcElo(user_right.elo , user_left.elo)
-			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr);
+			await this.userService.endGame(user_left.id, user_right.id, room.score_left, room.score_right, rl, rr, false);
 		} else { return ; }
 		this.server.to(room.id).emit("reset_game");
 		this.server.to(room.id).emit("end_game", side);
 		this.joined.delete(user_left.id);
 		this.joined.delete(user_right.id);
-		this.gameService.getSocketBySocketId(room.player_left).leave(room.id);
-		this.gameService.getSocketBySocketId(room.player_right).leave(room.id);
+		const lclient = this.gameService.getSocketBySocketId(room.player_left);
+		lclient.leave(room.id);
+		await this.sendStatusUpdate(lclient, "online");
+		const rclient = this.gameService.getSocketBySocketId(room.player_right);
+		rclient.leave(room.id);
+		await this.sendStatusUpdate(rclient, "online");
 		for (const [id, _] of room.observer.entries()) {
-			this.gameService.getSocketBySocketId(id).leave(room.id);
-			let user = await this.gameService.getUserBySocketId(id);
+			const client = this.gameService.getSocketBySocketId(id);
+			oclient.leave(room.id);
+			await this.sendStatusUpdate(oclient, "online");
+			const user = await this.gameService.getUserBySocketId(id);
 			this.joined.delete(user.id);
 		}
 		this.rooms.delete(room.id);
