@@ -6,6 +6,8 @@ interface IProps {
 	id?: string,
 	placeholder?: string,
 	onChange?: (event:any) => void,
+	onFocus?: () => void,
+	onBlur?: () => void,
 	value?: string,
 	style?: CSS.Properties,
 	error?: boolean,
@@ -19,6 +21,8 @@ export function Textinput(props: IProps) {
 			id={props.id}
 			className={props.error ? "generic-textinput-error" : "generic-textinput"}
 			onChange={props.onChange}
+			onFocus={props.onFocus}
+			onBlur={props.onBlur}
 			style={props.style}
 			placeholder={props.placeholder}
 			value={props.value}

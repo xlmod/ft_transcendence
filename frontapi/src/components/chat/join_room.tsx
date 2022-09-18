@@ -15,15 +15,20 @@ interface IProps {
 export function JoinRoom ( props :IProps ) {
 
 	const [name, setName] = useState< string >( "" );
-	const [password, setPassword] = useState< string >( "" );
+	const [nameFocus, setNameFocus] = useState< boolean >( false )
 	const [nameError, setNameError] = useState< boolean >( false );
+	const [guessFocus, setGuessFocus] = useState< boolean >( false );
+	const [password, setPassword] = useState< string >( "" );
 	const [passwordError, setPasswordError] = useState< boolean >( false );
+	const [rooms, setRooms] = useState< string[] >( [ "a", "ab", "abc", "abcd", "abcde", "abcdef" ] );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
+/*
 		( value === "" || value.length > 10 )
 			? setNameError( true )
 			: setNameError( false );
+*/
 		setName( value );
 	};
 
@@ -54,11 +59,27 @@ export function JoinRoom ( props :IProps ) {
 						id="join-room-input-name"
 						placeholder="Name"
 						onChange={nameChange}
+						onFocus={ () => { setNameFocus( true ) } }
+						onBlur={ () => { setNameFocus( false ) } }
 						value={name}
 						style={{fontSize: '0.8em'}}
 						error={nameError}
 						tooltiperror="max 10 characters"
 					/>
+
+					{ ( nameFocus || guessFocus ) &&
+						<div id="guess"
+							onMouseEnter={ () => { setGuessFocus( true ) } }
+							onMouseLeave={ () => { setGuessFocus( false ) } }>
+							{ rooms.map( room => (
+								name === room.substr( 0, name.length ) && name !== room
+									? <div
+										onClick={ () => { setName( room ); setGuessFocus( false ); } }>
+										{room}
+									</div> : ""
+							) ) }
+						</div>
+					}
 
 					<Textinput
 						id="join-room-input-password"
