@@ -22,8 +22,6 @@ export function User() {
 	const [del, setDel] = useState< boolean >( false );
 	const [me, setMe] = useState< IUser | null >( null );
 	const [user, setUser] = useState< IUser | null >( null );
-//	const [ friends, setFriends] = useState< IUser[] | null >([]);
-//	const [ blocked, setBlocked] = useState< IUser[] | null >([]);
 	const [matchHistory, setMatchHistory] = useState< IMatchHistory[] | null >([]);
 	const [avatar, setAvatar] = useState< Blob >();
 	const { pseudo } = useParams();
@@ -32,17 +30,7 @@ export function User() {
 		const _me :IUser = await getUser("");
 		setMe( _me );
 	};
-/*
-	const waitFriends = async() => {
-		const arrayFriends :IUser[] = await getFriends();
-		setFriends( arrayFriends );
-	};
 
-	const waitBlocked = async() => {
-		const arrayBlocked :IUser[] = await getBlocked();
-		setBlocked( arrayBlocked );
-	};
-*/
 	const waitUserMatch = async( _pseudo :string ) => {
 		const _user :IUser = await getUser( _pseudo );
 		const _matchHistory :IMatchHistory[] = await getMatchHistory( _pseudo!==""?_user.id:"");
@@ -55,8 +43,6 @@ export function User() {
 	useEffect(() => {
 		checkLogin();
 		waitMe();
-//		waitFriends();
-//		waitBlocked();
 		waitUserMatch( pseudo?pseudo:"" );
 	}, [edit, pseudo]);
 

@@ -22,7 +22,7 @@ export class AuthController {
 		@Req() req,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const user = await this.authService.login(req.user);
+		const user = await this.authService.login42(req.user);
 		if (user === undefined)
 			throw new UnauthorizedException();		// maybe remove later
 		// console.log(user);

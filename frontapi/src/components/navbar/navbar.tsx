@@ -21,8 +21,8 @@ export function Navbar()
 					id="iconGame"
 					to="/game">
 					<svg height="50px" width="50px">
-						<text x="12" y="10" font-size="0.7em">4</text>
-						<text x="31" y="10" font-size="0.7em">2</text>
+						<text x="12" y="13" font-size="0.7em">4</text>
+						<text x="31" y="13" font-size="0.6em">2</text>
 						<line x1="25" y1="0" x2="25" y2="50" />
 						<line x1="5" y1="30" x2="5" y2="48" />
 						<line x1="44" y1="15" x2="44" y2="33" />

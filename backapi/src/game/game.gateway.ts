@@ -415,8 +415,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		await this.sendStatusUpdate(rclient, "online");
 		for (const [id, _] of room.observer.entries()) {
 			const client = this.gameService.getSocketBySocketId(id);
-			oclient.leave(room.id);
-			await this.sendStatusUpdate(oclient, "online");
+			client.leave(room.id);
+			await this.sendStatusUpdate(client, "online");
 			const user = await this.gameService.getUserBySocketId(id);
 			this.joined.delete(user.id);
 		}
