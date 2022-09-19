@@ -1,4 +1,6 @@
 import {
+	ConnectedSocket,
+	MessageBody,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 	OnGatewayInit,
@@ -9,6 +11,9 @@ import { AllExceptionsFilter } from '@/game/game.filter';
 import { Logger, UnauthorizedException, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '@/auth/auth.service';
+import { UserService } from '@/user/user.service';
+import { User } from '@/user/user.entity';
+import { ChannelService } from './channels/channels.service';
 
 UsePipes(new ValidationPipe())
 @UseFilters(AllExceptionsFilter)
@@ -23,11 +28,14 @@ UsePipes(new ValidationPipe())
 
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
-		private readonly authService: AuthService
+		private readonly authService: AuthService,
+		private channelService: ChannelService,
+		private userService: UserService,
 	) {}
 
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('GameGateway');
+	private users = new Map<string, User>();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
@@ -35,7 +43,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (!cookie)
 				return next(new UnauthorizedException('ChatGateway auth failed'));
 			try {
-				await this.authService.JwtVerify(cookie.split('=')[1]);
+				this.users.set(socket.id, await this.authService.JwtVerify(cookie.split('=')[1]));
 			} catch(e) {
 				return next(new UnauthorizedException('ChatGateway User unknow or failed'));
 			}
@@ -51,7 +59,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log(`Client connected: ${client.id}`, client.handshake.headers.cookie['access_token']);
 	}
 
-	// @SubscribeMessage('message')
+	// @SubscribeMessage('create-dm')
+	// handleDM(@MessageBody() content: string, @ConnectedSocket() socket: Socket) {
+	// }
+
+	// @SubscribeMessage('create-room')
+	// handleCreateRoom(client: Socket) {
+	// }
+	
+	// @SubscribeMessage('join-room')
+	// joinRoom(client: Socket) {
+	// }
+	// @SubscribeMessage('leave-room')
+	// leaveRoom(client: Socket) {
+	// }
+	
+	// @SubscribeMessage('send-message')
 	// handleMessage(client: Socket, payload: any): string {
 	// 	return 'Hello world!';
 	// }
