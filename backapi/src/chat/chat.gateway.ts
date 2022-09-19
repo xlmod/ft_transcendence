@@ -66,7 +66,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleCreateDM(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-	) {
+	): Promise<{err: boolean, data: string}> {
 		const touser: User = await this.userService.findByPseudo(name);
 		if (touser == undefined)
 			return ({err: true, data:`User named ${name} not exist!`});
@@ -84,7 +84,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody("name") name: string,
 		@MessageBody("public") is_public: boolean,
 		@MessageBody("password") password: string,
-	) {
+	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.createChannel(client, name, is_public, password);
@@ -99,7 +99,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
 		@MessageBody("password") password: string,
-	) {
+	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.joinChannel(client, name, password)
@@ -113,7 +113,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleLeaveRoom(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-	) {
+	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.leaveChannel(client, name)
@@ -128,7 +128,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleMessage(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-	) {
+	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.leaveChannel(client, name)
@@ -136,4 +136,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ({err: true, data:`You can't send message to the channel!`});
 		this.server.in(`${channel.id}`).emit("updage_room_list");
 	}
+
 }
