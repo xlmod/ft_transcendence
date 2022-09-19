@@ -77,16 +77,21 @@ export function EditSettings ( props :IProps ) {
 						type="password"
 					/>					
 
-					<div id="eddit-settings-button-save-parent">
+					<div id="edit-settings-button-save-parent">
 						<Button id="edit-settings-button-save"
 							value="save" fontSize={0.8} onClick={onSave} />
 					</div>
 
 				</div>
 
-				<div id="edit-settings-button">
-					<Button id="edit-settings-button-cancel"
-						value="close" fontSize={0.8} onClick={() => {props.close(false)}} />
+				<div id="edit-settings-members-parent">
+					<h3>members</h3>
+					<div id="edit-settings-members">
+					</div>
+					<div id="edit-settings-button">
+						<Button id="edit-settings-button-cancel"
+							value="close" fontSize={0.8} onClick={() => {props.close(false)}} />
+					</div>
 				</div>
 			</div>
 		</section>

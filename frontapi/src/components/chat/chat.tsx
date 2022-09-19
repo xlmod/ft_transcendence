@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useAuth } from '../../services/auth.service';
-import { IUser, getFriends } from '../utils/requester';
+import { IUser, IChannel, getFriends, getChannelsJoined } from '../utils/requester';
 
 import { Message } from './message';
 import { Pseudo } from '../utils/pseudo';
@@ -17,6 +17,7 @@ export function Chat()
 {
 	const {checkLogin} = useAuth();
 
+	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
 	const [selectFriends, setSelectFriends] = useState< boolean >( false );
@@ -53,6 +54,11 @@ export function Chat()
 		setFriends( arrayFriends );
 	};
 
+	const waitChannelsJoined = async () => {
+		const arrayChannels :IChannel[] = await getChannelsJoined();
+		setJoinedRooms( arrayChannels );
+	};
+
 	useEffect( () => {
 	checkLogin();
 	let msgdiv: HTMLDivElement | null = msgRef.current;
@@ -61,6 +67,7 @@ export function Chat()
 		}
 
 		waitFriends();
+		waitChannelsJoined();
 	}, [update] );
 
 		return (
@@ -76,6 +83,10 @@ export function Chat()
 								<Button id="join-room" value="join"
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
 								{ joinRoom && <JoinRoom close={setJoinRoom} /> }
+								{ joinedRooms.map( room => (
+									<div className="joined-rooms">{room.name}</div>
+									) ) }
+
 							</div>
 							<div className="chat-list" >
 							</div>
