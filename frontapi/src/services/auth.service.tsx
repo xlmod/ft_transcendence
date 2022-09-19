@@ -66,7 +66,11 @@ export class AuthProvider extends Component<PropsWithChildren, AuthState> {
     // initialize the auth0 library
     initializeAuth = async () => {
         const authState = await this.checkLogin();
-        const tfa = await getTFAAuth();
+		let tfa;
+		if (authState.isLoggedIn)
+			tfa = false;
+		else
+        	tfa = await getTFAAuth();
 		if (this.state.isLoggedIn !== authState.isLoggedIn)
         	this.setState( authState );
 		if (this.state.isTFA !== tfa)
