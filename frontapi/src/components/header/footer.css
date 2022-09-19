@@ -3,10 +3,12 @@
 footer
 {
 	position: absolute;
-	bottom: 0;
+	top: 110vh;
 	left: 0;
 	width: 98%;
 	height: 30px;
+
+	border-bottom: 1px solid var( --cNeon80 );
 }
 
 footer p

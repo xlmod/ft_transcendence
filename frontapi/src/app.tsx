@@ -5,7 +5,7 @@ import { Game } from './components/game/game';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Footer } from './components/header/footer';
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';

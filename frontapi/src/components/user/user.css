@@ -110,6 +110,10 @@
 	color: rgba( 255, 0, 0, 0.7 );
 }
 
+Button#user-delete
+{
+	margin-top: 0.8em;
+}
 
 #user-matchhistory {
 /*	margin: 5%; */
