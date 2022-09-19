@@ -6,12 +6,15 @@ import {Channel} from './channels/channels.entity';
 import {CreateChannelDto} from './channels/channels.dto';
 import {ChannelState} from './models/status.enums';
 import {ChannelService} from './channels/channels.service';
+import {MessageService} from './messages/messages.service';
+import {CreateMsgDto} from './messages/messages.dto';
 
 @Injectable()
 export class ChatService {
 	constructor(
 		private authService: AuthService,
 		private channelService: ChannelService,
+		private messageService: MessageService,
 	) {}
 
 	async getUserBySocket(
@@ -19,17 +22,6 @@ export class ChatService {
 	): Promise<User> {
 		const token: string = client.handshake.headers.cookie['access_token'].split('=')[1];
 		return await this.authService.JwtVerify(token);
-	}
-
-	async createDM(
-		client: Socket,
-		touser: User,
-	): Promise<Channel> {
-		const user: User = await this.getUserBySocket(client);
-		let tmpchannel: CreateChannelDto;
-		tmpchannel.name = touser.pseudo;
-		tmpchannel.state = ChannelState.dm;
-		return await this.channelService.create(user, tmpchannel);
 	}
 
 	async createChannel(
@@ -58,4 +50,44 @@ export class ChatService {
 
 	// updateChannel() {
 	// }
+
+	async joinChannel(
+		client: Socket,
+		name: string,
+		password: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (password === "")
+			return await this.channelService.joinChannel(user, channel);
+		else
+			return await this.channelService.joinChannel(user, channel, password);
+	}
+
+	async leaveChannel(
+		client: Socket,
+		name: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		return await this.channelService.leaveChannel(user, channel);
+	}
+
+	async sendMsg(
+		client: Socket,
+		name: string,
+		msg: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (channel == undefined)
+			return undefined;
+		let tmpmsg: CreateMsgDto;
+		tmpmsg.user = user;
+		tmpmsg.channel = channel;
+		tmpmsg.message = msg;
+		await this.messageService.createMsgDb(tmpmsg);
+		return undefined;
+	}
+
 }
