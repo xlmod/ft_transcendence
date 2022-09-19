@@ -6,30 +6,22 @@ import {Channel} from './channels/channels.entity';
 import {CreateChannelDto} from './channels/channels.dto';
 import {ChannelState} from './models/status.enums';
 import {ChannelService} from './channels/channels.service';
+import {MessageService} from './messages/messages.service';
+import {CreateMsgDto} from './messages/messages.dto';
 
 @Injectable()
 export class ChatService {
 	constructor(
 		private authService: AuthService,
 		private channelService: ChannelService,
+		private messageService: MessageService,
 	) {}
 
 	async getUserBySocket(
 		client: Socket
 	): Promise<User> {
-		const token: string = client.handshake.headers.cookie['access_token'].split('=')[1];
+		const token: string = client.handshake.headers.cookie.split('=')[1];
 		return await this.authService.JwtVerify(token);
-	}
-
-	async createDM(
-		client: Socket,
-		touser: User,
-	): Promise<Channel> {
-		const user: User = await this.getUserBySocket(client);
-		let tmpchannel: CreateChannelDto;
-		tmpchannel.name = touser.pseudo;
-		tmpchannel.state = ChannelState.dm;
-		return await this.channelService.create(user, tmpchannel);
 	}
 
 	async createChannel(
@@ -39,23 +31,64 @@ export class ChatService {
 		password: string,
 	): Promise<Channel> {
 		const user: User = await this.getUserBySocket(client);
-		let tmpchannel: CreateChannelDto;
-		tmpchannel.name = name;
+		let state: ChannelState;
+		let passwd: string;
 		if (password === "") {
 			if (is_public)
-				tmpchannel.state = ChannelState.public;
+				state = ChannelState.public;
 			else
-				tmpchannel.state = ChannelState.private;
+				state = ChannelState.private;
 		} else {
-			tmpchannel.password = password;
+			passwd = password;
 			if (is_public)
-				tmpchannel.state = ChannelState.protected;
+				state = ChannelState.protected;
 			else
-				tmpchannel.state = ChannelState.procated;
+				state = ChannelState.procated;
 		}
+		const tmpchannel: CreateChannelDto = {name: name, state: state, password: passwd};
 		return await this.channelService.create(user, tmpchannel);
 	}
 
 	// updateChannel() {
 	// }
+
+	async joinChannel(
+		client: Socket,
+		name: string,
+		password: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (password === "")
+			return await this.channelService.joinChannel(user, channel);
+		else
+			return await this.channelService.joinChannel(user, channel, password);
+	}
+
+	async leaveChannel(
+		client: Socket,
+		name: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		return await this.channelService.leaveChannel(user, channel);
+	}
+
+	async sendMsg(
+		client: Socket,
+		name: string,
+		msg: string,
+	): Promise<Channel> {
+		const user: User = await this.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (channel == undefined)
+			return undefined;
+		let tmpmsg: CreateMsgDto;
+		tmpmsg.user = user;
+		tmpmsg.channel = channel;
+		tmpmsg.message = msg;
+		await this.messageService.createMsgDb(tmpmsg);
+		return undefined;
+	}
+
 }
