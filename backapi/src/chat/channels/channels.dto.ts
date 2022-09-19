@@ -3,6 +3,7 @@ import { bantime, ChannelState } from "../models/status.enums";
 import { User } from '@/user/user.entity'
 import { MsgDto } from '@/chat/messages/messages.dto'
 import { Channel } from "./channels.entity";
+import { PartialType, PickType } from '@nestjs/mapped-types';
 
 export class CreateChannelDto {
 	@IsString()
@@ -45,3 +46,7 @@ export class ChannelDto {
 		} 
 	}
 }
+
+export class ChannelUpateDto extends PartialType(
+	PickType(ChannelDto, ['name', 'state', 'password'] as const),
+) {}
