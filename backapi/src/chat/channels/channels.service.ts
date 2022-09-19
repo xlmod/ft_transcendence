@@ -96,7 +96,7 @@ export class ChannelService {
 		return await this.channelRepository.save(chat);
 	}
 
-	async createDMsg(user: User, to: User) {
+	async createDMsg(user: User, to: User): Promise<Channel> {
 		if (user.blocks.filter(id => id === to.id).length)
 			throw new UnauthorizedException('You have bloked this user');
 		if (to.blocks.filter(id => id === to.id).length)
@@ -108,12 +108,12 @@ export class ChannelService {
 		}));
 	}
 
-	async joinChannel(toadd: User, chat: Channel, password?: string) {
+	async joinChannel(toadd: User, chat: Channel, password?: string): Promise<Channel> {
 		if (!toadd || !chat)
 			throw new NotFoundException('User or Channel not found');
 		const there = chat.users.find(curr => curr === toadd);
 		if (there && chat.state === ChannelState.dm)
-			return there;
+			return undefined;
 		if (chat.state === ChannelState.protected || chat.state === ChannelState.procated) {
 			const isMatch: boolean = await bcrypt.compare(password, chat.password);
 			if (!isMatch)

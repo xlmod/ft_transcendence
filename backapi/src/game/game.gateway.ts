@@ -25,7 +25,8 @@ import {GameService} from './game.service';
 // @UseFilters(AllExceptionsFilter)
 @WebSocketGateway({
 	cors: {
-		origin: '*',
+		origin: [`http://${process.env.HOST}:${process.env.FRONT_PORT}`,
+				 `http://${process.env.HOST}:${process.env.PORT}`],
 		credentials: true
 	},
 	namespace: '/game',
