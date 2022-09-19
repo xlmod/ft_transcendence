@@ -20,7 +20,7 @@ export class ChatService {
 	async getUserBySocket(
 		client: Socket
 	): Promise<User> {
-		const token: string = client.handshake.headers.cookie['access_token'].split('=')[1];
+		const token: string = client.handshake.headers.cookie.split('=')[1];
 		return await this.authService.JwtVerify(token);
 	}
 
@@ -31,20 +31,21 @@ export class ChatService {
 		password: string,
 	): Promise<Channel> {
 		const user: User = await this.getUserBySocket(client);
-		let tmpchannel: CreateChannelDto;
-		tmpchannel.name = name;
+		let state: ChannelState;
+		let passwd: string;
 		if (password === "") {
 			if (is_public)
-				tmpchannel.state = ChannelState.public;
+				state = ChannelState.public;
 			else
-				tmpchannel.state = ChannelState.private;
+				state = ChannelState.private;
 		} else {
-			tmpchannel.password = password;
+			passwd = password;
 			if (is_public)
-				tmpchannel.state = ChannelState.protected;
+				state = ChannelState.protected;
 			else
-				tmpchannel.state = ChannelState.procated;
+				state = ChannelState.procated;
 		}
+		const tmpchannel: CreateChannelDto = {name: name, state: state, password: passwd};
 		return await this.channelService.create(user, tmpchannel);
 	}
 
