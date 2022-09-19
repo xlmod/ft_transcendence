@@ -36,9 +36,9 @@
 	z-index: 2;
 }
 
-#edit-settings-window ul
+#edit-settings-window #edit-settings-input
 {
-	height: 100%;
+	height: 10em;
 
 	border: 1px solid blue;
 }

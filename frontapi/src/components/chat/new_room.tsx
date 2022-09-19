@@ -16,7 +16,7 @@ interface IProps {
 export function NewRoom ( props :IProps ) {
 
 	const [name, setName] = useState< string >( "" );
-	const [priv, setPriv] = useState< boolean >( false );
+	const [priv, setPriv] = useState< boolean >( true );
 	const [password, setPassword] = useState< string >( "" );
 	const [nameError, setNameError] = useState< boolean >( false );
 
@@ -66,7 +66,7 @@ export function NewRoom ( props :IProps ) {
 					<label id="new-room-input-toggle-label">public</label>
 					<ToggleSwitch
 						id="new-room-input-toggle"
-						checked={priv}
+						checked={!priv}
 						onChange={privChange}
 						
 					/>
