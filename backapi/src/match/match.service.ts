@@ -22,7 +22,7 @@ export class MatchService {
 		const rmatch = await this.matchRepository.find({
 			where: { ruser: user, },
 		}).catch(() => {return new Array()});
-		return lmatch.concat(rmatch).sort((a, b)=> { return b.CreatedAt.getTime() - a.CreatedAt.getTime()})
+		return lmatch.concat(rmatch).sort((a, b) => { return b.CreatedAt.getTime() - a.CreatedAt.getTime()})
 									.map(match => new MatchDto(match));
 	}
 }

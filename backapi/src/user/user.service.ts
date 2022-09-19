@@ -188,10 +188,10 @@ export class UserService {
 		try {
 			const user = await this.getfriends(mid);
 			const toadd = await this.findByPseudo(pseudo);
-			if (user.pseudo === pseudo)
-				throw new BadRequestException('Cannot add yourself as friend');
 			if (!user || !toadd)
 				throw new NotFoundException('User not found');
+			if (user.pseudo === pseudo)
+				throw new BadRequestException('Cannot add yourself as friend');
 			if (user.friends.filter(us => us.id === toadd.id).length)
 				throw new UnauthorizedException('Already friend with this User');
 			if (user.blocks)
@@ -210,10 +210,10 @@ export class UserService {
 		try {
 			const user = await this.getfriends(mid);
 			const todel = await this.findByPseudo(pseudo);
-			if (user.pseudo === pseudo)
-				throw new BadRequestException('Cannot remove your best friend :)');
 			if (!user || !todel)
 				throw new NotFoundException('User not found');
+			if (user.pseudo === pseudo)
+				throw new BadRequestException('Cannot remove your best friend :)');
 			if (user.friends) {
 				if (!user.friends.filter(us => us.id === todel.id).length)
 					throw new UnauthorizedException('User not in your friends list');
@@ -225,7 +225,7 @@ export class UserService {
 		}
 	}
 
-	public async getublock(mid: string) {
+	public async getublock(mid: string): Promise<User[]> {
 		// return (await this.findById(mid)).blocks;
 		let ret = new Array();
 		const ids = (await this.findById(mid)).blocks;
@@ -269,10 +269,10 @@ export class UserService {
 		try {
 			const user = await this.getfriends(mid);
 			const toblock = await this.findByPseudo(pseudo);
-			if (mid === toblock?.id)
-				throw new BadRequestException('Cannot blocked yourself');
 			if (!user || !toblock)
 				throw new NotFoundException('User not found');
+			if (mid === toblock.id)
+				throw new BadRequestException('Cannot blocked yourself');
 			if (user.friends) {
 				if (user.friends.filter(us => us.id === toblock.id).length)
 					user.friends = user.friends.filter(user => user.id !== toblock.id);
@@ -317,10 +317,10 @@ export class UserService {
 		try {
 			const user = await this.getfriends(mid);
 			const tounlock = await this.findByPseudo(pseudo);
-			if (mid === tounlock.id)
-				throw new BadRequestException('Cannot blocked yourself');
 			if (!user || !tounlock)
 				throw new NotFoundException('User not found');
+			if (mid === tounlock.id)
+				throw new BadRequestException('Cannot blocked yourself');
 			if (user.blocks) {
 				if (!user.blocks.filter(uid => uid === tounlock.id).length)
 					throw new UnauthorizedException('User not blocked');

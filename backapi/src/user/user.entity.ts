@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
+import { Channel } from "@/chat/channels/channels.entity";
 import * as crypto from "crypto";
 
 @Entity('users')
@@ -49,6 +50,9 @@ export class User extends BaseEntity {
 	@ManyToMany(() => User, friend => friend.friends, { onUpdate: "NO ACTION", onDelete: "CASCADE" })
 	@JoinTable()
 	friends: User[]
+
+	@OneToMany(() => Channel, channel => channel.owner)
+	channels: Channel[]
 
 	@CreateDateColumn({ type: 'timestamptz', nullable: false })
 	readonly CreatedAt: Date

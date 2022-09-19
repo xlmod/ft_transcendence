@@ -1,13 +1,28 @@
 import { UserService } from '@/user/user.service';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Chat } from './chat.entity';
+import { ChatGateway } from './chat.gateway';
+import { Socket } from 'socket.io';
+import { AuthService } from '@/auth/auth.service';
 
 @Injectable()
 export class ChatService {
 	constructor(
-		@InjectRepository(Chat) private chatRepository: Repository<Chat>,
+		private chatGateway: ChatGateway,
 		private userService: UserService,
+		private authService: AuthService,
 	) {}
+
+	async getUserBySocket(client: Socket) {
+		return await this.authService.JwtVerify(client.handshake.headers.cookie.split('=')[1]);
+	}
+
+
+	// createDM() {
+	// }
+
+	// createChannel() {
+	// }
+
+	// updateChannel() {
+	// }
 }
