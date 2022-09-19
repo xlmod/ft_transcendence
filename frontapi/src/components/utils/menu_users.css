@@ -13,7 +13,7 @@ font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 
 .menu-users nav
 {
-	height: 7em;
+	max-height: 8em;
 	padding: 0.7em 0.8em;
 
 	display: flex;
@@ -42,4 +42,8 @@ font-family: SkwarLetter, SkwarNumber, SkwarPunc, SkwarSym;
 	background-color: var( --cNeon80 );
 }
 
-
+.nav-users:nth-child(1)
+{
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
+}

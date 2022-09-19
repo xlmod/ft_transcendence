@@ -19,7 +19,7 @@ export function Chat()
 
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
-	const [selectFriends, setSelectFriends] = useState< boolean >( true );
+	const [selectFriends, setSelectFriends] = useState< boolean >( false );
 	const [update,updateState] = useState<{}>();
 	const [newRoom, setNewRoom] = useState< boolean >( false );
 	const [joinRoom, setJoinRoom] = useState< boolean >( false );
@@ -134,8 +134,11 @@ export function Chat()
 					</div>
 					<div id="chat-users" className="menu">
 						<div id="chat-friends" className="chat-block">
-							<div className="chat-title">Friends</div>
-							<div className="chat-list"  onClick={ () => { updateState({}); } }>
+							<div id="users-friends-titles">
+								<div className={`chat-title friends-title ${selectFriends?'selected':''}`} onClick={ () => { setSelectFriends( true ); } }>Friends</div>
+								<div className={`chat-title users-title ${selectFriends?'':'selected'}`} onClick={ () => { setSelectFriends( false ); } }>Users</div>
+							</div>
+							<div className="chat-list" onClick={ () => { updateState({}); } } onMouseLeave={() => {updateState({});}}>
 								{ selectFriends
 									? ( friends ? friends.map( friend => (
 										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}

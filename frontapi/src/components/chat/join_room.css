@@ -20,14 +20,14 @@
 	position: fixed;
 
 	left: calc(50% - 10em);
-	top: calc(50% - 5em);
+	top: calc(50% - 7em);
 
 	background-color: var(--cBackground);
 
 	border:1px solid var(--cNeon);
 
 	width:20em;
-	height:10em;
+	height:14em;
 
 	display:flex;
 	flex-direction: column;
@@ -65,6 +65,43 @@
 	margin:0;
 	width:calc(100% - 1em);
 
+}
+
+#join-room-input-name+#guess
+{
+	position: absolute;
+	margin-top: 1.8em;
+	width: calc( 100% - 1em );
+	max-height: 5em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	overflow: scroll;
+
+	background-color: var( --cBackground );
+	border: 1px solid var( --cNeon );
+}
+
+#join-room-input-name+#guess div
+{
+	font-size: 0.7em;
+	height: 0.9em;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	padding: 0.4em;
+
+	color: var( --cNeon80 );
+	text-overflow: hidden;
+}
+
+#join-room-input #guess div:hover
+{
+	cursor: pointer;
+	color: var( --cBackground );
+	background-color: var( --cNeon80 );	
 }
 
 #join-input-password {

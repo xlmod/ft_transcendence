@@ -6,7 +6,6 @@ import { useAuth } from '../../services/auth.service';
 import { IUser, IMatchHistory,
 		getUser, getAvatar, getMatchHistory } from '../utils/requester';
 import { Button } from '../utils/button';
-import { Pseudo } from '../utils/pseudo';
 import { QRCode } from './qr_code';
 import { Useredit } from './useredit';
 import { Userdelete } from './userdelete';
@@ -18,6 +17,7 @@ export function User() {
 
 	const {checkLogin} = useAuth();
 
+	const [update, setUpdate] = useState({});
 	const [edit, setEdit] = useState<boolean>(false);
 	const [del, setDel] = useState< boolean >( false );
 	const [me, setMe] = useState< IUser | null >( null );
@@ -44,18 +44,19 @@ export function User() {
 		checkLogin();
 		waitMe();
 		waitUserMatch( pseudo?pseudo:"" );
-	}, [edit, pseudo]);
+	}, [edit, pseudo, update]);
 
 
 	return (
 		<main>
 			<section id="user-section">
-				{me && edit && <Useredit close={() => {setEdit(false)}}
+				{me && edit && <Useredit close={() => {setEdit(false); setUpdate({}); }}
 							pseudo={me.pseudo}
 							tfa={me.TwoFactorAuthToggle}/>}
 				<div id="user-id">
 					<div id="user-id-avatar">
-						<img src={avatar?URL.createObjectURL( avatar ):'./default-profile.jpg'} />
+						<img src={avatar?URL.createObjectURL( avatar ):'./default-profile.jpg'}
+							alt="avatar"/>
 					</div>
 					<div id="user-id-info">
 						<div id="user-id-name">

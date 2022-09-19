@@ -15,13 +15,16 @@ interface IProps {
 export function JoinRoom ( props :IProps ) {
 
 	const [name, setName] = useState< string >( "" );
-	const [password, setPassword] = useState< string >( "" );
+	const [nameFocus, setNameFocus] = useState< boolean >( false )
 	const [nameError, setNameError] = useState< boolean >( false );
+	const [guessFocus, setGuessFocus] = useState< boolean >( false );
+	const [password, setPassword] = useState< string >( "" );
 	const [passwordError, setPasswordError] = useState< boolean >( false );
+	const [rooms, setRooms] = useState< string[] >( [ "a", "ab", "abc", "abcd", "abcde", "abcdef" ] );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
-		( value === "" || value.length > 10 )
+		( value === "" || value.length > 15 )
 			? setNameError( true )
 			: setNameError( false );
 		setName( value );
@@ -29,9 +32,6 @@ export function JoinRoom ( props :IProps ) {
 
 	const passwordChange = ( event :any ) => {
 		let value :string = event.target.value;
-		( value === "" || value.length > 10 )
-			? setPasswordError( true )
-			: setPasswordError( false );
 		setPassword( value );
 	};
 
@@ -54,11 +54,27 @@ export function JoinRoom ( props :IProps ) {
 						id="join-room-input-name"
 						placeholder="Name"
 						onChange={nameChange}
+						onFocus={ () => { setNameFocus( true ) } }
+						onBlur={ () => { setNameFocus( false ) } }
 						value={name}
 						style={{fontSize: '0.8em'}}
 						error={nameError}
-						tooltiperror="max 10 characters"
+						tooltiperror="max 15 characters"
 					/>
+
+					{ ( nameFocus || guessFocus ) &&
+						<div id="guess"
+							onMouseEnter={ () => { setGuessFocus( true ) } }
+							onMouseLeave={ () => { setGuessFocus( false ) } }>
+							{ rooms.map( room => (
+								name === room.substr( 0, name.length ) && name !== room
+									? <div
+										onClick={ () => { setName( room ); setGuessFocus( false ); } }>
+										{room}
+									</div> : ""
+							) ) }
+						</div>
+					}
 
 					<Textinput
 						id="join-room-input-password"
@@ -67,7 +83,8 @@ export function JoinRoom ( props :IProps ) {
 						value={password}
 						style={{fontSize: '0.8em'}}
 						error={passwordError}
-						tooltiperror="max 10 characters"
+						tooltiperror="erroneous password"
+						type="password"
 					/>
 
 				</div>

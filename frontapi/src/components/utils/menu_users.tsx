@@ -75,6 +75,10 @@ export function MenuUsers( props: IProps )
 					See profile
 				</NavLink>
 				<button
+					className="nav-users">
+					Send message
+				</button>
+				<button
 					className="nav-users"
 					onClick={ () => { setInvite( true ); } }>
 					Invite to play
