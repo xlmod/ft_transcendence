@@ -11,9 +11,10 @@ import { AllExceptionsFilter } from '@/game/game.filter';
 import { Logger, UnauthorizedException, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '@/auth/auth.service';
-import { UserService } from '@/user/user.service';
 import { User } from '@/user/user.entity';
-import { ChannelService } from './channels/channels.service';
+import {ChatService} from './chat.service';
+import {Channel} from './channels/channels.entity';
+import {UserService} from '@/user/user.service';
 
 UsePipes(new ValidationPipe())
 @UseFilters(AllExceptionsFilter)
@@ -29,7 +30,7 @@ UsePipes(new ValidationPipe())
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly authService: AuthService,
-		private channelService: ChannelService,
+		private chatService: ChatService,
 		private userService: UserService,
 	) {}
 
@@ -39,7 +40,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake.headers.cookie;
+			const cookie = socket.handshake.headers.cookie['access_token'];
 			if (!cookie)
 				return next(new UnauthorizedException('ChatGateway auth failed'));
 			try {
@@ -51,21 +52,38 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		});
 	}
 
-	async handleConnection(client: Socket, ...args: any[]) {
-		this.logger.log(`Client connected: ${client.id}`, client.handshake.headers.cookie['access_token']);
+	async handleConnection(client: Socket) {
+		this.logger.log(`Client connected: ${client.id}`);
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.logger.log(`Client connected: ${client.id}`, client.handshake.headers.cookie['access_token']);
+		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
-	// @SubscribeMessage('create-dm')
-	// handleDM(@MessageBody() content: string, @ConnectedSocket() socket: Socket) {
-	// }
+	@SubscribeMessage('create-dm')
+	async handleCreateDM(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+	) {
+		const touser: User = await this.userService.findByPseudo(name);
+		if (touser == undefined)
+			return ;
+		const channel: Channel = await this.chatService.createDM(client, touser);
+		client.join(`${channel.id}`);
+	}
 
-	// @SubscribeMessage('create-room')
-	// handleCreateRoom(client: Socket) {
-	// }
+	@SubscribeMessage("create-room")
+	async handleCreateRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("public") is_public: boolean,
+		@MessageBody("password") password: string,
+	) {
+		if (name === "")
+			return ;
+		const channel: Channel = await this.chatService.createChannel(client, name, is_public, password);
+		client.join(`${channel.id}`);
+	}
 	
 	// @SubscribeMessage('join-room')
 	// joinRoom(client: Socket) {

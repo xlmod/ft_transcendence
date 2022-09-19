@@ -81,7 +81,7 @@ export class ChannelService {
 		return await this.channelRepository.update(chat.id, chat);
 	}
 
-	async create(user: User, channel: CreateChannelDto) {
+	async create(user: User, channel: CreateChannelDto): Promise<Channel> {
 		if (channel.state === ChannelState.protected || channel.state === ChannelState.procated)
 			if (channel.password)
 				channel.password = await bcrypt.hash(channel.password, 10);
