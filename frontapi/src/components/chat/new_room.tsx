@@ -6,6 +6,7 @@ import {  } from '../utils/requester';
 import { Button } from "../utils/button";
 import { Textinput } from "../utils/textinput";
 import { ToggleSwitch } from "../utils/toggleswitch";
+import { chat_socket } from "../../socket";
 
 import './new_room.css'
 
@@ -16,9 +17,10 @@ interface IProps {
 export function NewRoom ( props :IProps ) {
 
 	const [name, setName] = useState< string >( "" );
-	const [priv, setPriv] = useState< boolean >( false );
+	const [priv, setPriv] = useState< boolean >( true );
 	const [password, setPassword] = useState< string >( "" );
 	const [nameError, setNameError] = useState< boolean >( false );
+	const [errString, setErrString] = useState< string >( "" );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
@@ -29,7 +31,7 @@ export function NewRoom ( props :IProps ) {
 	};
 
 	const privChange = ( event :any ) => {
-		setPriv( event.target.checked );
+		setPriv( !event.target.checked );
 	};
 
 	const passwordChange = ( event :any ) => {
@@ -39,10 +41,19 @@ export function NewRoom ( props :IProps ) {
 
 	const onSave = async () => {
 		if ( nameError )
-		{
 			return ;
-		}
-		props.close( false );
+		chat_socket.socket.emit(
+			"create-room",
+			{name: name, password: password, public: !priv},
+			(data: any) => {
+				if (data.err) {
+					setNameError(true);
+					setErrString(data.data);
+				} else {
+					props.close( false );
+				}
+			}
+		);
 	};
 
 	return (
@@ -61,12 +72,13 @@ export function NewRoom ( props :IProps ) {
 						error={nameError}
 						tooltiperror="max 15 characters"
 					/>
+					<div>{errString}</div>
 
 					<div>
 					<label id="new-room-input-toggle-label">public</label>
 					<ToggleSwitch
 						id="new-room-input-toggle"
-						checked={priv}
+						checked={!priv}
 						onChange={privChange}
 						
 					/>
