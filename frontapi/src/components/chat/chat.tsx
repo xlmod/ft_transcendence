@@ -66,16 +66,16 @@ export function Chat()
 		return (
 			<main>
 				<section id="chat-section">
+					{ newRoom && <NewRoom close={setNewRoom} /> }
+					{ joinRoom && <JoinRoom close={setJoinRoom} /> }
 					<div id="chat-rooms">
 						<div id="chat-joined-rooms" className="chat-block">
 							<div className="chat-title">Rooms</div>
 							<div id="rooms-controls">
 								<Button id="new-room" value="new"
 										fontSize={0.6} onClick={ () => {setNewRoom( true ); } } />
-								{ newRoom && <NewRoom close={setNewRoom} /> }
 								<Button id="join-room" value="join"
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
-								{ joinRoom && <JoinRoom close={setJoinRoom} /> }
 							</div>
 							<div className="chat-list" >
 							</div>
