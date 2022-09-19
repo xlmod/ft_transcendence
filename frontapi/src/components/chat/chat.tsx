@@ -9,6 +9,7 @@ import { Button } from '../utils/button';
 import { NewRoom } from './new_room';
 import { JoinRoom } from './join_room';
 import { EditSettings } from './edit_settings';
+import {chat_socket} from '../../socket';
 
 import './chat.css';
 
@@ -27,6 +28,7 @@ export function Chat()
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
+	let dmchannels:String[] = [];
 
 	const addMessage = ( event :React.FormEvent<HTMLFormElement> ) => {
 		event.preventDefault();
@@ -48,11 +50,17 @@ export function Chat()
 		}
 	}
 
+	const beginDM = (userToDm:IUser) => {
+		chat_socket.socket.emit('create-dm', userToDm);
+	}
+
 	const waitFriends = async () => {
 		const arrayFriends :IUser[] = await getFriends();
 		setFriends( arrayFriends );
 	};
-
+	chat_socket.socket.on("dmToMe", (user:IUser)=> {
+		dmchannels.push(user.firstName+user.lastName);
+	});
 	useEffect( () => {
 	checkLogin();
 	let msgdiv: HTMLDivElement | null = msgRef.current;
@@ -83,6 +91,9 @@ export function Chat()
 						<div id="chat-private-rooms" className="chat-block">
 							<div className="chat-title">PRIVMSG</div>
 							<div className="chat-list" >
+								{dmchannels.map((dm)=>{
+									return <p>dm</p>
+								})}
 							</div>
 						</div>
 					</div>
@@ -138,7 +149,7 @@ export function Chat()
 							<div className="chat-list"  onClick={ () => { updateState({}); } }>
 								{ selectFriends
 									? ( friends ? friends.map( friend => (
-										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}
+										<Pseudo onClick={() => beginDM(friend)} pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}
 											pseudoClassName="friends" menuClassName="menu-friends" />
 									)) : "" )
 									: ""

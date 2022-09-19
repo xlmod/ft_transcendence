@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 
-import { AuthContext } from '../../services/auth.service';
+import { AuthContext, useAuth } from '../../services/auth.service';
 import { IUser, getFriends, getBlocked, getUser } from './requester';
 import { MenuUsers } from './menu_users';
 import {game_socket} from '../../socket';
@@ -10,13 +10,14 @@ interface IProps {
 	pseudo :string,
 	isDeleted :boolean,
 	pseudoClassName :string,
-	menuClassName :string
+	menuClassName :string,
+	onClick?: any
 }
 
 
 export function Pseudo( props: IProps )
 {
-	const {checkLogin} = useContext( AuthContext );
+	const {checkLogin} = useAuth();
 	const [friends, setFriends] = useState< IUser[] >([]);
 	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
@@ -60,7 +61,7 @@ export function Pseudo( props: IProps )
 	}, [isFocus] );
 
 	return(
-		<div onMouseEnter={ () => { setFocus( true ); } }
+		<div onMouseEnter={ () => { setFocus( true ); } } onClick={() => props.onClick()}
 			onMouseLeave={ () => { setFocus( false ); } }
 			className={ props.pseudoClassName }>
 			{ status === "online" && "* " }

@@ -9,6 +9,9 @@ import { AllExceptionsFilter } from '@/game/game.filter';
 import { Logger, UnauthorizedException, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '@/auth/auth.service';
+import { emit } from 'process';
+import { UserDto } from '@/user/user.dto';
+import { User } from '@/user/user.entity';
 
 UsePipes(new ValidationPipe())
 @UseFilters(AllExceptionsFilter)
@@ -27,7 +30,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	) {}
 
 	@WebSocketServer() server: Server;
-	private logger: Logger = new Logger('GameGateway');
+	private logger: Logger = new Logger('ChatGateway');
+	private users = new Map<User, Socket>();
+
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
@@ -45,14 +50,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		this.logger.log(`Client connected: ${client.id}`, client.handshake.headers.cookie['access_token']);
+		this.users.set(await this.authService.JwtVerify(client.handshake.headers.cookie.split('=')[1]), client);
+
 	}
 
 	async handleDisconnect(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`, client.handshake.headers.cookie['access_token']);
 	}
 
-	// @SubscribeMessage('message')
-	// handleMessage(client: Socket, payload: any): string {
-	// 	return 'Hello world!';
-	// }
+	@SubscribeMessage('create-dm')
+	createDm(client: Socket, userToDm: User) {
+		this.users.get(userToDm).emit("dmToMe");
+		console.log("yap, " , userToDm);
+	}
 }
