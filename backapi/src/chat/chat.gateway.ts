@@ -255,5 +255,4 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return ({err: false, msg: msg});
 	}
 
-
 }

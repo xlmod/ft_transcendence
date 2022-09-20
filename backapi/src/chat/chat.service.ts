@@ -228,5 +228,4 @@ export class ChatService {
 		await this.messageService.createMsgDb(tmpmsg);
 		return {channel: channel, msg: msg, user:user.pseudo};
 	}
-
 }
