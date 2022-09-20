@@ -70,7 +70,10 @@ export function Chat()
 		setJoinedRooms( arrayChannels );
 	};
 
-	const quitChannel = async () => {
+	const quitChannel = ( name :string ) => {
+		chat_socket.socket.emit( "leave-room", { name: name }, ( response :any ) => {
+			console.log( response.data );
+		} );
 		setActualRoom( null );
 	};
 
@@ -139,10 +142,11 @@ export function Chat()
 					<div id="chat-content">
 						<div id="chat-header">
 							{ actualRoom && <Button id="quit" value="quit" fontSize={0.6}
-								onClick={quitChannel} /> }
+								onClick={ () => { quitChannel( actualRoom.name ); } } /> }
 							<div id="chat-name">
 								{ actualRoom ? actualRoom.name : "welcome" }
 							</div>
+							{ actualRoom && actualRoom.state !== "dm" &&
 							<div id="iconSettings" onClick={ () => { setEditSettings( true ); } }>
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
 <g>
@@ -174,6 +178,7 @@ export function Chat()
 </g>
 </svg>
 							</div>
+							}
 							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom}/> }
 						</div>
 						<div id="chat-messages" ref={ msgRef }>

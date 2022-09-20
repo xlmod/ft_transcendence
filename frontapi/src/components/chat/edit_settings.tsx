@@ -7,6 +7,8 @@ import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
 import { ToggleSwitch } from '../utils/toggleswitch';
 
+import { chat_socket } from '../../socket';
+
 import './edit_settings.css'
 
 interface IProps {
@@ -46,16 +48,34 @@ export function EditSettings ( props :IProps ) {
 		props.close( false );
 	};
 
-	const adminChange = async() => {
-		return ;
+	const adminChange = ( name? :string, uid? :string, isAdmin? :boolean ) => {
+		isAdmin
+		? chat_socket.socket.emit( "unset-admin", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} )
+		: chat_socket.socket.emit( "set-admin", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} );
 	};
 
-	const banChange = async() => {
-		return ;
+	const banChange = ( name? :string, uid? :string, isBanned? :boolean ) => {
+		isBanned
+		? chat_socket.socket.emit( "unban-user", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} )
+		: chat_socket.socket.emit( "ban-user", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} );	
 	};
 
-	const muteChange = async() => {
-		return ;
+	const muteChange = ( name? :string, uid? :string, isMuted? :boolean ) => {
+		isMuted
+		? chat_socket.socket.emit( "unmute-user", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} )
+		: chat_socket.socket.emit( "mute-user", { name: name, uid: uid }, ( response :any ) => {
+			console.log( response.data );
+		} );		
 	};
 
 	return (
@@ -110,16 +130,19 @@ export function EditSettings ( props :IProps ) {
 										admin.pseudo === member.pseudo ) )
 											? "selected" : "unselected" }`}
 										value="adm" fontSize={0.8}
-										onClick={adminChange} />
+										onClick={ () => { adminChange( props.room?.name, member.id, ( props.room?.admin.find( admin => (
+											admin.pseudo === member.pseudo ) ) )?true:false ) } }/>
 									<Button className={`ban ${props.room?.ban.find( ban => (
 										ban.pseudo === member.pseudo ) )
 											? "selected" : "unselected" }`}
 										 value="ban" fontSize={0.8}
-										onClick={banChange} />
+										onClick={ () => { banChange( props.room?.name, member.id, ( props.room?.ban.find( ban => (
+											ban.pseudo === member.pseudo ) ) )?true:false ) } } />
 									<Button className={`mute ${props.room?.mute.find( mute => (
 										mute.pseudo === member.pseudo ) )
 											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
-										onClick={muteChange} />
+										onClick={ () => { muteChange( props.room?.name, member.id, ( props.room?.mute.find( mute => (
+											mute.pseudo === member.pseudo ) ) )?true:false ) } } />
 								</div>
 							</div>
 						) ) }
