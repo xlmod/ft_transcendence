@@ -49,7 +49,7 @@ export class ChatService {
 				state = ChannelState.procated;
 		}
 		const tmpchannel: CreateChannelDto = {name: name, state: state, password: passwd};
-		return await this.channelService.create(user, tmpchannel);
+		return await this.channelService.create(user, tmpchannel).catch(() => undefined);
 	}
 
 	// updateChannel() {
@@ -63,9 +63,9 @@ export class ChatService {
 		const user: User = await this.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
 		if (password === "")
-			return await this.channelService.joinChannel(user, channel);
+			return await this.channelService.joinChannel(user, channel).catch(() => undefined);
 		else
-			return await this.channelService.joinChannel(user, channel, password);
+			return await this.channelService.joinChannel(user, channel, password).catch(() => undefined);
 	}
 
 	async leaveChannel(
@@ -74,7 +74,7 @@ export class ChatService {
 	): Promise<Channel> {
 		const user: User = await this.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		return await this.channelService.leaveChannel(user, channel);
+		return await this.channelService.leaveChannel(user, channel).catch(() => undefined);
 	}
 
 	async sendMsg(
@@ -90,8 +90,9 @@ export class ChatService {
 		tmpmsg.user = user;
 		tmpmsg.channel = channel;
 		tmpmsg.message = msg;
-		await this.messageService.createMsgDb(tmpmsg);
-		return undefined;
+		if (this.messageService.createMsgDb(tmpmsg).catch(() => undefined) == undefined)
+			return undefined;
+		return channel;
 	}
 
 }

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { iaxios } from "../../utils/axios";
-import {  } from '../utils/requester';
+import { getChannelsNames } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from "../utils/textinput";
+import { chat_socket } from "../../socket";
 
 import './join_room.css'
 
@@ -17,10 +18,11 @@ export function JoinRoom ( props :IProps ) {
 	const [name, setName] = useState< string >( "" );
 	const [nameFocus, setNameFocus] = useState< boolean >( false )
 	const [nameError, setNameError] = useState< boolean >( false );
+	const [errString, setErrString] = useState< string >( "" );
 	const [guessFocus, setGuessFocus] = useState< boolean >( false );
 	const [password, setPassword] = useState< string >( "" );
 	const [passwordError, setPasswordError] = useState< boolean >( false );
-	const [rooms, setRooms] = useState< string[] >( [ "a", "ab", "abc", "abcd", "abcde", "abcdef" ] );
+	const [rooms, setRooms] = useState< string[] >( [] );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
@@ -37,11 +39,31 @@ export function JoinRoom ( props :IProps ) {
 
 	const onSave = async () => {
 		if ( nameError )
-		{
 			return ;
-		}
+		chat_socket.socket.emit(
+			"join-room",
+			{name: name, password: password},
+			(data: any) => {
+				if (data.err) {
+					setNameError(true);
+					setErrString(data.data);
+				} else {
+					props.close( false );
+				}
+			console.log(data);
+			}
+		);
 		props.close( false );
 	};
+
+	const waitRooms = async () => {
+		const arrayChannelsNames: string[] = await getChannelsNames();
+		setRooms(arrayChannelsNames);
+	};
+
+	useEffect(() => {
+		waitRooms(); 
+	}, []);
 
 	return (
 		<section id="join-room-section">
