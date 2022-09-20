@@ -34,7 +34,7 @@ export class GameService {
 	}
 
 	getSocketBySocketId(client_id: string): Socket {
-		return this.userMap.get(client_id).socket;
+		return this.userMap.get(client_id)?.socket;
 	}
 
 	async getUidByPseudo(pseudo: string): Promise<string> {

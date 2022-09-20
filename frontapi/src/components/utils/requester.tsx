@@ -119,6 +119,13 @@ export function getMatchHistory( uid :string )
 		.catch( error => { console.log( error ); return []; } );
 }
 
+export function getChannelsNamesStates()
+: Promise< {name:string, state:string}[] >
+{
+	return iaxios.get( 'chat/names' )
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return []; } );
+}
 
 export function putFriend( _pseudo :string, _which :string )
 : Promise< boolean >
