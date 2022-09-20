@@ -3,7 +3,6 @@ import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 import { Controller, Get, NotFoundException, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ChannelDto } from './channels/channels.dto';
 import { ChannelService } from './channels/channels.service';
 
 @Controller('chat')
@@ -13,13 +12,6 @@ export class ChatController {
 		private channelService: ChannelService,
 		private userService: UserService
 	) {}
-
-	// @Get('')
-	// async testcreate() {
-	// 	const user1 = await this.userService.findById('');
-	// 	const user2 = await this.userService.findById('');
-	// 	return await this.channelService.createDMsg(user1, user2);
-	// }
 
 	@Get('all')
 	async getAllRoom(@Res({ passthrough: true }) res: Response) {

@@ -31,7 +31,7 @@ export class Channel {
 
 	@ManyToMany(() => User)
 	@JoinTable()
-	users: User[]
+	members: User[]
 
 	@OneToMany(() => Message, message => message.channel)
 	messages: Message[]

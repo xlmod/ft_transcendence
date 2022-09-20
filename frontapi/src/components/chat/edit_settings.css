@@ -28,19 +28,44 @@
 
 	width:26em;
 	height:40em;
-
+/*
 	display:flex;
 	flex-direction: column;
 	justify-content:space-between;
-
+*/
 	z-index: 2;
 }
 
-#edit-settings-window ul
+#edit-settings-window #edit-settings-input
 {
-	height: 100%;
+	height: 10em;
+	margin: 0.4em;
+	padding: 0;
 
-	border: 1px solid blue;
+	display:flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+#edit-settings-input-toggle-label
+{
+	font-size: 0.8em;
+	margin-right: 1em;
+	margin-left: 1em;
+
+	display: inline-block;
+}
+
+#edit-settings-input-toggle
+{
+	display: inline-block;
+}
+
+#edit-settings-button-save-parent
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
 }
 
 #edit-settings-button
@@ -52,6 +77,32 @@
 #edit-settings-button Button{
 	width:calc(50% - 0.8em);
 	margin:0.4em;
+}
+
+#edit-settings-members-parent
+{
+	height: 29em;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	border: 1px solid yellow;
+}
+
+#edit-settings-members-parent h3
+{
+	font-size: 1.2em;
+	color: var( --cNeonLight );
+	text-align: center;
+	font-weight: 700;
+}
+
+#edit-settings-members
+{
+	height: 100%;
+
+	border: 1px solid blue;
 }
 
 #edit-settings-button-cancel {

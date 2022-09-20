@@ -69,6 +69,11 @@
 	opacity:100%;
 }
 
+#chat-joined-rooms .joined-rooms
+{
+	color: var( --cNeon );
+}
+
 #chat-users {
 	position: absolute;
 	top:1em;

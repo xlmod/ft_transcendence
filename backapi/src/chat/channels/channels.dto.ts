@@ -17,6 +17,7 @@ export class CreateChannelDto {
 }
 
 export class ChannelDto {
+	id: number
 	name?: string
 	admin: string[]
 	mute: string[]
@@ -24,16 +25,18 @@ export class ChannelDto {
 	state: ChannelState
 	password?: string
 	owner?: User
-	users: User[]
-	messages: MsgDto[]
+	members: User[]
+	messages?: MsgDto[]
 
 	constructor(chat: Channel) {
 		if (chat.state === ChannelState.dm) {
+			this.id = chat.id;
 			// this.name = null;
 			this.state = chat.state;
-			this.users = chat.users;
-			this.messages = chat.messages.map(msg => new MsgDto(msg));
+			this.members = chat.members;
+			this.messages = chat.messages?.map(msg => new MsgDto(msg));
 		} else {
+			this.id = chat.id;
 			this.name = chat.name;
 			this.admin = chat.admin;
 			this.mute = chat.mute;
@@ -41,8 +44,8 @@ export class ChannelDto {
 			this.state = chat.state;
 			this.password = chat.password;
 			this.owner = chat.owner;
-			this.users = chat.users;
-			this.messages = chat.messages.map(msg => new MsgDto(msg));
+			this.members = chat.members;
+			this.messages = chat.messages?.map(msg => new MsgDto(msg));
 		} 
 	}
 }

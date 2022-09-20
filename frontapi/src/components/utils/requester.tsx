@@ -35,6 +35,11 @@ export interface IMatchHistory
 	ruser :IUser,
 }
 
+export interface IChannel
+{
+	name :string,
+}
+
 export function getUser( pseudo :string )
 : Promise< IUser >
 {
@@ -210,4 +215,12 @@ export async function deleteUser()
 	return iaxios.delete( 'user' )
 		.then( () => {return true;})
 		.catch(() => {return false;});
+}
+
+export function getChannelsJoined()
+: Promise< IChannel[] >
+{
+	return iaxios.get( 'chat/all' )
+		.then( data => { console.log( data.data ); return data.data; } )
+		.catch( error => { console.log( error ); return []; } );
 }
