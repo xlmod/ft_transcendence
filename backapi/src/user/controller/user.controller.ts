@@ -29,8 +29,8 @@ export class UserController {
 
 	@Get()
 	async AllUsers(): Promise<UserDto[]> {
-		// return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
-		return (await this.userService.GetUsers());
+		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+		// return (await this.userService.GetUsers());
 	}
 
 	// Leaderboard

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useAuth } from '../../services/auth.service';
-import { IUser, IChannel, getFriends, getChannelsJoined } from '../utils/requester';
+import { IUser, IChannel, getFriends, getChannelsJoined, getAllUsers } from '../utils/requester';
 
 import { Message } from './message';
 import { Pseudo } from '../utils/pseudo';
@@ -11,15 +11,18 @@ import { JoinRoom } from './join_room';
 import { EditSettings } from './edit_settings';
 
 import './chat.css';
+import { chat_socket } from '../../socket';
 
 export function Chat()
 : JSX.Element
 {
-	const {checkLogin} = useAuth();
+	const {checkLogin, userData} = useAuth();
 
 	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
+	const [currentChannels, setCurrentChannels] = useState< string[] >( [] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
+	const [allUsers, setAllUsers] = useState< IUser[] | null >([]);
 	const [selectFriends, setSelectFriends] = useState< boolean >( false );
 	const [update,updateState] = useState<{}>();
 	const [newRoom, setNewRoom] = useState< boolean >( false );
@@ -54,6 +57,12 @@ export function Chat()
 		setFriends( arrayFriends );
 	};
 
+	const waitAllUsers = async () => {
+		const arrayAllUsers :IUser[] = await getAllUsers();
+		setAllUsers( arrayAllUsers );
+	};
+	
+
 	const waitChannelsJoined = async () => {
 		const arrayChannels :IChannel[] = await getChannelsJoined();
 		setJoinedRooms( arrayChannels );
@@ -65,7 +74,10 @@ export function Chat()
 		if (msgdiv) {
 			msgdiv.scrollTop = msgdiv.scrollHeight;
 		}
-
+		chat_socket.socket.on("update-current-channels", (channels:string[])=>{
+			setCurrentChannels(channels);
+		});
+		waitAllUsers();
 		waitFriends();
 		waitChannelsJoined();
 	}, [update] );
@@ -85,6 +97,11 @@ export function Chat()
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
 							</div>
 							<div className="chat-list" >
+							{ currentChannels
+									?  currentChannels.map( channel => (
+										<span>{channel}</span>
+									)) : ""
+							}
 							</div>
 						</div>
 						<div id="chat-private-rooms" className="chat-block">
@@ -151,7 +168,11 @@ export function Chat()
 										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}
 											pseudoClassName="friends" menuClassName="menu-friends" />
 									)) : "" )
-									: ""
+									: ( allUsers ? allUsers.map( user => {
+										if (user.id != userData?.id)
+											return (<Pseudo pseudo={ user.pseudo ? user.pseudo : "undefined" } isDeleted={false}
+												pseudoClassName="users" menuClassName="menu-user" />)
+											}) : "" )
 								}
 							</div>
 						</div>
