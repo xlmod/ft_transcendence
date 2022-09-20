@@ -19,22 +19,10 @@ interface IProps {
 export function Pseudo( props: IProps )
 {
 	const {checkLogin} = useContext( AuthContext );
-	const [friends, setFriends] = useState< IUser[] >([]);
-	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
 	const [status, setStatus] = useState<string>("");
 
 	const pseudoUUID = window.crypto.randomUUID();
-
-	const waitFriends = async () => {
-		const _friends :IUser[] = await getFriends();
-		setFriends( _friends );
-	};
-
-	const waitBlocked = async () => {
-		const _blocked :IUser[] = await getBlocked();
-		setBlocked( _blocked );
-	};
 
 	useEffect(() => {
 		game_socket.socket.on(`update_${pseudoUUID}`, async () => {
@@ -59,8 +47,6 @@ export function Pseudo( props: IProps )
 
 	useEffect( () => {
 		checkLogin()
-		waitFriends();
-		waitBlocked();
 	}, [isFocus] );
 
 	return(
@@ -73,8 +59,6 @@ export function Pseudo( props: IProps )
 			{ status === "disconnected" && <span className="status disconnected">&bull;</span> }
 			<span className="">{ props.pseudo }</span>
 			{ isFocus && !props.isDeleted && <MenuUsers pseudo={ props.pseudo }
-				isFriend={ friends.find( user => user.pseudo === props.pseudo ) ? true : false }
-				isBlocked={ blocked.find( user => user.pseudo === props.pseudo ) ? true : false }
 				menuClassName={ props.menuClassName } />  }
 		</div>
 	);
