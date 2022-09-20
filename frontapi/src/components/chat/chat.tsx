@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useAuth } from '../../services/auth.service';
-import { IUser, IChannel, getAllUsers, getFriends, getChannelsJoined } from '../utils/requester';
+import { IUser, IChannel, getAllUsers, getFriends, getChannelsJoined , getUser} from '../utils/requester';
 import { game_socket } from '../../socket';
 
 import { Message } from './message';
@@ -29,9 +29,16 @@ export function Chat()
 	const [newRoom, setNewRoom] = useState< boolean >( false );
 	const [joinRoom, setJoinRoom] = useState< boolean >( false );
 	const [editSettings, setEditSettings] = useState< boolean >( false );
+	const [me, setMe] = useState<IUser>();
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
+
+	const inputChange = (event: any) => {
+		let value: string = event.target.value;
+		if (value.length > 255)
+			event.target.value = value.slice(0, 256);
+	};
 
 	const addMessage = ( event :React.FormEvent<HTMLFormElement> ) => {
 		event.preventDefault();
@@ -41,22 +48,12 @@ export function Chat()
 		{
 			let value = input.value;
 			if( value.trimStart() === "" )
-				return;
+				return ;
 			input.value = "";
-			let l = msglist;
-			let msg = <Message date={ d.toLocaleTimeString() } owner="Me" me={ true } body={ value } /> ;
-			l.push( msg );
-			chat_socket.socket.emit("send-message", {name: "test", msg: value}, (data:any) => {
-				Notification.requestPermission().then((permission) => {
-					if (permission === "granted") {
-						const notif = new Notification(`${data.data.user.toUpperCase()} (${data.data.channel.toUpperCase()})`,{body: `${data.data.msg.toUpperCase()}`});
-					}
-				});
-			});
-			msg = <Message date={ d.toLocaleTimeString() } owner="Other" me={ false } body={ value } /> ;
-			l.push( msg );
-			setMsglist( l );
-			updateState({});
+			if (actualRoom) {
+				console.log(actualRoom);
+				chat_socket.socket.emit("send-message", {name: actualRoom.name, msg: value});
+			}
 		}
 	}
 
@@ -74,6 +71,30 @@ export function Chat()
 		setActualRoom( null );
 	};
 
+	const reloadMsg = async (room: IChannel) => {
+		chat_socket.socket.emit("get-msg", {name: room.name}, (response: any) => {
+			if (response.err)
+				return ;
+			let lstmsg: [JSX.Element | null] = [null];
+			response.msg.reverse().forEach((elem: any) => {
+				const d = new Date(elem.date);
+				let msg = <Message date={d.toLocaleTimeString()} owner={me?.id === elem.user.id ? "Me" : elem.user.pseudo} me={me?.id === elem.user.id} body={elem.message} /> ;
+				lstmsg.push(msg);
+			});
+			setMsglist(lstmsg);
+			updateState({});
+		});
+	};
+
+	const changeRoom = async (room: IChannel) => {
+		setActualRoom(room);
+		await reloadMsg(room);
+	};
+
+	const getMyUser = async () => {
+		setMe(await getUser(""));
+	};
+
 	useEffect( () => {
 	checkLogin();
 	let msgdiv: HTMLDivElement | null = msgRef.current;
@@ -86,6 +107,14 @@ export function Chat()
 	}, [update] );
 
 	useEffect( () => {
+
+		chat_socket.socket.on("update_msg_list", (channel) => {
+			if (channel.name === actualRoom?.name) {
+				if (actualRoom)
+					reloadMsg(actualRoom);
+			}
+		});
+
 		game_socket.socket.on( "update_userstatus_reload", async () => {
 			const allUsers = await getAllUsers();
 			let _arrayConnected :string[] = [];
@@ -99,9 +128,11 @@ export function Chat()
 		} );
 
 		game_socket.socket.emit( "get_update_status" );
+		getMyUser();
 
 		return () => {
 			game_socket.socket.off( "update_userstatus_reload" );
+			chat_socket.socket.off("update_msg_list");
 		};
 	}, [] );
 
@@ -122,7 +153,7 @@ export function Chat()
 							<ul className="chat-list">
 								{ joinedRooms.filter( hein => {
 									return hein.state !== "dm" } ).map( room => (
-										<li onClick={ () => { setActualRoom( room ) } }>{room.name}</li>
+										<li onClick={() => {changeRoom(room)} }>{room.name}</li>
 								) ) }
 							</ul>
 						</div>
@@ -131,7 +162,7 @@ export function Chat()
 							<ul className="chat-list">
 								{ joinedRooms.filter( hein => {
 									return hein.state === "dm" } ).map( room => (
-										<li onClick={ () => { setActualRoom( room ) } }>{room.name}</li>
+										<li onClick={() => {changeRoom(room)} }>{room.name}</li>
 								) ) }
 							</ul>
 						</div>
@@ -180,7 +211,7 @@ export function Chat()
 							{ msglist }
 						</div>
 						<form id="chat-form" onSubmit={ addMessage }>
-							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={ inRef } />
+							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={ inRef } onChange={inputChange}/>
 							<input id="chat-form-submit" type="submit" value="Send"/>
 						</form>
 					</div>

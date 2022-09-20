@@ -14,8 +14,10 @@ import { AuthService } from '@/auth/auth.service';
 import { User } from '@/user/user.entity';
 import {ChatService} from './chat.service';
 import {Channel} from './channels/channels.entity';
+import {MsgDto} from './messages/messages.dto';
 import {UserService} from '@/user/user.service';
 import {ChannelService} from './channels/channels.service';
+import {MessageService} from './messages/messages.service';
 
 UsePipes(new ValidationPipe())
 @UseFilters(AllExceptionsFilter)
@@ -34,6 +36,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		private chatService: ChatService,
 		private userService: UserService,
 		private channelService: ChannelService,
+		private messageService: MessageService,
 	) {}
 
 	@WebSocketServer() server: Server;
@@ -134,12 +137,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody("name") name: string,
 		@MessageBody("msg") msg: string,
 	): Promise<{err: boolean, data: any}> {
+		console.log("TES1");
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const message: {channel:Channel, msg: string, user:string} = await this.chatService.sendMsg(client, name, msg);
+		console.log("TES2");
 		if (message == undefined)
 			return ({err: true, data:`You can't send message to the channel!`});
-		this.server.in(`${message.channel.id}`).emit("updage_room_list");
+		this.server.in(`${message.channel.id}`).emit("update_room_list");
+		console.log("TES3");
+		this.server.in(`${message.channel.id}`).emit("update_msg_list", message.channel);
 		return ({err:false, data: {channel:message.channel.name, msg: message.msg, user: message.user}});
 	}
 
@@ -154,7 +161,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.banUser(channel, user, target)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User banned!`});
 	}
 
@@ -169,7 +176,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.unbanUser(channel, user, target)))
 			return ({err: true, data:`You can't unban this user from the channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User unbanned!`});
 	}
 
@@ -184,7 +191,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.setAdmin(channel, user, target)))
 			return ({err: true, data:`You can't set the user admin on this channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User set admin!`});
 	}
 
@@ -199,7 +206,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.unsetAdmin(channel, user, target)))
 			return ({err: true, data:`You can't unset the user admin on this channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User unset admin!`});
 	}
 
@@ -214,7 +221,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.muteUser(channel, user, target)))
 			return ({err: true, data:`You can't mute the user on this channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User mutted!`});
 	}
 
@@ -229,10 +236,25 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.chatService.getUserByUID(uid);
 		if (!(await this.chatService.unmuteUser(channel, user, target)))
 			return ({err: true, data:`You can't unmute the user on this channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err:false, data: `User unmutted!`});
 	}
 
+	@SubscribeMessage('get-msg')
+	async handleGetMsg(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+	): Promise<{err: boolean, msg: MsgDto[]}> {
+		console.log(name);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (!channel)
+			return ({err: true, msg: undefined});
+		console.log("get-msg");
+		const msg: MsgDto[] = await this.messageService.getAllMsgByChannel(channel);
+		if (!channel)
+			return ({err: true, msg: undefined});
+		return ({err: false, msg: msg});
+	}
 
 
 }
