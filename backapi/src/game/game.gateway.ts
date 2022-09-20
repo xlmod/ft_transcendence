@@ -47,14 +47,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake?.headers?.cookie?.split(';');
-			if (!cookie)
+			const token = this.authService.getAccessToken(socket.handshake?.headers?.cookie);
+			if (!token)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-				const token = cookie.filter(cookie => {
-					if (cookie.split('=')[0] === 'access_token')
-						return cookie;
-				})[0].split('=')[1];
 				await this.authService.JwtVerify(token);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));

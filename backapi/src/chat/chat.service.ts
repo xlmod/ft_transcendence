@@ -20,11 +20,9 @@ export class ChatService {
 	async getUserBySocket(
 		client: Socket
 	): Promise<User> {
-		const token = client.handshake.headers.cookie.split(';').filter(cookie => {
-			if (cookie.split('=')[0] === 'access_token')
-				return cookie;
-		})[0].split('=')[1];
-		return await this.authService.JwtVerify(token);
+		const token = this.authService.getAccessToken(client.handshake?.headers?.cookie);
+		return await this.authService.JwtVerify(token).catch(() => undefined);
+
 	}
 
 	async createChannel(
