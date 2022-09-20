@@ -62,7 +62,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
 		const user = await this.gameService.addUserWithSocketId(client);
-		this.onlined.add(user.id);
+		if (user)
+			this.onlined.add(user.id);
 		await this.sendStatusUpdate(client, "online");
 	}
 
