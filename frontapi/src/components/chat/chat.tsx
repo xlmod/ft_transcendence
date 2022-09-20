@@ -17,6 +17,7 @@ export function Chat()
 {
 	const {checkLogin} = useAuth();
 
+	const [actualRoom, setActualRoom] = useState< IChannel | null >( null );
 	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
@@ -84,8 +85,11 @@ export function Chat()
 								<Button id="join-room" value="join"
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
 							</div>
-							<div className="chat-list" >
-							</div>
+							<ul className="chat-list">
+								{ joinedRooms.map( room => (
+									<li onClick={ () => { setActualRoom( room ) } }>{room.name}</li>
+								) ) }
+							</ul>
 						</div>
 						<div id="chat-private-rooms" className="chat-block">
 							<div className="chat-title">PRIVMSG</div>
@@ -96,7 +100,7 @@ export function Chat()
 					<div id="chat-content">
 						<div id="chat-header">
 							<div id="chat-name">
-								Channel Name
+								{ actualRoom ? actualRoom.name : "welcome" }
 							</div>
 							<div id="iconSettings" onClick={ () => { setEditSettings( true ); } }>
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
@@ -157,8 +161,14 @@ export function Chat()
 						</div>
 						<div id="chat-members" className="chat-block">
 							<div className="chat-title">Members</div>
-							<div className="chat-list" >
-							</div>
+							<ul className="chat-list" >
+								{ actualRoom &&
+									actualRoom.members.map( member => (
+										<Pseudo pseudo={ member.pseudo?member.pseudo:"undefined" }
+											isDeleted={false}
+											pseudoClassName="members" menuClassName="menu-members" />
+									) ) }
+							</ul>
 						</div>
 					</div>
 				</section>

@@ -145,6 +145,18 @@
 	justify-content: space-evenly;
 }
 
+#chat-joined-rooms li
+{
+	list-style: square;
+	cursor: pointer;
+}
+
+#chat-joined-rooms li:hover
+{
+	color: var(--cBackground );
+	background-color: var( --cNeon );
+}
+
 #chat-users .chat-block {
 	max-height:45%;
 
