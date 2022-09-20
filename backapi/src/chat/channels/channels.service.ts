@@ -113,7 +113,10 @@ export class ChannelService {
 	async joinChannel(toadd: User, chat: Channel, password?: string): Promise<Channel> {
 		if (!toadd || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const there = chat.members.find(curr => curr === toadd);
+		if (!chat.members) {
+			chat.members = [];
+		}
+		const there = chat.members?.find(curr => curr === toadd);
 		if (there && chat.state === ChannelState.dm)
 			return chat;
 		if (chat.state === ChannelState.protected || chat.state === ChannelState.procated) {
