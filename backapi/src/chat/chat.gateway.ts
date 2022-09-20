@@ -38,7 +38,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
-	private users = new Map<string, User>();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
@@ -46,7 +45,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (!token)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-				await this.authService.JwtVerify(token);
+				const user = await this.authService.JwtVerify(token);
+				this.chatService.addSocketId(socket.id, user.id)
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}
@@ -56,9 +56,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
+		this.chatService.socketJoinChannels(client);
 	}
 
 	async handleDisconnect(client: Socket) {
+		this.chatService.removeSocketId(client.id);
+		this.chatService.socketLeaveChannels(client);
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
@@ -94,7 +97,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.join(`${channel.id}`);
 		return ({err: false, data:`Channel created!`});
 	}
-	
+
 	@SubscribeMessage('join-room')
 	async handleJoinRoom(
 		@ConnectedSocket() client: Socket,
@@ -124,18 +127,112 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return ({err: false, data:`Channel leaved!`});
 	}
 
-	
+
 	@SubscribeMessage('send-message')
-	async handleMessage(
+	async handleSendMessage(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-	): Promise<{err: boolean, data: string}> {
+		@MessageBody("msg") msg: string,
+	): Promise<{err: boolean, data: any}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
-		const channel: Channel = await this.chatService.leaveChannel(client, name)
-		if (channel == undefined)
+		const message: {channel:Channel, msg: string, user:string} = await this.chatService.sendMsg(client, name, msg);
+		if (message == undefined)
 			return ({err: true, data:`You can't send message to the channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${message.channel.id}`).emit("updage_room_list");
+		return ({err:false, data: {channel:message.channel.name, msg: message.msg, user: message.user}});
 	}
+
+	@SubscribeMessage('ban-user')
+	async handleBanUser(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.banUser(channel, user, target)))
+			return ({err: true, data:`You can't ban this user from the channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User banned!`});
+	}
+
+	@SubscribeMessage('unban-user')
+	async handleUnbanUser(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.unbanUser(channel, user, target)))
+			return ({err: true, data:`You can't unban this user from the channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User unbanned!`});
+	}
+
+	@SubscribeMessage('set-admin')
+	async handleSetAdmin(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.setAdmin(channel, user, target)))
+			return ({err: true, data:`You can't set the user admin on this channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User set admin!`});
+	}
+
+	@SubscribeMessage('unset-admin')
+	async handleUnsetAdmin(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.unsetAdmin(channel, user, target)))
+			return ({err: true, data:`You can't unset the user admin on this channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User unset admin!`});
+	}
+
+	@SubscribeMessage('mute-user')
+	async handleMuteUser(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.muteUser(channel, user, target)))
+			return ({err: true, data:`You can't mute the user on this channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User mutted!`});
+	}
+
+	@SubscribeMessage('unmute-user')
+	async handleUnmuteUser(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+		@MessageBody("uid") uid: string,
+	): Promise<{err: boolean, data: string}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		const target: User = await this.chatService.getUserByUID(uid);
+		if (!(await this.chatService.unmuteUser(channel, user, target)))
+			return ({err: true, data:`You can't unmute the user on this channel!`});
+		this.server.in(`${channel.id}`).emit("updage_room_list");
+		return ({err:false, data: `User unmutted!`});
+	}
+
+
 
 }

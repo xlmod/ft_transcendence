@@ -12,6 +12,7 @@ import { JoinRoom } from './join_room';
 import { EditSettings } from './edit_settings';
 
 import './chat.css';
+import {chat_socket} from '../../socket';
 
 export function Chat()
 : JSX.Element
@@ -45,6 +46,13 @@ export function Chat()
 			let l = msglist;
 			let msg = <Message date={ d.toLocaleTimeString() } owner="Me" me={ true } body={ value } /> ;
 			l.push( msg );
+			chat_socket.socket.emit("send-message", {name: "test", msg: value}, (data:any) => {
+				Notification.requestPermission().then((permission) => {
+					if (permission === "granted") {
+						const notif = new Notification(`${data.data.user.toUpperCase()} (${data.data.channel.toUpperCase()})`,{body: `${data.data.msg.toUpperCase()}`});
+					}
+				});
+			});
 			msg = <Message date={ d.toLocaleTimeString() } owner="Other" me={ false } body={ value } /> ;
 			l.push( msg );
 			setMsglist( l );
