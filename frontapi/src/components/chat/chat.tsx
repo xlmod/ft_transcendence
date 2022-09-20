@@ -115,6 +115,10 @@ export function Chat()
 			}
 		});
 
+		chat_socket.socket.on("update_room_list", () => {
+			waitChannelsJoined();
+		});
+
 		game_socket.socket.on( "update_userstatus_reload", async () => {
 			const allUsers = await getAllUsers();
 			let _arrayConnected :string[] = [];
@@ -133,6 +137,7 @@ export function Chat()
 		return () => {
 			game_socket.socket.off( "update_userstatus_reload" );
 			chat_socket.socket.off("update_msg_list");
+			chat_socket.socket.off("update_room_list");
 		};
 	}, [] );
 
