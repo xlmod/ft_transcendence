@@ -22,8 +22,9 @@ export function Pseudo( props: IProps )
 	const [friends, setFriends] = useState< IUser[] >([]);
 	const [blocked, setBlocked] = useState< IUser[] >([]);
 	const [isFocus, setFocus] = useState( false );
-	const [uid, setUid] = useState<string>("");
 	const [status, setStatus] = useState<string>("");
+
+	const pseudoUUID = window.crypto.randomUUID();
 
 	const waitFriends = async () => {
 		const _friends :IUser[] = await getFriends();
@@ -36,7 +37,7 @@ export function Pseudo( props: IProps )
 	};
 
 	useEffect(() => {
-		game_socket.socket.on("update_userstatus_reload", async () => {
+		game_socket.socket.on(`update_${pseudoUUID}`, async () => {
 			if (props.isDeleted)
 				return ;
 			const uid_user = await getUser(props.pseudo);
@@ -47,10 +48,11 @@ export function Pseudo( props: IProps )
 				setStatus("disconnected");
 		});
 
-		game_socket.socket.emit("get_update_status");
+		game_socket.socket.emit("get_update_status", {uuid: pseudoUUID});
 
 		return () => {
-			game_socket.socket.off("update_userstatus_reload");
+			game_socket.socket.emit("remove_update_status", {uuid: pseudoUUID});
+			game_socket.socket.off(`update_${pseudoUUID}`);
 		};
 	}, []);
 
