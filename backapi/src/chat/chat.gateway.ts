@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake.headers.cookie.split(';');
+			const cookie = socket.handshake.headers.cookie?.split(';');
 			if (!cookie)
 				return next(new UnauthorizedException('ChatGateway auth failed'));
 			try {
