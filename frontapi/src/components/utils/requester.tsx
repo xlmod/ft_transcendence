@@ -55,11 +55,11 @@ export function getUser( pseudo :string )
 		.catch( error => { console.log( error ); return ; } );
 }
 
-export function getAllUsers()
+export async function getAllUsers()
 : Promise< IUser[] >
 {
-	return iaxios.get( '/user/' )
-		.then( data => { return data.data; } )
+	return await iaxios.get( '/user/' )
+		.then( data => { console.log( "all users" ); console.log( data.data ); return data.data; } )
 		.catch( error => { console.log( error ); return; } );
 }
 
