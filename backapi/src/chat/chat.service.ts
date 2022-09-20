@@ -8,6 +8,8 @@ import {ChannelState} from './models/status.enums';
 import {ChannelService} from './channels/channels.service';
 import {MessageService} from './messages/messages.service';
 import {CreateMsgDto} from './messages/messages.dto';
+import {UserService} from '@/user/user.service';
+import {ChatGateway} from './chat.gateway';
 
 @Injectable()
 export class ChatService {
@@ -15,14 +17,90 @@ export class ChatService {
 		private authService: AuthService,
 		private channelService: ChannelService,
 		private messageService: MessageService,
+		private userService: UserService,
+
 	) {}
+
+	private users: Map<string, Set<string>> = new Map();
+
+	addSocketId(
+		client_id: string,
+		user_id: string,
+	) {
+		if (this.users.has(user_id)) {
+			this.users.get(user_id).add(client_id);
+		} else {
+			this.users.set(user_id, new Set<string>().add(client_id));
+		}
+	}
+
+	removeSocketId(
+		client_id: string,
+	) {
+		for (const [, socket_ids] of this.users) {
+			if (socket_ids.has(client_id)) {
+				socket_ids.delete(client_id);
+			}
+		}
+	}
+
+	getSocketIds(
+		user_id: string,
+	): Set<string> {
+		if (this.users.has(user_id))
+			return this.users.get(user_id);
+		return new Set<string>();
+	}
+
+	getUid(
+		client_id: string,
+	): string {
+		for (const [uid, socket_ids] of this.users) {
+			if (socket_ids.has(client_id)) {
+				return uid;
+			}
+		}
+	}
+
+	async socketJoinChannels(
+		client: Socket,
+	) {
+		const user = await this.getUserBySocket(client);
+		if (!user)
+			return ;
+		const channels = await this.channelService.findChannelsObjByUser(user).catch(() => undefined);
+		if (!channels)
+			return ;
+		channels.forEach((elem: Channel) => {
+			client.join(`${elem.id}`);
+		});
+	}
+
+	async socketLeaveChannels(
+		client: Socket,
+	) {
+		const user = await this.getUserBySocket(client);
+		if (!user)
+			return ;
+		const channels = await this.channelService.findChannelsObjByUser(user).catch(() => undefined);
+		if (!channels)
+			return ;
+		channels.forEach((elem: Channel) => {
+			client.leave(`${elem.id}`);
+		});
+	}
 
 	async getUserBySocket(
 		client: Socket
 	): Promise<User> {
 		const token = this.authService.getAccessToken(client.handshake?.headers?.cookie);
 		return await this.authService.JwtVerify(token).catch(() => undefined);
+	}
 
+	async getUserByUID(
+		uid: string,
+	): Promise<User> {
+		return await this.userService.findById(uid).catch(() => undefined);
 	}
 
 	async createChannel(
@@ -50,8 +128,68 @@ export class ChatService {
 		return await this.channelService.create(user, tmpchannel).catch(() => undefined);
 	}
 
-	// updateChannel() {
-	// }
+	async banUser(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		let until = new Date()
+		until.setDate(until.getDate() + 1);
+		return await this.channelService.banUser(user, target, channel, until).catch(() => undefined);
+	}
+
+	async unbanUser(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		return await this.channelService.unbanUser(user, target, channel).catch(() => undefined);
+	}
+
+	async setAdmin(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		return await this.channelService.setAdmin(user, target, channel).catch(() => undefined);
+	}
+
+	async unsetAdmin(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		return await this.channelService.unsetAdmin(user, target, channel).catch(() => undefined);
+	}
+
+	async muteUser(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		return await this.channelService.muteUser(user, target, channel).catch(() => undefined);
+	}
+
+	async unmuteUser(
+		channel: Channel,
+		user: User,
+		target: User,
+	): Promise<Channel> {
+		if (!user || !channel || !target)
+			return undefined;
+		return await this.channelService.unmuteUser(user, target, channel).catch(() => undefined);
+	}
+
 
 	async joinChannel(
 		client: Socket,
