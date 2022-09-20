@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useAuth } from '../../services/auth.service';
-import { IUser, IChannel, getFriends, getChannelsJoined } from '../utils/requester';
+import { IUser, IChannel, getAllUsers, getFriends, getChannelsJoined } from '../utils/requester';
+import { game_socket } from '../../socket';
 
 import { Message } from './message';
 import { Pseudo } from '../utils/pseudo';
@@ -11,13 +12,16 @@ import { JoinRoom } from './join_room';
 import { EditSettings } from './edit_settings';
 
 import './chat.css';
+import {chat_socket} from '../../socket';
 
 export function Chat()
 : JSX.Element
 {
 	const {checkLogin} = useAuth();
 
+	const [actualRoom, setActualRoom] = useState< IChannel | null >( null );
 	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
+	const [connectedUsers, setConnectedUsers] = useState< string[] >([]);
 	const [msglist, setMsglist] = useState< [ JSX.Element | null ] >( [ null ] );
 	const [friends, setFriends] = useState< IUser[] | null >([]);
 	const [selectFriends, setSelectFriends] = useState< boolean >( false );
@@ -42,6 +46,13 @@ export function Chat()
 			let l = msglist;
 			let msg = <Message date={ d.toLocaleTimeString() } owner="Me" me={ true } body={ value } /> ;
 			l.push( msg );
+			chat_socket.socket.emit("send-message", {name: "test", msg: value}, (data:any) => {
+				Notification.requestPermission().then((permission) => {
+					if (permission === "granted") {
+						const notif = new Notification(`${data.data.user.toUpperCase()} (${data.data.channel.toUpperCase()})`,{body: `${data.data.msg.toUpperCase()}`});
+					}
+				});
+			});
 			msg = <Message date={ d.toLocaleTimeString() } owner="Other" me={ false } body={ value } /> ;
 			l.push( msg );
 			setMsglist( l );
@@ -59,6 +70,10 @@ export function Chat()
 		setJoinedRooms( arrayChannels );
 	};
 
+	const quitChannel = async () => {
+		setActualRoom( null );
+	};
+
 	useEffect( () => {
 	checkLogin();
 	let msgdiv: HTMLDivElement | null = msgRef.current;
@@ -69,6 +84,26 @@ export function Chat()
 		waitFriends();
 		waitChannelsJoined();
 	}, [update] );
+
+	useEffect( () => {
+		game_socket.socket.on( "update_userstatus_reload", async () => {
+			const allUsers = await getAllUsers();
+			let _arrayConnected :string[] = [];
+			let _connected :IUser;
+			game_socket.status.forEach( (status, id) => {
+				_connected = allUsers.filter( one => {
+					return one.id === id; } )[0];
+				if( _connected ) _arrayConnected.push( _connected.pseudo );
+			} );
+			setConnectedUsers( _arrayConnected );
+		} );
+
+		game_socket.socket.emit( "get_update_status" );
+
+		return () => {
+			game_socket.socket.off( "update_userstatus_reload" );
+		};
+	}, [] );
 
 		return (
 			<main>
@@ -84,19 +119,29 @@ export function Chat()
 								<Button id="join-room" value="join"
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
 							</div>
-							<div className="chat-list" >
-							</div>
+							<ul className="chat-list">
+								{ joinedRooms.filter( hein => {
+									return hein.state !== "dm" } ).map( room => (
+										<li onClick={ () => { setActualRoom( room ) } }>{room.name}</li>
+								) ) }
+							</ul>
 						</div>
 						<div id="chat-private-rooms" className="chat-block">
 							<div className="chat-title">PRIVMSG</div>
-							<div className="chat-list" >
-							</div>
+							<ul className="chat-list">
+								{ joinedRooms.filter( hein => {
+									return hein.state === "dm" } ).map( room => (
+										<li onClick={ () => { setActualRoom( room ) } }>{room.name}</li>
+								) ) }
+							</ul>
 						</div>
 					</div>
 					<div id="chat-content">
 						<div id="chat-header">
+							{ actualRoom && <Button id="quit" value="quit" fontSize={0.6}
+								onClick={quitChannel} /> }
 							<div id="chat-name">
-								Channel Name
+								{ actualRoom ? actualRoom.name : "welcome" }
 							</div>
 							<div id="iconSettings" onClick={ () => { setEditSettings( true ); } }>
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
@@ -129,7 +174,7 @@ export function Chat()
 </g>
 </svg>
 							</div>
-							{ editSettings && <EditSettings close={setEditSettings} /> }
+							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom}/> }
 						</div>
 						<div id="chat-messages" ref={ msgRef }>
 							{ msglist }
@@ -151,14 +196,23 @@ export function Chat()
 										<Pseudo pseudo={ friend.pseudo ? friend.pseudo : "undefined" } isDeleted={false}
 											pseudoClassName="friends" menuClassName="menu-friends" />
 									)) : "" )
-									: ""
+									: ( connectedUsers.map( user => (
+										<Pseudo pseudo={user} isDeleted={false}
+											pseudoClassName="connected-users"
+											menuClassName="menu-users" /> ) ) )
 								}
 							</div>
 						</div>
 						<div id="chat-members" className="chat-block">
 							<div className="chat-title">Members</div>
-							<div className="chat-list" >
-							</div>
+							<ul className="chat-list" >
+								{ actualRoom &&
+									actualRoom.members.map( member => (
+										<Pseudo pseudo={ member.pseudo?member.pseudo:"undefined" }
+											isDeleted={false}
+											pseudoClassName="members" menuClassName="menu-members" />
+									) ) }
+							</ul>
 						</div>
 					</div>
 				</section>

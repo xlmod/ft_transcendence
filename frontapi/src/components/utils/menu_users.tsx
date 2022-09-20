@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { iaxios } from '../../utils/axios';
-import CSS from 'csstype';
 
-import { IUser, getUser, putFriend, patchBlock } from '../utils/requester';
+import { IUser, getUser, putFriend, patchBlock, getFriends, getBlocked } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
 import './menu_users.css';
 
 
 interface IProps {
 	pseudo :string,
-	isFriend :boolean,
-	isBlocked :boolean,
 	menuClassName :string
 }
 
@@ -20,8 +16,8 @@ export function MenuUsers( props: IProps )
 	const [invite, setInvite] = useState< boolean >( false );
 
 	const [me, setMe] = useState< IUser | null >( null );
-	const [_isFriend, setFriend] = useState< boolean >( props.isFriend );
-	const [_isBlocked, setBlocked] = useState< boolean >( props.isBlocked );
+	const [_isFriend, setFriend] = useState< boolean >( false );
+	const [_isBlocked, setBlocked] = useState< boolean >( false );
 	const [editFriend, setEditFriend] = useState< boolean >( false );
 	const [editBlock, setEditBlock] = useState< boolean >( false );
 
@@ -45,6 +41,21 @@ export function MenuUsers( props: IProps )
 			setEditBlock( false );
 		}
 	};
+
+	const waitFriends = async () => {
+		const _friends :IUser[] = await getFriends();
+		setFriend(_friends.find(user => user.pseudo === props.pseudo) ? true : false);
+	};
+
+	const waitBlocked = async () => {
+		const _blocked :IUser[] = await getBlocked();
+		setBlocked(_blocked.find(user => user.pseudo === props.pseudo) ? true : false);
+	};
+
+	useEffect( () => {
+		waitFriends();
+		waitBlocked();
+	}, [] );
 
 	useEffect( () => {
 		waitMe();

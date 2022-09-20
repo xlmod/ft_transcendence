@@ -145,6 +145,18 @@
 	justify-content: space-evenly;
 }
 
+#chat-joined-rooms li
+{
+	list-style: square;
+	cursor: pointer;
+}
+
+#chat-joined-rooms li:hover
+{
+	color: var(--cBackground );
+	background-color: var( --cNeon );
+}
+
 #chat-users .chat-block {
 	max-height:45%;
 
@@ -202,6 +214,23 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+}
+
+#chat-header Button#quit
+{
+	margin: 0.4em;
+	margin-right: 0;
+
+	color: rgba( 255, 0, 0, 0.7 );
+	border: 1px solid rgba( 255, 0, 0, 0.7 );
+	font-size: 1.2em;
+	font-weight: 900;
+}
+
+#chat-header Button#quit:hover
+{
+	color: var( --cBackground );
+	background-color: rgba( 255, 0, 0, 0.7 );
 }
 
 #chat-header #chat-name

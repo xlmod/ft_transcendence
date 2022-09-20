@@ -44,17 +44,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	private rooms: Map<string, Room> = new Map();
 	private joined: Set<string> = new Set();
 	private onlined: Set<string> = new Set();
+	private updateuuid: Set<{uuid:string, id:string}> = new Set();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake?.headers?.cookie?.split(';');
-			if (!cookie)
+			const token = this.authService.getAccessToken(socket.handshake?.headers?.cookie);
+			if (!token)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-				const token = cookie.filter(cookie => {
-					if (cookie.split('=')[0] === 'access_token')
-						return cookie;
-				})[0].split('=')[1];
 				await this.authService.JwtVerify(token);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
@@ -265,9 +262,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage("get_update_status")
 	async handleGetUpdateStatus(
 		@ConnectedSocket() client: Socket,
+		@MessageBody("uuid") uuid: string,
 	) {
-		client.emit("update_userstatus_reload");
+		if (this.updateuuid.has({uuid:uuid, id:client.id}))
+			return ;
+		this.updateuuid.add({uuid:uuid, id:client.id});
+		client.emit(`update_${uuid}`);
 	}
+
+	@SubscribeMessage("remove_update_status")
+	async handleRemoveUpdateStatus(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("uuid") uuid: string,
+	) {
+		if (!this.updateuuid.has({uuid:uuid, id:client.id}))
+			return ;
+		this.updateuuid.delete({uuid:uuid, id:client.id});
+	}
+
 
 	@SubscribeMessage("get_onlineuser")
 	async handleGetOnlineUser(
@@ -279,7 +291,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			else
 				client.emit("update_userstatus", uid, "online");
 		}
-		client.emit("update_userstatus_reload");
+		this.updateuuid.forEach((uuid_id) => {
+			if (uuid_id.id === client.id)
+				client.emit(`update_${uuid_id.uuid}`);
+		});
 	}
 
 	async sendStatusUpdate(
@@ -293,7 +308,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.server.emit("user_disconnect", user.id);
 		else
 			this.server.emit("update_userstatus", user.id, status);
-		this.server.emit("update_userstatus_reload");
+		this.updateuuid.forEach((uuid_id) => {
+			this.gameService.getSocketBySocketId(uuid_id.id)?.emit(`update_${uuid_id.uuid}`);
+		});
 	}
 
 

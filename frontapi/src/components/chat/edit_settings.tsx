@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { iaxios } from "../../utils/axios";
-import {  } from '../utils/requester';
+import { IChannel, getChannelsJoined } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
@@ -11,12 +11,15 @@ import './edit_settings.css'
 
 interface IProps {
 	close :( update :boolean ) => void,
+	room :IChannel | null,
 }
 
 export function EditSettings ( props :IProps ) {
 
-	const [name, setName] = useState< string >( "" );
-	const [priv, setPriv] = useState< boolean >( true );
+	const [name, setName] = useState< string >( props.room?props.room.name:"" );
+	const [priv, setPriv] = useState< boolean >( props.room
+		&& ( props.room.state === "private" || props.room.state === "procated" )
+		? true : false );
 	const [password, setPassword] = useState< string >( "" );
 	const [nameError, setNameError] = useState< boolean >( false );
 
@@ -41,6 +44,18 @@ export function EditSettings ( props :IProps ) {
 		if( nameError )
 			return ;
 		props.close( false );
+	};
+
+	const adminChange = async() => {
+		return ;
+	};
+
+	const banChange = async() => {
+		return ;
+	};
+
+	const muteChange = async() => {
+		return ;
 	};
 
 	return (
@@ -87,6 +102,27 @@ export function EditSettings ( props :IProps ) {
 				<div id="edit-settings-members-parent">
 					<h3>members</h3>
 					<div id="edit-settings-members">
+						{ props.room && props.room.members.map( member => (
+							<div className="members">
+								<div className="pseudo">{ member.pseudo }</div>
+								<div className="controls">
+									<Button className={`admin ${props.room?.admin.find( admin => (
+										admin.pseudo === member.pseudo ) )
+											? "selected" : "unselected" }`}
+										value="adm" fontSize={0.8}
+										onClick={adminChange} />
+									<Button className={`ban ${props.room?.ban.find( ban => (
+										ban.pseudo === member.pseudo ) )
+											? "selected" : "unselected" }`}
+										 value="ban" fontSize={0.8}
+										onClick={banChange} />
+									<Button className={`mute ${props.room?.mute.find( mute => (
+										mute.pseudo === member.pseudo ) )
+											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
+										onClick={muteChange} />
+								</div>
+							</div>
+						) ) }
 					</div>
 					<div id="edit-settings-button">
 						<Button id="edit-settings-button-cancel"

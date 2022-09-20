@@ -54,6 +54,16 @@ export class ChannelService {
 		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
 	}
 
+	async findChannelsObjByUser(user: User): Promise<Channel[]> {
+		const id = user.id;
+		const chats = await this.channelRepository
+				.createQueryBuilder('channels')
+				.leftJoinAndSelect('channels.members', 'users')
+				.where('users.id = :id', {id})
+				.getMany();
+		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
+	}
+
 	// async findChatInfoByUser(user: User): Promise<Channel[]> {
 	// 	const chats = await this.channelRepository.find({
 	// 		relations: ['members'],

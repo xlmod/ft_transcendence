@@ -50,10 +50,12 @@ export function User() {
 	return (
 		<main>
 			<section id="user-section">
-				{me && edit && <Useredit close={() => {setEdit(false); setUpdate({}); }}
+				{me && edit ? <Useredit close={() => { setEdit(false) }}
 							pseudo={me.pseudo}
-							tfa={me.TwoFactorAuthToggle}/>}
-				<div id="user-id">
+							tfa={me.TwoFactorAuthToggle}/> : "" }
+				<div id="user-id"
+					onMouseEnter={ () => { setUpdate({}) } }
+					onMouseLeave={ () => { setUpdate({}) } }>
 					<div id="user-id-avatar">
 						<img src={avatar?URL.createObjectURL( avatar ):'./default-profile.jpg'}
 							alt="avatar"/>
