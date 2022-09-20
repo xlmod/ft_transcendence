@@ -37,7 +37,14 @@ export interface IMatchHistory
 
 export interface IChannel
 {
+	admin :IUser[],
+	ban :IUser[],
+	id :number,
+	members :IUser[],
+	mute :IUser[],
 	name :string,
+	password :string,
+	state :string,
 }
 
 export function getUser( pseudo :string )
@@ -48,11 +55,11 @@ export function getUser( pseudo :string )
 		.catch( error => { console.log( error ); return ; } );
 }
 
-export function getAllUsers()
+export async function getAllUsers()
 : Promise< IUser[] >
 {
-	return iaxios.get( '/user/' )
-		.then( data => { return data.data; } )
+	return await iaxios.get( '/user/' )
+		.then( data => { console.log( "all users" ); console.log( data.data ); return data.data; } )
 		.catch( error => { console.log( error ); return; } );
 }
 
@@ -108,6 +115,14 @@ export function getMatchHistory( uid :string )
 : Promise< IMatchHistory[] >
 {
 	return iaxios.get( 'match/history/' + uid )
+		.then( data => { return data.data; } )
+		.catch( error => { console.log( error ); return []; } );
+}
+
+export function getChannelsNamesStates()
+: Promise< {name:string, state:string}[] >
+{
+	return iaxios.get( 'chat/names' )
 		.then( data => { return data.data; } )
 		.catch( error => { console.log( error ); return []; } );
 }
@@ -213,6 +228,14 @@ export function getChannelsJoined()
 : Promise< IChannel[] >
 {
 	return iaxios.get( 'chat/all' )
+		.then( data => { console.log( data.data ); return data.data; } )
+		.catch( error => { console.log( error ); return []; } );
+}
+
+export function getChannelsNames()
+: Promise< string[] >
+{
+	return iaxios.get( 'chat/names' )
 		.then( data => { console.log( data.data ); return data.data; } )
 		.catch( error => { console.log( error ); return []; } );
 }

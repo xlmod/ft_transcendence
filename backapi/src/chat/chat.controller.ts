@@ -2,9 +2,10 @@ import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 import { Controller, Get, NotFoundException, Res, UseGuards } from '@nestjs/common';
+import {Channel} from 'diagnostics_channel';
 import { Response } from 'express';
-import { ChannelDto } from './channels/channels.dto';
 import { ChannelService } from './channels/channels.service';
+import {ChannelState} from './models/status.enums';
 
 @Controller('chat')
 // @UseGuards(JwtAuthGuard)
@@ -13,13 +14,6 @@ export class ChatController {
 		private channelService: ChannelService,
 		private userService: UserService
 	) {}
-
-	// @Get('')
-	// async testcreate() {
-	// 	const user1 = await this.userService.findById('');
-	// 	const user2 = await this.userService.findById('');
-	// 	return await this.channelService.createDMsg(user1, user2);
-	// }
 
 	@Get('all')
 	async getAllRoom(@Res({ passthrough: true }) res: Response) {
@@ -32,6 +26,10 @@ export class ChatController {
 
 	@Get('names')
 	async getNames() {
-		return (await this.channelService.getAllChannels()).map(channel => channel.name);
+		return (await this.channelService.getAllChannels()).filter(channel => {
+			if (channel.state === ChannelState.public || channel.state === ChannelState.protected)
+				return true;
+			return false;
+		}).map(channel => {return {name: channel.name, state: channel.state}});
 	}
 }
