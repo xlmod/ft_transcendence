@@ -60,6 +60,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
+		const channelList = (await this.channelService.findChannelsByUser(this.users.get(client.id)))
+		setTimeout(() => {
+			client.emit("update-current-channels", channelList.map(current=>current.name));
+		}, 100);
 	}
 
 	async handleDisconnect(client: Socket) {
@@ -79,6 +83,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (channel == undefined)
 			return ({err: true, data:`Channel creation did not succeed!`});
 		client.join(`${channel.id}`);
+		const channelList = (await this.channelService.findChannelsByUser(this.users.get(client.id)))
+		client.emit("update-current-channels", channelList.map(current=>current.name));
 		return ({err: false, data:`Channel created!`});
 	}
 
@@ -89,13 +95,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody("public") is_public: boolean,
 		@MessageBody("password") password: string,
 	): Promise<{err: boolean, data: string}> {
-		// console.log(this.users)
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.createChannel(client, name, is_public, password);
 		if (channel == undefined)
 			return ({err: true, data:`You can't create the channel!`});
 		client.join(`${channel.id}`);
+		const channelList = (await this.channelService.findChannelsByUser(this.users.get(client.id)))
+		client.emit("update-current-channels", channelList.map(current=>current.name));
 		return ({err: false, data:`Channel created!`});
 	}
 	
@@ -111,6 +118,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (channel == undefined)
 			return ({err: true, data:`You can't join the channel!`});
 		client.join(`${channel.id}`);
+		const channelList = (await this.channelService.findChannelsByUser(this.users.get(client.id)))
+		client.emit("update-current-channels", channelList.map(current=>current.name));
 		return ({err: false, data:`Channel joined!`});
 	}
 

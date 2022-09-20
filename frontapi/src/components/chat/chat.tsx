@@ -68,18 +68,18 @@ export function Chat()
 		setJoinedRooms( arrayChannels );
 	};
 
+	chat_socket.socket.on("update-current-channels", async(channels:string[])=>{
+		setCurrentChannels(channels);
+	});
 	useEffect( () => {
 	checkLogin();
 	let msgdiv: HTMLDivElement | null = msgRef.current;
 		if (msgdiv) {
 			msgdiv.scrollTop = msgdiv.scrollHeight;
 		}
-		chat_socket.socket.on("update-current-channels", (channels:string[])=>{
-			setCurrentChannels(channels);
-		});
 		waitAllUsers();
 		waitFriends();
-		waitChannelsJoined();
+		// waitChannelsJoined();
 	}, [update] );
 
 		return (
@@ -97,11 +97,9 @@ export function Chat()
 										fontSize={0.6} onClick={ () => {setJoinRoom( true ); } } />
 							</div>
 							<div className="chat-list" >
-							{ currentChannels
-									?  currentChannels.map( channel => (
-										<span>{channel}</span>
-									)) : ""
-							}
+									{currentChannels.map( channel => (
+										<p>{channel}</p>
+									))}
 							</div>
 						</div>
 						<div id="chat-private-rooms" className="chat-block">
