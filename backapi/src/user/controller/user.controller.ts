@@ -13,6 +13,7 @@ import {
 	NotFoundException,
 	Res,
 	BadRequestException,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from '../user.service';
@@ -40,7 +41,9 @@ export class UserController {
 
 	@Get('/me')
 	async GetCurrenlyUser(@Res({ passthrough: true }) res) {
-		return new UserDto(await this.userService.findById(res.locals.uuid));
+		try {
+			return new UserDto(await this.userService.findById(res.locals.uuid));
+		} catch { throw new UnauthorizedException('User not set'); }
 	}
 
 	// @Get(':id')
