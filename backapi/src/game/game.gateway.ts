@@ -47,11 +47,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake.headers.cookie;
+			const cookie = socket.handshake?.headers?.cookie?.split(';');
 			if (!cookie)
 				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
-				await this.authService.JwtVerify(cookie.split('=')[1]);
+				const token = cookie.filter(cookie => {
+					if (cookie.split('=')[0] === 'access_token')
+						return cookie;
+				})[0].split('=')[1];
+				await this.authService.JwtVerify(token);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}
@@ -62,7 +66,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
 		const user = await this.gameService.addUserWithSocketId(client);
-		this.onlined.add(user.id);
+		if (user)
+			this.onlined.add(user.id);
 		await this.sendStatusUpdate(client, "online");
 	}
 

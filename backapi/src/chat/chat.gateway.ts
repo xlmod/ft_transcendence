@@ -42,11 +42,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const cookie = socket.handshake.headers.cookie;
+			const cookie = socket.handshake.headers.cookie.split(';');
 			if (!cookie)
 				return next(new UnauthorizedException('ChatGateway auth failed'));
 			try {
-				this.users.set(socket.id, await this.authService.JwtVerify(cookie.split('=')[1]));
+				const token = cookie.filter(cookie => {
+					if (cookie.split('=')[0] === 'access_token')
+						return cookie;
+				})[0].split('=')[1];
+				this.users.set(socket.id, await this.authService.JwtVerify(token));
 			} catch(e) {
 				return next(new UnauthorizedException('ChatGateway User unknow or failed'));
 			}
@@ -85,6 +89,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody("public") is_public: boolean,
 		@MessageBody("password") password: string,
 	): Promise<{err: boolean, data: string}> {
+		// console.log(this.users)
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
 		const channel: Channel = await this.chatService.createChannel(client, name, is_public, password);
