@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { iaxios } from "../../utils/axios";
-import { getChannelsNames } from '../utils/requester';
+import { getChannelsNamesStates } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from "../utils/textinput";
@@ -57,8 +57,8 @@ export function JoinRoom ( props :IProps ) {
 	};
 
 	const waitRooms = async () => {
-		const arrayChannelsNames: string[] = await getChannelsNames();
-		setRooms(arrayChannelsNames);
+		const arrayChannelsNames: {name: string, state: string}[] = await getChannelsNamesStates();
+		setRooms(arrayChannelsNames.map(elem => elem.name));
 	};
 
 	useEffect(() => {
