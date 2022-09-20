@@ -6,7 +6,6 @@ import { Leaderboard } from './components/leaderboard/leaderboard';
 import { Chat } from './components/chat/chat';
 import { User } from './components/user/user';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { Footer } from './components/header/footer';
 import { Header } from './components/header/header';
 import { Navbar } from './components/navbar/navbar';
 import { TFA } from './components/tfa/tfa';
@@ -61,7 +60,6 @@ function App (){
 					<Route path="tfa" element={<TFA />}/>
 					<Route path="*" element={<section id="navbarText" ><h1>404 Page not found</h1></section>}/>{/* we need to add a 404 route/page */}
 				</Routes>
-				<Footer />
 				{pseudo !== "" && <Gameinvitation pseudo={pseudo} obj={obj} close={removeInvite} />}
 			</div>
 		);

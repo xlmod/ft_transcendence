@@ -86,8 +86,6 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-
-	border: 1px solid yellow;
 }
 
 #edit-settings-members-parent h3
@@ -101,9 +99,55 @@
 #edit-settings-members
 {
 	height: 100%;
+	overflow: scroll;
 
-	border: 1px solid blue;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
 }
+
+#edit-settings-members .members
+{
+	margin: 0.7em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.members .controls
+{
+	width: 11em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.members .controls .selected
+{
+	color: var( --cNeon80 );
+	border: 1px solid var( --cNeon80 );
+}
+
+.members .controls .unselected
+{
+	color: rgba( 255, 0, 0, 0.8 );
+	border: 1px solid rgba( 255, 0, 0, 0.8 );
+}
+
+.members .controls .selected:hover
+{
+	color: var( --cBackground );
+	background-color: var( --cNeon80 );
+}
+
+.members .controls .unselected:hover
+{
+	color: var( --cBackground );
+	background-color: rgba( 255, 0, 0, 0.8 );
+}
+
 
 #edit-settings-button-cancel {
 	border: 1px solid rgba(255, 0, 0, .5);

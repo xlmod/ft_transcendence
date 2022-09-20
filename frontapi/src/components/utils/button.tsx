@@ -4,7 +4,8 @@ import CSS from 'csstype';
 import './button.css';
 
 interface IProps {
-	id: string,
+	id?: string,
+	className? :string,
 	value: string,
 	fontSize: number,
 	onClick: () => void,
@@ -27,7 +28,7 @@ export class Button extends React.Component< IProps, IState > {
 
 	render(): React.ReactNode {
 		return(
-			<button id={this.props.id} className="generic-button" onClick={this.props.onClick} style={this.state.style}>
+			<button id={this.props.id} className={`generic-button ${this.props.className}`} onClick={this.props.onClick} style={this.state.style}>
 				{this.props.value}
 			</button>
 		);
