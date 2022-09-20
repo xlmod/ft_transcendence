@@ -94,5 +94,4 @@ export class ChatService {
 			return undefined;
 		return channel;
 	}
-
 }

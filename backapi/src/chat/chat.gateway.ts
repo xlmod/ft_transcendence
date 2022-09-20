@@ -141,5 +141,4 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ({err: true, data:`You can't send message to the channel!`});
 		this.server.in(`${channel.id}`).emit("updage_room_list");
 	}
-
 }

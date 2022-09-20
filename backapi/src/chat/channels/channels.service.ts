@@ -9,6 +9,7 @@ import { Channel } from "./channels.entity";
 import * as bcrypt from 'bcrypt';
 import { MessageService } from "../messages/messages.service";
 import { CreateMsgDto } from "../messages/messages.dto";
+import { UserDto } from "@/user/user.dto";
 
 @Injectable()
 export class ChannelService {
@@ -25,7 +26,7 @@ export class ChannelService {
 		return channels;
 	}
 
-	async findById(id: string) {
+	async findById(id: number) {
 		return await this.channelRepository.findOne({
 			where: {id: id},
 		});
@@ -43,14 +44,14 @@ export class ChannelService {
 		});
 	}
 
-	async findChannelsByUser(user: User): Promise<ChannelDto[]> {
+	async findChannelsByUser(user: User): Promise<Channel[]> {
 		const id = user.id;
 		const chats = await this.channelRepository
 				.createQueryBuilder('channels')
 				.leftJoinAndSelect('channels.members', 'users')
 				.where('users.id = :id', {id})
 				.getMany();
-		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()}).map(channel => new ChannelDto(channel));
+		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
 	}
 
 	// async findChatInfoByUser(user: User): Promise<Channel[]> {
@@ -113,52 +114,59 @@ export class ChannelService {
 	async joinChannel(toadd: User, chat: Channel, password?: string): Promise<Channel> {
 		if (!toadd || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const there = chat.members.find(curr => curr === toadd);
-		if (there && chat.state === ChannelState.dm)
-			return chat;
-		if (chat.state === ChannelState.protected || chat.state === ChannelState.procated) {
-			const isMatch: boolean = await bcrypt.compare(password, chat.password);
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const there = channel.members.find(curr => curr === toadd);
+		if (there && channel.state === ChannelState.dm)
+			return channel;
+		if (channel.state === ChannelState.protected || channel.state === ChannelState.procated) {
+			const isMatch: boolean = await bcrypt.compare(password, channel.password);
 			if (!isMatch)
 				throw new UnauthorizedException('Wrong password');
 		}
 		if (there) {
-			const isBan: bantime = chat.ban.find(uid => {return (uid.uuid === toadd.id && uid.until.getTime() > Date.now())});
+			const isBan: bantime = channel.ban.find(uid => {return (uid.uuid === toadd.id && uid.until.getTime() > Date.now())});
 			if (isBan)
 				throw new UnauthorizedException(`You were ban until ${isBan.until}`);
-			return chat;
+			return channel;
 		}
-		chat.members.push(toadd);
-		return await this.channelRepository.save(chat);
+		channel.members.push(toadd);
+		return await this.channelRepository.save(channel);
 	}
 
 	async leaveChannel(toleave: User, chat: Channel) {
 		if (!toleave || !chat)
 			throw new NotFoundException('User or Channel not found');
-		chat.members = chat.members.filter(user => toleave.id !== user.id);
-		if (!chat.members) {
-			await this.delete(chat.owner, chat);
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		channel.members = channel.members.filter(user => toleave.id !== user.id);
+		if (!channel.members) {
+			await this.delete(channel.owner, channel);
 			return null;
 		}
-		if (toleave === chat.owner) {
-			for (const user of chat.members) {
-				const isBan: boolean = (chat.ban && !chat.ban.find(banned => banned.uuid === user.id));
+		if (toleave === channel.owner) {
+			for (const user of channel.members) {
+				const isBan: boolean = (channel.ban && !channel.ban.find(banned => banned.uuid === user.id));
 				if (isBan) {
-					chat.owner = user;
+					channel.owner = user;
 				}
-				if (chat.admin && (!isBan || !chat.ban)) {
-					chat.owner = user;
+				if (channel.admin && (!isBan || !channel.ban)) {
+					channel.owner = user;
 					break ;
 				}
 			}
-			if (chat.owner === toleave) {
-				chat.owner = chat.members[0];
-				chat.mute = chat.mute.filter(id => id !== chat.members[0].id);
-				chat.ban = chat.ban.filter(banned => banned.uuid !== chat.members[0].id);
+			if (channel.owner === toleave) {
+				channel.owner = channel.members[0];
+				channel.mute = channel.mute.filter(id => id !== channel.members[0].id);
+				channel.ban = channel.ban.filter(banned => banned.uuid !== channel.members[0].id);
 			}
 		}
-		if (chat.admin)
-			chat.admin = chat.admin.filter(id => id !== toleave.id);
-		return await this.channelRepository.save(chat);
+		if (channel.admin)
+			channel.admin = channel.admin.filter(id => id !== toleave.id);
+		return await this.channelRepository.save(channel);
+	}
+
+	async getUserList(chat: Channel) {
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		return channel.members.map(user => new UserDto(user));
 	}
 
 	async getAdminList(chat: Channel) {
@@ -188,105 +196,109 @@ export class ChannelService {
 	async setAdmin(from: User, toadmin: User, chat: Channel) {
 		if (!from || !toadmin || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === toadmin))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === toadmin))
 			throw new NotFoundException('This user is not there');
-		const isAdmin = chat.admin.find(id => id === toadmin.id);
+		const isAdmin = channel.admin.find(id => id === toadmin.id);
 		if (isAdmin)
 			throw new BadRequestException('Already Admin');
-		if (chat.owner === toadmin)
+		if (channel.owner === toadmin)
 			throw new BadRequestException('Channel Owner cannot become Admin');
-		if (from !== chat.owner || isAdmin !== from.id)
+		if (from !== channel.owner || isAdmin !== from.id)
 			throw new UnauthorizedException('Only Owner or Admin can assign to admin role');
-		chat.admin.push(toadmin.id);
-		return await this.channelRepository.save(chat);
+		channel.admin.push(toadmin.id);
+		return await this.channelRepository.save(channel);
 		
 	}
 
 	async unsetAdmin(from: User, unset: User, chat: Channel) {
 		if (!from || !unset || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === unset))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === unset))
 			throw new NotFoundException('This user is not there');
-		const isAdmin = chat.admin.find(id => id === unset.id);
+		const isAdmin = channel.admin.find(id => id === unset.id);
 		if (!isAdmin)
 			throw new BadRequestException('User not Admin');
-		if (chat.owner === unset)
+		if (channel.owner === unset)
 			throw new BadRequestException('Channel Owner cannot become Admin');
-		if (from !== chat.owner || isAdmin !== from.id)
+		if (from !== channel.owner || isAdmin !== from.id)
 			throw new UnauthorizedException('Only Owner or Admin can remove admin role');
-		chat.admin = chat.admin.filter(id => id !== unset.id);
-		return await this.channelRepository.save(chat);
+		channel.admin = channel.admin.filter(id => id !== unset.id);
+		return await this.channelRepository.save(channel);
 	}
 
-	// async sendMsg(user: User, chat: Channel, msg: CreateMsgDto) {
-		/*
-			... I'll do 
-		*/
-	// }
+	async sendMsg(user: User, chat: Channel, msg: CreateMsgDto) {
+		
+	}
 
 	async muteUser(from: User, tomute: User, chat: Channel) {
 		if (!from || !tomute || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === tomute))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === tomute))
 			throw new NotFoundException('This user is not there');
-		if (chat.owner === tomute)
+		if (channel.owner === tomute)
 			throw new UnauthorizedException('You cannot mute the owner from his channel');
-		if (from !== chat.owner || !chat.admin.find(id => id === from.id))
+		if (from !== channel.owner || !channel.admin.find(id => id === from.id))
 			throw new UnauthorizedException('Only Owner or Admin can mute');
-		if (chat.mute.find(id => id === tomute.id))
+		if (channel.mute.find(id => id === tomute.id))
 			throw new UnauthorizedException('Already muted');
-		chat.mute.push(tomute.id);
-		return await this.channelRepository.save(chat);
+		channel.mute.push(tomute.id);
+		return await this.channelRepository.save(channel);
 	}
 
 	async unmuteUser(from: User, tofree: User, chat: Channel) {
 		if (!from || !tofree || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === tofree))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === tofree))
 			throw new NotFoundException('This user is not there');
-		if (!chat.mute.find(id =>  id === tofree.id))
+		if (!channel.mute.find(id =>  id === tofree.id))
 			throw new NotFoundException('This user was not muted');
-		if (chat.owner === tofree)
+		if (channel.owner === tofree)
 			throw new UnauthorizedException('Impossible action');
-		if (from !== chat.owner || !chat.admin.find(id => id === from.id))
+		if (from !== channel.owner || !channel.admin.find(id => id === from.id))
 			throw new UnauthorizedException('Only Owner or Admin can');
-		chat.mute = chat.mute.filter(id => id !== tofree.id);
-		return await this.channelRepository.save(chat);
+		channel.mute = channel.mute.filter(id => id !== tofree.id);
+		return await this.channelRepository.save(channel);
 	}
 
 	async banUser(from: User, toban: User, chat: Channel, until: Date) {
 		if (!from || !toban || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === toban))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === toban))
 			throw new NotFoundException('This user is not there');
-		if (chat.owner === toban)
+		if (channel.owner === toban)
 			throw new UnauthorizedException('You cannot ban the owner from his channel');
-		if (from !== chat.owner || !chat.admin.find(id => id === from.id))
+		if (from !== channel.owner || !channel.admin.find(id => id === from.id))
 			throw new UnauthorizedException('Only Owner or Admin can ban');
-		if (chat.ban.find(ban => ban.uuid === toban.id))
+		if (channel.ban.find(ban => ban.uuid === toban.id))
 			throw new UnauthorizedException('Already banned');
 		const since = new Date;
-		chat.ban.push({uuid: toban.id, since: since, until: until } as bantime);
+		channel.ban.push({uuid: toban.id, since: since, until: until } as bantime);
 		setTimeout(async () => {
-			chat.ban = chat.ban.filter(user => user.uuid !== toban.id);
-			await this.channelRepository.save(chat);
+			channel.ban = channel.ban.filter(user => user.uuid !== toban.id);
+			await this.channelRepository.save(channel);
 		}, (until.getTime() - since.getTime()));
-		return await this.channelRepository.save(chat);
+		return await this.channelRepository.save(channel);
 	}
 
 	async unbanUser(from: User, unban: User, chat: Channel) {
 		if (!from || !unban || !chat)
 			throw new NotFoundException('User or Channel not found');
-		if (!chat.members.find(user =>  user === unban))
+		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		if (!channel.members.find(user =>  user === unban))
 			throw new NotFoundException('This user is not there');
-		if (chat.owner === unban)
+		if (channel.owner === unban)
 			throw new UnauthorizedException('Impossible action');
-		if (from !== chat.owner || !chat.admin.find(id => id === from.id))
+		if (from !== channel.owner || !channel.admin.find(id => id === from.id))
 			throw new UnauthorizedException('Only Owner or Admin can');
-		if (!chat.ban.find(user =>  user.uuid === unban.id))
+		if (!channel.ban.find(user =>  user.uuid === unban.id))
 			throw new NotFoundException('This user was not ban');
-		chat.ban = chat.ban.filter(user => user.uuid !== unban.id);
-		return await this.channelRepository.save(chat);
+		channel.ban = channel.ban.filter(user => user.uuid !== unban.id);
+		return await this.channelRepository.save(channel);
 	}
 
 	async delete(user: User, chat: Channel) {
