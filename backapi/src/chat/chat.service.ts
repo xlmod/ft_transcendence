@@ -79,18 +79,15 @@ export class ChatService {
 		client: Socket,
 		name: string,
 		msg: string,
-	): Promise<Channel> {
+	): Promise<{channel: Channel, msg:string, user:string}> {
 		const user: User = await this.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
 		if (channel == undefined)
 			return undefined;
-		let tmpmsg: CreateMsgDto;
-		tmpmsg.user = user;
-		tmpmsg.channel = channel;
-		tmpmsg.message = msg;
+		const tmpmsg: CreateMsgDto = {user: user, channel: channel, message: msg};
 		if (this.messageService.createMsgDb(tmpmsg).catch(() => undefined) == undefined)
 			return undefined;
-		return channel;
+		return {channel: channel, msg: msg, user:user.pseudo};
 	}
 
 }

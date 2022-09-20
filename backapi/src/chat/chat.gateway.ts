@@ -124,18 +124,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return ({err: false, data:`Channel leaved!`});
 	}
 
-	
+
 	@SubscribeMessage('send-message')
-	async handleMessage(
+	async handleSendMessage(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-	): Promise<{err: boolean, data: string}> {
+		@MessageBody("msg") msg: string,
+	): Promise<{err: boolean, data: any}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
-		const channel: Channel = await this.chatService.leaveChannel(client, name)
-		if (channel == undefined)
+		const message: {channel:Channel, msg: string, user:string} = await this.chatService.sendMsg(client, name, msg);
+		if (message == undefined)
 			return ({err: true, data:`You can't send message to the channel!`});
-		this.server.in(`${channel.id}`).emit("updage_room_list");
+		this.server.in(`${message.channel.id}`).emit("updage_room_list");
+		return ({err:false, data: {channel:message.channel.name, msg: message.msg, user: message.user}});
 	}
 
 }
