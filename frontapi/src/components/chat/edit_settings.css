@@ -47,7 +47,7 @@
 	justify-content: space-around;
 }
 
-#edit-settings-input-toggle-label
+#edit-settings-input-toggle-label, #edit-settings-input-toggle-pass-label
 {
 	font-size: 0.8em;
 	margin-right: 1em;
@@ -65,7 +65,28 @@
 {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
+	justify-content: space-evenly;
+}
+
+#edit-settings-button-delete, #nah
+{
+	color: rgba( 255, 0, 0, 0.5 );
+	border: 1px solid rgba( 255, 0, 0, 0.5 );
+}
+
+#edit-settings-button-delete:hover, #nah:hover
+{
+	color: var( --cBackground );
+	background-color: rgba( 255, 0, 0, 0.5 );
+}
+
+#really-nah
+{
+	width: 10em;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 
 #edit-settings-button
