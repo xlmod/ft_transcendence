@@ -9,7 +9,6 @@ import { Channel } from "./channels.entity";
 import * as bcrypt from 'bcrypt';
 import { MessageService } from "../messages/messages.service";
 import { CreateMsgDto } from "../messages/messages.dto";
-import { UserDto } from "@/user/user.dto";
 
 @Injectable()
 export class ChannelService {
@@ -111,10 +110,12 @@ export class ChannelService {
 			throw new UnauthorizedException('You have bloked this user');
 		if (to.blocks?.filter(id => id === to.id).length)
 			throw new UnauthorizedException('This User has blocked you');
-		const check = await this.findChannelsByUser(user);
-		for (const channel of check)
-			if (channel.id)
-				return channel;
+		const ucheck = await this.findChannelsByUser(user);
+		const tocheck = await this.findChannelsByUser(to);
+		for (const channel of ucheck)
+			for (const channel2 of tocheck)
+				if (channel.id === channel2.id)
+					return channel;
 		return await this.channelRepository.save(this.channelRepository.create({
 			state: ChannelState.dm,
 			messages: new Array(),
