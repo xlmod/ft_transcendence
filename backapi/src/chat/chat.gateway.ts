@@ -62,33 +62,42 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log(`Client connected: ${client.id}`);
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
-		channels?.forEach((elem: Channel) => {
-			this.users.get(user.id).forEach(socket => {
-				if (socket.id != client.id)
-					socket.join(`${elem.id}`);
-			})
-			client.join(`${elem.id}`);
-		});
+		if (channels !== undefined)
+		{
+			channels?.forEach((elem: Channel) => {
+				this.users.get(user.id).forEach(socket => {
+					if (socket.id != client.id)
+						socket.join(`${elem.id}`);
+				})
+				client.join(`${elem.id}`);
+			});
+		}
 	}
 
 	async handleDisconnect(client: Socket) {
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
-		channels?.forEach((elem: Channel) => {
-			this.users.get(user.id).forEach(client_socket =>{
-				client_socket.leave(`${elem.id}`);
-			});
-		});
-		this.users.forEach((key, value) => {
-			if (key.has(client))
-			{
-				key.forEach(client_socket => {
-					if (client_socket.id != client.id)
-						client_socket.disconnect(true);
+		if (channels !== undefined)
+		{
+			channels?.forEach((elem: Channel) => {
+				this.users.get(user.id).forEach(client_socket =>{
+					client_socket.leave(`${elem.id}`);
 				});
-				this.users.delete(value);
-			}
-		});
+			});
+		}
+		if (this.users === undefined)
+		{
+			this.users.forEach((key, value) => {
+				if (key.has(client))
+				{
+					key.forEach(client_socket => {
+						if (client_socket.id != client.id)
+							client_socket.disconnect(true);
+					});
+					this.users.delete(value);
+				}
+			});
+		}
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
