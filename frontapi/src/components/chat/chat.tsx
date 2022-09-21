@@ -71,12 +71,12 @@ export function Chat()
 	};
 
 	const quitChannel = async () => {
-		chat_socket.socket.emit("leave-room", {name: actualRoom?.name});
+		chat_socket.socket.emit("leave-room", {id: actualRoom?.id});
 		setActualRoom( null );
 	};
 
 	const deleteDM = async () => {
-		
+		chat_socket.socket.emit("quit-dm", {id: actualRoom?.id});
 		setActualRoom( null );
 	};
 

@@ -332,8 +332,10 @@ export class ChannelService {
 	}
 
 	async deleteDMsg(channel: Channel): Promise<void> {
+		console.log(channel);
 		if (!channel)
 			throw new NotFoundException('DM not found');
+		console.log("aaaaaaaaaaaaaaaaaaaaa");
 		await this.channelRepository.delete(channel.id);
 	}
 }

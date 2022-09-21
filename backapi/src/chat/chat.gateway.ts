@@ -145,25 +145,24 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return ({err: false, data:`Channel joined!`});
 	}
 
-	@SubscribeMessage('update-channel')
-	async handleUpdateRoom(@ConnectedSocket() client: Socket, @MessageBody("id") id: string,
-	): Promise<{err: boolean, channel: Channel}> {
-		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findById(+id);
-		if (!channel)
-			return ({err: true, channel: undefined});
-		
-	}
+	// @SubscribeMessage('update-channel')
+	// async handleUpdateRoom(@ConnectedSocket() client: Socket, @MessageBody("id") id: string,
+	// ): Promise<{err: boolean, channel: Channel}> {
+	// 	const user: User = await this.chatService.getUserBySocket(client);
+	// 	const channel: Channel = await this.channelService.findById(+id);
+	// 	if (!channel)
+	// 		return ({err: true, channel: undefined});
+	// }
 
 	@SubscribeMessage('leave-room')
 	async handleLeaveRoom(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 	): Promise<{err: boolean, data: string}> {
-		if (name === "")
+		if (id === "")
 			return ({err: true, data:`$name is empty!`});
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		try {
 			await this.channelService.leaveChannel(user, channel)
 		} catch { return ({err: true, data:`You can't leave the channel!`}); }
@@ -316,6 +315,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user: User = await this.chatService.getUserBySocket(client);
 		if (!channel)
 			return ({err: true, channel: undefined});
+		this.server.emit("update_room_list");
 		return ({err: false, channel: await this.channelService.delete(user, channel)});
 	}
 
@@ -324,11 +324,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const channel: Channel = await this.channelService.findById(+id);
 		const user: User = await this.chatService.getUserBySocket(client);
+		const user2: User = (await this.channelService.findUserListByChannel(channel)).members.find(curr => curr.id !== user.id);
 		const channels: Channel[] = await this.channelService.findChannelsByUser(user);
 		const match: Channel = channels.find(chat => chat.id === channel.id);
-		if (!channel || channels || !match)
+		const toclient = this.users.get(user2.id);
+		if (!channel || !channels || !match)
 			return ({err: true, data: 'Channel not found'});
 		await this.channelService.deleteDMsg(match);
+		client.emit("update_room_list");
+		toclient.emit("update_room_list");
 		return ({err: false, data: 'Channel deleted !'});
 	}
 }
