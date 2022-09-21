@@ -96,12 +96,9 @@ export function Chat()
 	};
 
 	const reloadMembers = async (room: IChannel) => {
-		chat_socket.socket.emit("get-members", {name: room.name}, (response: any) => {
+		chat_socket.socket.emit("get-members", {id: room.id}, (response: any) => {
 			if (response.err)
-			{
-				setMembers([]);
 				return ;
-			}
 			setMembers(response.members);
 			updateState({});
 		});

@@ -288,9 +288,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('get-members')
 	async handleGetMembers(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 	): Promise<{err: boolean, members: User[]}> {
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		if (!channel)
 			return ({err: true, members: undefined});
 		const members: User[] = await this.channelService.getMembersChannel(channel);
