@@ -41,14 +41,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
-	private users: Map<string, Socket> = new Map();
+	private users: Map<string, Set<Socket>> = new Map();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
 			try {
-				const token = await this.chatService.getAccessToken(socket.handshake.headers?.cookie);
+				const token = await this.authService.getAccessToken(socket.handshake.headers?.cookie);
 				const user = await this.authService.JwtVerify(token);
-				this.users.set(user.id, socket);
+				const newSet: Set<Socket> = this.users.get(user.id) || new Set<Socket>();
+				newSet.add(socket);
+				this.users.set(user.id, newSet);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}
@@ -61,19 +63,31 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
 		channels?.forEach((elem: Channel) => {
+			this.users.get(user.id).forEach(socket => {
+				if (socket.id != client.id)
+					socket.join(`${elem.id}`);
+			})
 			client.join(`${elem.id}`);
 		});
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.users.forEach((key, value) => {
-			if (key === client)
-				this.users.delete(value);
-		});
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
 		channels?.forEach((elem: Channel) => {
-			client.leave(`${elem.id}`);
+			this.users.get(user.id).forEach(client_socket =>{
+				client_socket.leave(`${elem.id}`);
+			});
+		});
+		this.users.forEach((key, value) => {
+			if (key.has(client))
+			{
+				key.forEach(client_socket =>{
+					if (client_socket.id != client.id)
+						client_socket.disconnect(true);
+				});
+				this.users.delete(value);
+			}
 		});
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
@@ -91,9 +105,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel = await this.channelService.createDMsg(user, todm);
 		if (!channel)
 			return ({err: true, data:`Channel creation did not succeed!`});
-		client.join(`${channel.id}`);
-		client.emit("update_room_list");
-		toclient.emit("update_room_list");
+		this.users.get(user.id).forEach(socket_client=>{
+			socket_client.join(`${channel.id}`);
+			socket_client.emit("update_room_list");
+		});
+		toclient.forEach(socket_client => {
+			socket_client.join(`${channel.id}`);
+			socket_client.emit("update_room_list");
+		});
 		return ({err: false, data:`Channel created!`});
 	}
 
@@ -119,8 +138,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			else
 				channel = await this.channelService.create(user, {name: name, state: state} as CreateChannelDto);
 		} catch { return ({err: true, data:`You can't create the channel!`}); }
-		client.join(`${channel.id}`);
-		client.emit("update_room_list");
+		this.users.get(user.id).forEach(socket_client=>{
+			socket_client.join(`${channel.id}`);
+			socket_client.emit("update_room_list");
+		});
 		return ({err: false, data:`Channel created!`});
 	}
 
@@ -140,8 +161,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			else
 				await this.channelService.joinChannel(user, channel, password);
 		} catch { return ({err: true, data:`You can't join the channel!`}); }
-		client.join(`${channel.id}`);
-		client.emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_members_list");
+		this.users.get(user.id).forEach(socket_client=>{
+			socket_client.join(`${channel.id}`);
+			socket_client.emit("update_room_list");
+		});
 		return ({err: false, data:`Channel joined!`});
 	}
 
@@ -156,7 +180,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!channel)
 			return ({err: true, channel: undefined});
 		await this.channelService.update(user, channel, updata);
-		this.server.emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 	}
 
 	@SubscribeMessage('leave-room')
@@ -171,8 +195,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			await this.channelService.leaveChannel(user, channel)
 		} catch { return ({err: true, data:`You can't leave the channel!`}); }
-		client.leave(`${channel.id}`);
-		client.emit("update_room_list");
+		this.users.get(user.id).forEach(socket_client=>{
+			socket_client.leave(`${channel.id}`);
+			socket_client.emit("update_room_list");
+		});
+		this.server.in(`${channel.id}`).emit("update_members_list");
 		return ({err: false, data:`Channel leaved!`});
 	}
 
@@ -275,7 +302,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user: User = await this.chatService.getUserBySocket(client);
 		if (!channel)
 			return ({err: true, channel: undefined});
-		this.server.emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_room_list");
 		return ({err: false, channel: await this.channelService.delete(user, channel)});
 	}
 
@@ -291,8 +318,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!channel || !channels || !match)
 			return ({err: true, data: 'Channel not found'});
 		await this.channelService.deleteDMsg(match);
-		client.emit("update_room_list");
-		toclient.emit("update_room_list");
+		this.users.get(user.id).forEach(socket_client=>{
+			socket_client.emit("update_room_list");
+		});
+		toclient.forEach(client_socket => {client_socket.emit("update_room_list")});
 		return ({err: false, data: 'Channel deleted !'});
 	}
 }
