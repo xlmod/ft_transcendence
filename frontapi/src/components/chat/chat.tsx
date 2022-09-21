@@ -31,6 +31,7 @@ export function Chat()
 	const [me, setMe] = useState<IUser>();
 	const [members, setMembers] = useState< IUser[] >([]);
 	const [autoload, setAutoload] = useState<number>(-1);
+	const [roomName, setRoomName] = useState< string|undefined >( "" );
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +110,8 @@ export function Chat()
 	};
 
 	const changeRoom = async (room: IChannel) => {
+		if( room.state === "dm" )
+			setRoomName (room.members.find(member => member.pseudo !== userData.pseudo)?.pseudo);
 		room.members = members;
 		setActualRoom(room);
 		await reloadMsg(room);
@@ -134,7 +137,11 @@ export function Chat()
 			if (actualRoom)
 				reloadMembers(actualRoom);
 		});
-
+		setRoomName( actualRoom
+						? ( actualRoom.state === "dm"
+							? roomName
+							: actualRoom.name )
+						: "welcome" );
 	}, [actualRoom] );
 
 	useEffect( () => {
@@ -231,15 +238,7 @@ export function Chat()
 						{ actualRoom && actualRoom?.state === "dm" && <Button id="quit" value="delete" fontSize={0.6}
 						onClick={deleteDM} /> }
 							<div id="chat-name">
-								{ actualRoom ?
-									( actualRoom.state === "dm" ?
-										actualRoom.members.find(member => member.pseudo !== userData.pseudo)?.pseudo
-										:
-										actualRoom.name
-									)
-									:
-									"welcome"
-								}
+								{ roomName }
 							</div>
 							{ me && actualRoom && actualRoom.state !== "dm"
 						&& ( actualRoom.owner.id === me.id
