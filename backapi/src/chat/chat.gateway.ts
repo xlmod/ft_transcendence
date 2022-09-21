@@ -12,12 +12,14 @@ import { Logger, UnauthorizedException, UseFilters, UsePipes, ValidationPipe } f
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '@/auth/auth.service';
 import { User } from '@/user/user.entity';
-import {ChatService} from './chat.service';
-import {Channel} from './channels/channels.entity';
-import {MsgDto} from './messages/messages.dto';
-import {UserService} from '@/user/user.service';
-import {ChannelService} from './channels/channels.service';
-import {MessageService} from './messages/messages.service';
+import { ChatService } from './chat.service';
+import { Channel } from './channels/channels.entity';
+import { MsgDto } from './messages/messages.dto';
+import { UserService } from '@/user/user.service';
+import { ChannelService } from './channels/channels.service';
+import { MessageService } from './messages/messages.service';
+import { ChannelState } from './models/status.enums';
+import { CreateChannelDto } from './channels/channels.dto';
 
 UsePipes(new ValidationPipe())
 @UseFilters(AllExceptionsFilter)
@@ -41,15 +43,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
+	private users: Map<string, string> = new Map();
 
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
-			const token = this.authService.getAccessToken(socket.handshake?.headers?.cookie);
-			if (!token)
-				return next(new UnauthorizedException('Gateway auth failed'));
 			try {
+				const token = await this.chatService.getAccessToken(socket.handshake.headers?.cookie);
 				const user = await this.authService.JwtVerify(token);
-				this.chatService.addSocketId(socket.id, user.id)
+				this.users.set(user.id, socket.id);
 			} catch(e) {
 				return next(new UnauthorizedException('Gateway User unknown or failed'));
 			}
@@ -59,29 +60,42 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket) {
 		this.logger.log(`Client connected: ${client.id}`);
-		this.chatService.socketJoinChannels(client);
+		const user = await this.chatService.getUserBySocket(client);
+		const channels = await this.channelService.findChannelsByUser(user);
+		channels?.forEach((elem: Channel) => {
+			client.join(`${elem.id}`);
+		});
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.chatService.removeSocketId(client.id);
-		this.chatService.socketLeaveChannels(client);
+		this.users.forEach((key, value) => {
+			if (value === client.id)
+				this.users.delete(key);
+		});
+		const user = await this.chatService.getUserBySocket(client);
+		const channels = await this.channelService.findChannelsByUser(user);
+		channels?.forEach((elem: Channel) => {
+			client.leave(`${elem.id}`);
+		});
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
 	@SubscribeMessage('create-dm')
 	async handleCreateDM(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("name") pseudo: string,
 	): Promise<{err: boolean, data: string}> {
-		const touser: User = await this.userService.findByPseudo(name);
-		if (touser == undefined)
-			return ({err: true, data:`User named ${name} not exist!`});
+		const todm: User = await this.userService.findByPseudo(pseudo);
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel = await this.channelService.createDMsg(user, touser);
-		if (channel == undefined)
+		const toclient = this.server.sockets.sockets.get(this.users.get(todm.id));
+		if (!todm)
+			return ({err: true, data:`User named ${pseudo} not exist!`});
+		const channel = await this.channelService.createDMsg(user, todm);
+		if (!channel)
 			return ({err: true, data:`Channel creation did not succeed!`});
 		client.join(`${channel.id}`);
 		client.emit("update_room_list");
+		toclient.emit("update_room_list");
 		return ({err: false, data:`Channel created!`});
 	}
 
@@ -89,15 +103,24 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleCreateRoom(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") name: string,
-		@MessageBody("public") is_public: boolean,
+		@MessageBody("public") isPublic: boolean,
 		@MessageBody("password") password: string,
 	): Promise<{err: boolean, data: string}> {
-		// console.log(this.users)
-		if (name === "")
+		if (name === "" || !name)
 			return ({err: true, data:`$name is empty!`});
-		const channel: Channel = await this.chatService.createChannel(client, name, is_public, password);
-		if (channel == undefined)
-			return ({err: true, data:`You can't create the channel!`});
+		const user: User = await this.chatService.getUserBySocket(client);
+		let channel: Channel;
+		let state: ChannelState;
+		if (isPublic)
+			state = (password) ? ChannelState.protected : ChannelState.public;
+		else
+			state = (password) ?  ChannelState.procated : ChannelState.private;
+		try {
+			if (state === ChannelState.protected || state === ChannelState.procated)
+				channel = await this.channelService.create(user, {name: name, state: state, password: password} as CreateChannelDto);
+			else
+				channel = await this.channelService.create(user, {name: name, state: state} as CreateChannelDto);
+		} catch { return ({err: true, data:`You can't create the channel!`}); }
 		client.join(`${channel.id}`);
 		client.emit("update_room_list");
 		return ({err: false, data:`Channel created!`});
@@ -111,9 +134,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
-		const channel: Channel = await this.chatService.joinChannel(client, name, password)
-		if (channel == undefined)
-			return ({err: true, data:`You can't join the channel!`});
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		try {
+			if (password === "")
+				await this.channelService.joinChannel(user, channel);
+			else
+				await this.channelService.joinChannel(user, channel, password);
+		} catch { return ({err: true, data:`You can't join the channel!`}); }
 		client.join(`${channel.id}`);
 		client.emit("update_room_list");
 		return ({err: false, data:`Channel joined!`});
@@ -126,9 +154,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		if (name === "")
 			return ({err: true, data:`$name is empty!`});
-		const channel: Channel = await this.chatService.leaveChannel(client, name)
-		if (channel == undefined)
-			return ({err: true, data:`You can't leave the channel!`});
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findByChatName(name);
+		try {
+			await this.channelService.leaveChannel(user, channel)
+		} catch { return ({err: true, data:`You can't leave the channel!`}); }
 		client.leave(`${channel.id}`);
 		client.emit("update_room_list");
 		return ({err: false, data:`Channel leaved!`});
@@ -138,13 +168,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('send-message')
 	async handleSendMessage(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("msg") msg: string,
 	): Promise<{err: boolean, data: any}> {
-		if (name === "")
+		if (id === "")
 			return ({err: true, data:`$name is empty!`});
-		const message: {channel:Channel, msg: string, user:string} = await this.chatService.sendMsg(client, name, msg);
-		if (message == undefined)
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findById(+id);
+		const message = await this.channelService.sendMsg(user, channel, msg);
+		if (!message)
 			return ({err: true, data:`You can't send message to the channel!`});
 		this.server.in(`${message.channel.id}`).emit("update_room_list");
 		this.server.in(`${message.channel.id}`).emit("update_msg_list", message.channel);
@@ -159,7 +191,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.banUser(channel, user, target)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -174,7 +206,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unbanUser(channel, user, target)))
 			return ({err: true, data:`You can't unban this user from the channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -189,7 +221,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.setAdmin(channel, user, target)))
 			return ({err: true, data:`You can't set the user admin on this channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -204,7 +236,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unsetAdmin(channel, user, target)))
 			return ({err: true, data:`You can't unset the user admin on this channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -219,7 +251,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.muteUser(channel, user, target)))
 			return ({err: true, data:`You can't mute the user on this channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -234,7 +266,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findByChatName(name);
-		const target: User = await this.chatService.getUserByUID(uid);
+		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unmuteUser(channel, user, target)))
 			return ({err: true, data:`You can't unmute the user on this channel!`});
 		this.server.in(`${channel.id}`).emit("update_room_list");
@@ -244,15 +276,28 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('get-msg')
 	async handleGetMsg(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 	): Promise<{err: boolean, msg: MsgDto[]}> {
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		if (!channel)
 			return ({err: true, msg: undefined});
-		const msg: MsgDto[] = await this.messageService.getAllMsgByChannel(channel);
-		if (!channel)
+		const msg: MsgDto[] = await this.channelService.getMsg(channel);
+		if (!msg)
 			return ({err: true, msg: undefined});
 		return ({err: false, msg: msg});
 	}
 
+	@SubscribeMessage('get-members')
+	async handleGetMembers(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+	): Promise<{err: boolean, members: User[]}> {
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (!channel)
+			return ({err: true, members: undefined});
+		const members: User[] = await this.channelService.getMembersChannel(channel);
+		if (!channel)
+			return ({err: true, members: undefined});
+		return ({err: false, members: members});
+	}
 }
