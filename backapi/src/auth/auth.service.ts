@@ -45,4 +45,20 @@ export class AuthService {
 			throw new UnauthorizedException('Jwt auth failed');
 		}
 	}
+
+	getAccessToken(cookiestring: string): string {
+		if (!cookiestring)
+			return undefined;
+		const cookies = cookiestring.split(';')?.map((cookie) => cookie.trimStart().split('='));
+		if (!cookies)
+			return undefined;
+		const token = cookies.filter(cookie => {
+			if (cookie[0] === 'access_token')
+				return true;
+			return false;
+		})[0];
+		if (!token)
+			return undefined;
+		return token[1];
+	}
 }
