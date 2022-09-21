@@ -55,8 +55,24 @@ export function EditSettings ( props :IProps ) {
 		if( nameError )
 			return ;
 
-		chat_socket.socket.emit( "update-channel", { name: name, private: priv, password: (passwordToggle?password:null) }, ( response :any ) => {
-			console.log( response.data );
+		let state: string = "public";
+		if (props.room?.state === "public" || props.room?.state === "private") {
+			if (passwordToggle && password !== "")
+				state = !priv ? "procated" : "protected";
+			else
+				state = !priv ? "private" : "public";
+		} else if (props.room?.state === "protected" || props.room?.state === "procated") {
+			if (passwordToggle && password === "")
+				state = !priv ? "private" : "public";
+			else
+				state = !priv ? "procated" : "protected";
+		}
+		console.log(priv);
+		console.log(state);
+
+
+		chat_socket.socket.emit( "update-channel", { id: props.room?.id, name: name, state: state, password: (passwordToggle?password:null) }, ( response :any ) => {
+			console.log("DATA: ", response );
 		} );
 		props.close( false );
 	};
