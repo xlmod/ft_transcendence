@@ -37,12 +37,15 @@ export interface IMatchHistory
 
 export interface IChannel
 {
+	CreatedAt :string,
+	UpdatedAt :string,
 	admin :string[],
 	ban :string[],
 	id :number,
 	members :IUser[],
 	mute :string[],
 	name :string,
+	owner :IUser,
 	password :string,
 	state :string,
 }
@@ -228,7 +231,7 @@ export function getChannelsJoined()
 : Promise< IChannel[] >
 {
 	return iaxios.get( 'chat/all' )
-		.then( data => { return data.data; } )
+		.then( data => { console.log( data.data ); return data.data; } )
 		.catch( error => { console.log( error ); return []; } );
 }
 

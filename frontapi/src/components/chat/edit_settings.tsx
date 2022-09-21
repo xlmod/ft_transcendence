@@ -6,14 +6,17 @@ import { IChannel, getChannelsJoined, IUser } from '../utils/requester';
 import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
 import { ToggleSwitch } from '../utils/toggleswitch';
+import { EntryMember } from './entry_member';
+
+import { chat_socket } from '../../socket';
 
 import './edit_settings.css'
-import { chat_socket } from "../../socket";
 
 interface IProps {
 	close :( update :boolean ) => void,
 	room :IChannel | null,
-	members : IUser[]
+	members : IUser[],
+	me :IUser | undefined,
 }
 
 export function EditSettings ( props :IProps ) {
@@ -22,8 +25,10 @@ export function EditSettings ( props :IProps ) {
 	const [priv, setPriv] = useState< boolean >( props.room
 		&& ( props.room.state === "private" || props.room.state === "procated" )
 		? true : false );
+	const [passwordToggle, setPasswordToggle] = useState< boolean >( false );
 	const [password, setPassword] = useState< string >( "" );
 	const [nameError, setNameError] = useState< boolean >( false );
+	const [selectDelete, setSelectDelete] = useState< boolean >( false );
 
 	const nameChange = ( event :any ) => {
 		let value :string = event.target.value;
@@ -37,41 +42,37 @@ export function EditSettings ( props :IProps ) {
 		setPriv( event.target.checked );
 	};
 
+	const passwordToggleChange = ( event :any ) => {
+		setPasswordToggle( event.target.checked );
+	};
+
 	const passwordChange = ( event :any ) => {
 		let value :string = event.target.value;
 		setPassword( value );
 	};
 
-	const onSave = async() => {
+	const onSave = () => {
 		if( nameError )
 			return ;
+
+		chat_socket.socket.emit( "update-channel", { name: name, private: priv, password: (passwordToggle?password:null) }, ( response :any ) => {
+			console.log( response.data );
+		} );
 		props.close( false );
 	};
 
-	const adminChange = async(member:IUser) => {
-		chat_socket.socket.emit("toggle-admin", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
+	const onDelete = () => {
+		chat_socket.socket.emit( "delete-channel", { id: props.room?.id }, ( response :any ) => { } );
+		props.close( false );
 		return ;
 	};
-
-	const banChange = async(member:IUser) => {
-		setTimeout(() => {
-			props.room?.ban.filter(user=>user !== member.id)
-		}, 10000);
-		chat_socket.socket.emit("toggle-ban", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
-		return ;
-	};
-
-	const muteChange = async(member:IUser) => {
-		chat_socket.socket.emit("toggle-mute", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
-		return ;
-	};
-
 
 	return (
 		<section id="edit-settings-section">
 			<div id="edit-settings-wall">
 			</div>
 			<div id="edit-settings-window">
+				{ props.room?.owner.id === props.me?.id &&
 				<div id="edit-settings-input">
 
 					<Textinput
@@ -92,6 +93,16 @@ export function EditSettings ( props :IProps ) {
 					/>
 					</div>
 
+					<div>
+					<label id="edit-settings-input-toggle-pass-label">edit password</label>
+					<ToggleSwitch
+						id="edit-settings-input-toggle-pass"
+						checked={passwordToggle}
+						onChange={passwordToggleChange}
+					/>
+					</div>
+
+					{ passwordToggle &&
 					<Textinput
 						id="edit-settings-input-password"
 						placeholder="Password"
@@ -99,38 +110,29 @@ export function EditSettings ( props :IProps ) {
 						value={password}
 						style={{fontSize: '0.8em'}}
 						type="password"
-					/>					
+					/>
+					}					
 
 					<div id="edit-settings-button-save-parent">
 						<Button id="edit-settings-button-save"
 							value="save" fontSize={0.8} onClick={onSave} />
+						{ selectDelete 
+						? <div id="really-nah"><Button id="really" value="really?" fontSize={0.8} onClick={onDelete} />
+							<Button id="nah" value="nah" fontSize={0.8} onClick={() => { setSelectDelete( false ); } } /></div>
+						: <Button id="edit-settings-button-delete"
+							value="delete" fontSize={0.8} onClick={() => { setSelectDelete( true ); } } />
+						}
 					</div>
 
-				</div>
+				</div> }
 
 				<div id="edit-settings-members-parent">
 					<h3>members</h3>
 					<div id="edit-settings-members">
-						{ props.room && props.members.map( member => (
-							<div className="members">
-								<div className="pseudo">{ member.pseudo }</div>
-								<div className="controls">
-									<Button className={`admin ${props.room?.admin.find( admin => (
-										admin === member.id ) )
-											? "selected" : "unselected" }`}
-										value="adm" fontSize={0.8}
-										onClick={()=>adminChange(member)} />
-									<Button className={`ban ${props.room?.ban.find( ban => (
-										ban === member.id ) )
-											? "selected" : "unselected" }`}
-										 value="ban" fontSize={0.8}
-										onClick={()=>banChange(member)} />
-									<Button className={`mute ${props.room?.mute.find( mute => (
-										mute === member.id ) )
-											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
-										onClick={()=>muteChange(member)} />
-								</div>
-							</div>
+						{ props.room && props.members.filter( hein => {
+							return hein.id !== props.me?.id
+								&& hein.id != props.room?.owner.id ; } ).map( member => (
+								<EntryMember room={props.room} member={member} me={props.me} />	
 						) ) }
 					</div>
 					<div id="edit-settings-button">
