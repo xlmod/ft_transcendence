@@ -182,14 +182,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleUpdateRoom(
 		@ConnectedSocket() client: Socket, 
 		@MessageBody("id") id: string,
-		@MessageBody("updata") updata: Partial<ChannelUpateDto>
+		@MessageBody("name") name: string,
+		@MessageBody("state") state: string,
+		@MessageBody("password") password: string | null,
 	): Promise<{err: boolean, channel: Channel}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!channel)
 			return ({err: true, channel: undefined});
-		await this.channelService.update(user, channel, updata);
+		if (state !== "public"
+			&& state !== "private"
+			&& state !== "protected"
+			&& state !== "procated")
+			return ({err: true, channel: undefined});
+		await this.channelService.update(user, channel, {name: name, state: state as ChannelState, password:password});
 		this.server.in(`${channel.id}`).emit("update_room_list");
+		return ({err: false, channel: channel});
 	}
 
 	@SubscribeMessage('leave-room')
