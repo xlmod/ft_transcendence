@@ -111,7 +111,7 @@ export function Chat()
 
 	const changeRoom = async (room: IChannel) => {
 		if( room.state === "dm" )
-			setRoomName (room.members.find(member => member.pseudo !== userData.pseudo)?.pseudo);
+			setRoomName (room.members.find(member => member.pseudo !== me?.pseudo)?.pseudo);
 		room.members = members;
 		setActualRoom(room);
 		await reloadMsg(room);
