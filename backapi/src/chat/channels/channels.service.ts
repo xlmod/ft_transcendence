@@ -234,9 +234,9 @@ export class ChannelService {
 		{
 			const channelMembers = await this.findUserListByChannel(chat);
 			const otherUser = channelMembers.members.find(member => member.id !== user.id);
-			if (otherUser.blocks.find(blockedId => blockedId === user.id) !== undefined)
+			if (otherUser.blocks && otherUser.blocks.find(blockedId => blockedId === user.id) !== undefined)
 				return null;
-			if (user.blocks.find(blockedId => blockedId === otherUser.id) !== undefined)
+			if (user.blocks && user.blocks.find(blockedId => blockedId === otherUser.id) !== undefined)
 				return null;
 		}
 		if (!chat.mute.length || chat.mute.find(id => id !== user.id)) {
