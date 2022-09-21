@@ -226,8 +226,11 @@ export class ChannelService {
 	}
 
 	async sendMsg(user: User, chat: Channel, msg: string) {
-		await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
-		return {channel: chat, msg: msg, user: user.pseudo};
+		if (chat.mute && chat.mute.find(id => id === user.id)) {
+			await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
+			return {channel: chat, msg: msg, user: user.pseudo};
+		}
+		return null;
 	}
 
 	async getMsg(chat: Channel) {
