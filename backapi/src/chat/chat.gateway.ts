@@ -352,7 +352,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody('id') id: number,
 	) {
 		let channel: Channel = await this.channelService.findById(id);
-		console.log(channel);
 		if (channel == undefined)
 			return ;
 		client.emit("autoload_room", channel.id);
