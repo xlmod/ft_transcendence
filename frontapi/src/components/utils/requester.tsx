@@ -45,6 +45,7 @@ export interface IChannel
 	members :IUser[],
 	mute :string[],
 	name :string,
+	owner :IUser,
 	password :string,
 	state :string,
 }

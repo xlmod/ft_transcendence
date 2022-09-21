@@ -224,7 +224,10 @@ export function Chat()
 									"welcome"
 								}
 							</div>
-							{ actualRoom && actualRoom?.state !== "dm" && <div id="iconSettings" onClick={ () => { setEditSettings( true ); } }> 
+							{ me && actualRoom && actualRoom.state !== "dm"
+						&& ( actualRoom.owner.id === me.id
+							|| actualRoom.admin.find( admin => admin === me.id ) )
+						&& <div id="iconSettings" onClick={ () => { setEditSettings( true ); } }> 
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
 <g>
 <path d="M51.22,21h-5.052c-0.812,0-1.481-0.447-1.792-1.197s-0.153-1.54,0.42-2.114l3.572-3.571
@@ -255,7 +258,7 @@ export function Chat()
 </g>
 </svg>
 							</div> }
-							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom} members={members} /> }
+							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom} members={members} me={me} /> }
 						</div>
 						<div id="chat-messages" ref={ msgRef }>
 							{ msglist }
