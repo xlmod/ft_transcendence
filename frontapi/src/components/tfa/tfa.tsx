@@ -15,11 +15,15 @@ export function TFA()
 	const [input, setInput] = useState("");
 	const [failed, setFailed] = useState("");
 
-	const handleOnChange = ( res: string ) => {
+	const handleOnChange = async ( res: string ) => {
 		setInput( res );
 		if( res[0] && res[1] && res[2] && res[3] && res[4] && res[5] )
 		{
-			waitPostTFACode( res );
+			const tfa = await waitPostTFACode( res );
+			if (!tfa)
+				setFailed("fail");
+			else
+				setFailed("");
 		}
 	};
 
