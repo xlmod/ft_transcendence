@@ -206,7 +206,15 @@ export function Chat()
 						{ actualRoom && actualRoom?.state === "dm" && <Button id="quit" value="delete" fontSize={0.6}
 						onClick={deleteDM} /> }
 							<div id="chat-name">
-								{ actualRoom ? actualRoom.name : "welcome" }
+								{ actualRoom ?
+									( actualRoom.state === "dm" ?
+										actualRoom.members.find(member => member.pseudo !== userData.pseudo)?.pseudo
+										:
+										actualRoom.name
+									)
+									:
+									"welcome"
+								}
 							</div>
 							{ actualRoom && actualRoom?.state !== "dm" && <div id="iconSettings" onClick={ () => { setEditSettings( true ); } }> 
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
