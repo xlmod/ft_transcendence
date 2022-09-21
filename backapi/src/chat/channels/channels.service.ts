@@ -76,7 +76,7 @@ export class ChannelService {
 			const channel = await this.findByChatName(toup.name);
 			if (channel && channel.name !== toup.name)
 				throw new BadRequestException('Channel Names already use');
-			chat.name = toup.name;
+			chat.name = toup.name.toLowerCase();
 		}
 		if (((chat.state === ChannelState.procated || chat.state === ChannelState.protected) ||
 		(toup.state && (toup.state === ChannelState.procated || toup.state === ChannelState.protected)))
@@ -108,7 +108,7 @@ export class ChannelService {
 	async createDMsg(user: User, to: User): Promise<Channel> {
 		if (user.blocks?.filter(id => id === to.id).length)
 			throw new UnauthorizedException('You have bloked this user');
-		if (to.blocks?.filter(id => id === to.id).length)
+		if (to.blocks?.filter(id => id === user.id).length)
 			throw new UnauthorizedException('This User has blocked you');
 		const ucheck = await this.findChannelsByUser(user);
 		const tocheck = await this.findChannelsByUser(to);

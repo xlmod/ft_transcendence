@@ -29,8 +29,8 @@ export class UserController {
 
 	@Get()
 	async AllUsers(): Promise<UserDto[]> {
-		// return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
-		return (await this.userService.GetUsers());
+		return (await this.userService.GetUsers()).map(user => { return new UserDto(user); });
+		// return (await this.userService.GetUsers());
 	}
 
 	// Leaderboard
@@ -76,11 +76,6 @@ export class UserController {
 	async update(@Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
 		await this.userService.update(res.locals.uuid, updata);
 	}
-
-	// @Patch(':id')
-	// async updatespe(@Param('id', new ParseUUIDPipe()) id: string, @Res({ passthrough: true }) res, @Body() updata: Partial<UpdateUserDto>): Promise<void> {
-	// 	await this.userService.update(id, updata);
-	// }
 
 	@Delete()
 	delete(@Res({ passthrough: true }) res) {

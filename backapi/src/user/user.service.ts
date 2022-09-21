@@ -55,7 +55,7 @@ export class UserService {
 	async create(data: CreateUserDto): Promise<void> {
 		const user = this.userRepository.create(data);
 		user.friends = new Array();
-		// user.blocks = new Array();
+		user.blocks = new Array();
         await this.userRepository.save(data);
 	}
 
@@ -71,6 +71,7 @@ export class UserService {
 			if (user || (user && user.pseudo !== data.pseudo)) {
 				throw new ConflictException('Pseudo already exists');
 			}
+			data.pseudo = data.pseudo.toLowerCase();
 		}
 		for (const key in data) {
 			if (data[key] !== undefined && key !== 'CreatedAt' && key !== 'UpdatedAt' && key !== 'elo'
@@ -361,5 +362,13 @@ export class UserService {
 		if (!user)
 			throw new NotFoundException('User not found');
 		return await this.matchService.FindHistoryMatch(user);
+	}
+
+	async randomRandom() {
+		const possible: string = "abcdefghijklmnopqrstuvwxyz0123456789-.-_";
+		let text: string = '';
+		for (var i = 0; i < 10; i++)
+		text += possible.charAt(Math.floor(Math.random()*possible.length));
+		return text;
 	}
 }

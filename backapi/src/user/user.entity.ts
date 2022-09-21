@@ -1,33 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
 import { Channel } from "@/chat/channels/channels.entity";
-import * as crypto from "crypto";
 
 @Entity('users')
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
 	readonly id: string
 
-	@Column({ nullable: false, })
+	@Column({ nullable: false })
 	firstName: string
 
-	@Column({ nullable: false,  })
+	@Column({ nullable: false })
 	lastName: string
 
 	@Column({ nullable: false, unique: true })
 	email: string
 
-	@Column({ nullable: true, default: null, unique: true })
+	@Column({ nullable: false, unique: true, length: 10 })
 	pseudo: string
 
-	@Column({ nullable: true, default: null})
+	@Column({ nullable: true, default: null })
 	avatar: string
-
-	// @Column({ nullable: false, })		// Maybe change  hash to password
-	// password: string
-	// @BeforeInsert()
-	// hashPassword() {
-	// 	this.password = crypto.createHmac('sha256', this.password).digest('hex');
-	// }
 
 	@Column({ nullable: false, default: 1600 })
 	elo: number
