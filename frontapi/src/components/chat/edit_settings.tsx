@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { iaxios } from "../../utils/axios";
-import { IChannel, getChannelsJoined } from '../utils/requester';
+import { IChannel, getChannelsJoined, IUser } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
@@ -12,6 +12,7 @@ import './edit_settings.css'
 interface IProps {
 	close :( update :boolean ) => void,
 	room :IChannel | null,
+	members : IUser[]
 }
 
 export function EditSettings ( props :IProps ) {
@@ -102,22 +103,22 @@ export function EditSettings ( props :IProps ) {
 				<div id="edit-settings-members-parent">
 					<h3>members</h3>
 					<div id="edit-settings-members">
-						{ props.room && props.room.members.map( member => (
+						{ props.room && props.members.map( member => (
 							<div className="members">
 								<div className="pseudo">{ member.pseudo }</div>
 								<div className="controls">
 									<Button className={`admin ${props.room?.admin.find( admin => (
-										admin.pseudo === member.pseudo ) )
+										admin.id === member.id ) )
 											? "selected" : "unselected" }`}
 										value="adm" fontSize={0.8}
 										onClick={adminChange} />
 									<Button className={`ban ${props.room?.ban.find( ban => (
-										ban.pseudo === member.pseudo ) )
+										ban.id === member.id ) )
 											? "selected" : "unselected" }`}
 										 value="ban" fontSize={0.8}
 										onClick={banChange} />
 									<Button className={`mute ${props.room?.mute.find( mute => (
-										mute.pseudo === member.pseudo ) )
+										mute.id === member.id ) )
 											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
 										onClick={muteChange} />
 								</div>
