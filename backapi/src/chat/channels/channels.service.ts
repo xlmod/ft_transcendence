@@ -114,7 +114,7 @@ export class ChannelService {
 		const tocheck = await this.findChannelsByUser(to);
 		for (const channel of ucheck)
 			for (const channel2 of tocheck)
-				if (channel.id === channel2.id)
+				if (channel.id === channel2.id && channel.state === ChannelState.dm && channel2.state === ChannelState.dm)
 					return channel;
 		return await this.channelRepository.save(this.channelRepository.create({
 			state: ChannelState.dm,
