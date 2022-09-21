@@ -15,8 +15,15 @@ export class GameService {
 
 	private userMap: Map<string, {uid: string, socket: Socket}> = new Map();
 
+	async getAccessToken(cookie: string) {
+		return cookie?.split(';').filter(cookie => {
+			if (cookie.split('=')[0] === 'access_token')
+				return cookie;
+		})[0].split('=')[1];
+	}
+
 	async addUserWithSocketId(client: Socket): Promise<User> {
-		const token = this.authService.getAccessToken(client.handshake?.headers?.cookie);
+		const token = await this.getAccessToken(client.handshake?.headers?.cookie);
 		let user = await this.authService.JwtVerify(token).catch(() => undefined);
 		if (user == undefined)
 			return undefined;

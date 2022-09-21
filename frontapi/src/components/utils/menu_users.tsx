@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { IUser, getUser, putFriend, patchBlock, getFriends, getBlocked } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
 import './menu_users.css';
+import { chat_socket } from '../../socket';
 
 
 interface IProps {
@@ -86,7 +87,8 @@ export function MenuUsers( props: IProps )
 					See profile
 				</NavLink>
 				<button
-					className="nav-users">
+					className="nav-users"
+					onClick={ () => { chat_socket.socket.emit("create-dm", {name: props.pseudo}, (response: any) => {console.log(response)}) } }>
 					Send message
 				</button>
 				<button

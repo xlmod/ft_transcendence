@@ -1,17 +1,19 @@
 import { useState } from "react";
 
 import { iaxios } from "../../utils/axios";
-import { IChannel, getChannelsJoined } from '../utils/requester';
+import { IChannel, getChannelsJoined, IUser } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
 import { ToggleSwitch } from '../utils/toggleswitch';
 
 import './edit_settings.css'
+import { chat_socket } from "../../socket";
 
 interface IProps {
 	close :( update :boolean ) => void,
 	room :IChannel | null,
+	members : IUser[]
 }
 
 export function EditSettings ( props :IProps ) {
@@ -46,17 +48,24 @@ export function EditSettings ( props :IProps ) {
 		props.close( false );
 	};
 
-	const adminChange = async() => {
+	const adminChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-admin", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
 
-	const banChange = async() => {
+	const banChange = async(member:IUser) => {
+		setTimeout(() => {
+			props.room?.ban.filter(user=>user !== member.id)
+		}, 10000);
+		chat_socket.socket.emit("toggle-ban", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
 
-	const muteChange = async() => {
+	const muteChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-mute", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
+
 
 	return (
 		<section id="edit-settings-section">
@@ -102,24 +111,24 @@ export function EditSettings ( props :IProps ) {
 				<div id="edit-settings-members-parent">
 					<h3>members</h3>
 					<div id="edit-settings-members">
-						{ props.room && props.room.members.map( member => (
+						{ props.room && props.members.map( member => (
 							<div className="members">
 								<div className="pseudo">{ member.pseudo }</div>
 								<div className="controls">
 									<Button className={`admin ${props.room?.admin.find( admin => (
-										admin.pseudo === member.pseudo ) )
+										admin === member.id ) )
 											? "selected" : "unselected" }`}
 										value="adm" fontSize={0.8}
-										onClick={adminChange} />
+										onClick={()=>adminChange(member)} />
 									<Button className={`ban ${props.room?.ban.find( ban => (
-										ban.pseudo === member.pseudo ) )
+										ban === member.id ) )
 											? "selected" : "unselected" }`}
 										 value="ban" fontSize={0.8}
-										onClick={banChange} />
+										onClick={()=>banChange(member)} />
 									<Button className={`mute ${props.room?.mute.find( mute => (
-										mute.pseudo === member.pseudo ) )
+										mute === member.id ) )
 											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
-										onClick={muteChange} />
+										onClick={()=>muteChange(member)} />
 								</div>
 							</div>
 						) ) }

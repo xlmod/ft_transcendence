@@ -17,8 +17,7 @@ import {chat_socket} from '../../socket';
 export function Chat()
 : JSX.Element
 {
-	const {checkLogin} = useAuth();
-
+	const {checkLogin, userData} = useAuth();
 	const [actualRoom, setActualRoom] = useState< IChannel | null >( null );
 	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
 	const [connectedUsers, setConnectedUsers] = useState< string[] >([]);
@@ -56,7 +55,7 @@ export function Chat()
 				return ;
 			input.value = "";
 			if (actualRoom) {
-				chat_socket.socket.emit("send-message", {name: actualRoom.name, msg: value});
+				chat_socket.socket.emit("send-message", {id: actualRoom.id, msg: value});
 			}
 		}
 	}
@@ -72,11 +71,17 @@ export function Chat()
 	};
 
 	const quitChannel = async () => {
+		chat_socket.socket.emit("leave-room", {id: actualRoom?.id});
+		setActualRoom( null );
+	};
+
+	const deleteDM = async () => {
+		chat_socket.socket.emit("quit-dm", {id: actualRoom?.id});
 		setActualRoom( null );
 	};
 
 	const reloadMsg = async (room: IChannel) => {
-		chat_socket.socket.emit("get-msg", {name: room.name}, (response: any) => {
+		chat_socket.socket.emit("get-msg", {id: room.id}, (response: any) => {
 			if (response.err)
 				return ;
 			let lstmsg: [JSX.Element | null] = [null];
@@ -91,17 +96,17 @@ export function Chat()
 	};
 
 	const reloadMembers = async (room: IChannel) => {
-		chat_socket.socket.emit("get-members", {name: room.name}, (response: any) => {
+		chat_socket.socket.emit("get-members", {id: room.id}, (response: any) => {
 			if (response.err)
 				return ;
 			setMembers(response.members);
-			console.log(response);
 			updateState({});
 		});
 
 	};
 
 	const changeRoom = async (room: IChannel) => {
+		room.members = members;
 		setActualRoom(room);
 		await reloadMsg(room);
 		await reloadMembers(room);
@@ -116,7 +121,7 @@ export function Chat()
 		chat_socket.socket.off("update_msg_list");
 		chat_socket.socket.on("update_msg_list", (channel) => {
 			console.log(actualRoom);
-			if (channel.name === actualRoom?.name) {
+			if (channel.id === actualRoom?.id) {
 				if (actualRoom)
 					reloadMsg(actualRoom);
 			}
@@ -189,19 +194,21 @@ export function Chat()
 							<ul className="chat-list">
 								{ joinedRooms.filter( hein => {
 									return hein.state === "dm" } ).map( room => (
-										<li onClick={() => {changeRoom(room)} }>{room.name}</li>
+										<li onClick={() => {changeRoom(room)} }>{room.members.find(member => member.pseudo !== userData.pseudo)?.pseudo}</li>
 								) ) }
 							</ul>
 						</div>
 					</div>
 					<div id="chat-content">
 						<div id="chat-header">
-							{ actualRoom && <Button id="quit" value="quit" fontSize={0.6}
+						{ actualRoom && actualRoom?.state !== "dm" && <Button id="quit" value="quit" fontSize={0.6}
 								onClick={quitChannel} /> }
+						{ actualRoom && actualRoom?.state === "dm" && <Button id="quit" value="delete" fontSize={0.6}
+						onClick={deleteDM} /> }
 							<div id="chat-name">
 								{ actualRoom ? actualRoom.name : "welcome" }
 							</div>
-							<div id="iconSettings" onClick={ () => { setEditSettings( true ); } }>
+							{ actualRoom && actualRoom?.state !== "dm" && <div id="iconSettings" onClick={ () => { setEditSettings( true ); } }> 
 <svg version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 54 54">
 <g>
 <path d="M51.22,21h-5.052c-0.812,0-1.481-0.447-1.792-1.197s-0.153-1.54,0.42-2.114l3.572-3.571
@@ -231,14 +238,14 @@ export function Chat()
         s7,3.141,7,7S30.859,34,27,34z"/>
 </g>
 </svg>
-							</div>
-							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom}/> }
+							</div> }
+							{ editSettings && <EditSettings close={setEditSettings} room={actualRoom} members={members} /> }
 						</div>
 						<div id="chat-messages" ref={ msgRef }>
 							{ msglist }
 						</div>
 						<form id="chat-form" onSubmit={ addMessage }>
-							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={ inRef } onChange={inputChange}/>
+							<input id="chat-form-input" type="text" autoComplete='off' name="message" placeholder="Type your message here" ref={ inRef } onChange={inputChange}/>
 							<input id="chat-form-submit" type="submit" value="Send"/>
 						</form>
 					</div>

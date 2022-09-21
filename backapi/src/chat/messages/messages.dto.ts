@@ -6,7 +6,6 @@ import { Message } from "./messages.entity";
 
 export class CreateMsgDto {
 	@IsString()
-	@IsNotEmpty()
 	message: string;
 
 	user: User;
