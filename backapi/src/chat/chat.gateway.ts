@@ -145,6 +145,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return ({err: false, data:`Channel joined!`});
 	}
 
+	@SubscribeMessage('update-channel')
+	async handleUpdateRoom(@ConnectedSocket() client: Socket, @MessageBody("id") id: string,
+	): Promise<{err: boolean, channel: Channel}> {
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channel: Channel = await this.channelService.findById(+id);
+		if (!channel)
+			return ({err: true, channel: undefined});
+		
+	}
+
 	@SubscribeMessage('leave-room')
 	async handleLeaveRoom(
 		@ConnectedSocket() client: Socket,
@@ -297,5 +307,28 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!channel)
 			return ({err: true, members: undefined});
 		return ({err: false, members: members});
+	}
+
+	@SubscribeMessage('delete-channel')
+	async handleDeleteRoom(@ConnectedSocket() client: Socket, @MessageBody("id") id: string
+	): Promise<{err: boolean, channel: Channel[]}> {
+		const channel: Channel = await this.channelService.findById(+id);
+		const user: User = await this.chatService.getUserBySocket(client);
+		if (!channel)
+			return ({err: true, channel: undefined});
+		return ({err: false, channel: await this.channelService.delete(user, channel)});
+	}
+
+	@SubscribeMessage('quit-dm')
+	async handleQuitDMsg(@ConnectedSocket() client: Socket, @MessageBody("id") id: string
+	): Promise<{err: boolean, data: string}> {
+		const channel: Channel = await this.channelService.findById(+id);
+		const user: User = await this.chatService.getUserBySocket(client);
+		const channels: Channel[] = await this.channelService.findChannelsByUser(user);
+		const match: Channel = channels.find(chat => chat.id === channel.id);
+		if (!channel || channels || !match)
+			return ({err: true, data: 'Channel not found'});
+		await this.channelService.deleteDMsg(match);
+		return ({err: false, data: 'Channel deleted !'});
 	}
 }

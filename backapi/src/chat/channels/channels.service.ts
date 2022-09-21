@@ -331,13 +331,9 @@ export class ChannelService {
 		return this.findChannelsByUser(user);
 	}
 
-	async deleteDMsg(user: User, to: User) {
-		const dms = (await this.findChannelsByUser(user))
-			.filter(chat => chat.state === ChannelState.dm);
-		const todel = dms.find(dm => (dm.members.find(u1 => u1 === user) && dm.members.find(u2 => u2 === to)))
-		if (!todel)
+	async deleteDMsg(channel: Channel): Promise<void> {
+		if (!channel)
 			throw new NotFoundException('DM not found');
-		this.channelRepository.delete(todel.id);
-		return this.findChannelsByUser(user);
+		await this.channelRepository.delete(channel.id);
 	}
 }
