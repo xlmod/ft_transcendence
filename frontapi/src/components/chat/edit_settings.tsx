@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { iaxios } from "../../utils/axios";
-import { IChannel, getChannelsJoined } from '../utils/requester';
+import { IChannel, getChannelsJoined, IUser } from '../utils/requester';
 
 import { Button } from "../utils/button";
 import { Textinput } from '../utils/textinput';
@@ -14,6 +14,7 @@ import './edit_settings.css'
 interface IProps {
 	close :( update :boolean ) => void,
 	room :IChannel | null,
+	members : IUser[]
 }
 
 export function EditSettings ( props :IProps ) {
@@ -62,34 +63,22 @@ export function EditSettings ( props :IProps ) {
 		return ;
 	};
 
-	const adminChange = ( name? :string, uid? :string, isAdmin? :boolean ) => {
-		isAdmin
-		? chat_socket.socket.emit( "unset-admin", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} )
-		: chat_socket.socket.emit( "set-admin", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} );
+	const adminChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-admin", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
+		return ;
 	};
 
-	const banChange = ( name? :string, uid? :string, isBanned? :boolean ) => {
-		isBanned
-		? chat_socket.socket.emit( "unban-user", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} )
-		: chat_socket.socket.emit( "ban-user", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} );	
+	const banChange = async(member:IUser) => {
+		setTimeout(() => {
+			props.room?.ban.filter(user=>user !== member.id)
+		}, 10000);
+		chat_socket.socket.emit("toggle-ban", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
+		return ;
 	};
 
-	const muteChange = ( name? :string, uid? :string, isMuted? :boolean ) => {
-		isMuted
-		? chat_socket.socket.emit( "unmute-user", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} )
-		: chat_socket.socket.emit( "mute-user", { name: name, uid: uid }, ( response :any ) => {
-			console.log( response.data );
-		} );		
+	const muteChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-mute", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
+		return ;
 	};
 
 	return (
@@ -153,27 +142,24 @@ export function EditSettings ( props :IProps ) {
 				<div id="edit-settings-members-parent">
 					<h3>members</h3>
 					<div id="edit-settings-members">
-						{ props.room && props.room.members.map( member => (
+						{ props.room && props.members.map( member => (
 							<div className="members">
 								<div className="pseudo">{ member.pseudo }</div>
 								<div className="controls">
 									<Button className={`admin ${props.room?.admin.find( admin => (
-										admin.pseudo === member.pseudo ) )
+										admin === member.id ) )
 											? "selected" : "unselected" }`}
 										value="adm" fontSize={0.8}
-										onClick={ () => { adminChange( props.room?.name, member.id, ( props.room?.admin.find( admin => (
-											admin.pseudo === member.pseudo ) ) )?true:false ) } }/>
+										onClick={()=>adminChange(member)} />
 									<Button className={`ban ${props.room?.ban.find( ban => (
-										ban.pseudo === member.pseudo ) )
+										ban === member.id ) )
 											? "selected" : "unselected" }`}
 										 value="ban" fontSize={0.8}
-										onClick={ () => { banChange( props.room?.name, member.id, ( props.room?.ban.find( ban => (
-											ban.pseudo === member.pseudo ) ) )?true:false ) } } />
+										onClick={()=>banChange(member)} />
 									<Button className={`mute ${props.room?.mute.find( mute => (
-										mute.pseudo === member.pseudo ) )
+										mute === member.id ) )
 											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
-										onClick={ () => { muteChange( props.room?.name, member.id, ( props.room?.mute.find( mute => (
-											mute.pseudo === member.pseudo ) ) )?true:false ) } } />
+										onClick={()=>muteChange(member)} />
 								</div>
 							</div>
 						) ) }

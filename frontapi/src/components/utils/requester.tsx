@@ -37,11 +37,13 @@ export interface IMatchHistory
 
 export interface IChannel
 {
-	admin :IUser[],
-	ban :IUser[],
+	CreatedAt :string,
+	UpdatedAt :string,
+	admin :string[],
+	ban :string[],
 	id :number,
 	members :IUser[],
-	mute :IUser[],
+	mute :string[],
 	name :string,
 	password :string,
 	state :string,
@@ -59,7 +61,7 @@ export async function getAllUsers()
 : Promise< IUser[] >
 {
 	return await iaxios.get( '/user/' )
-		.then( data => { console.log( "all users" ); console.log( data.data ); return data.data; } )
+		.then( data => { return data.data; } )
 		.catch( error => { console.log( error ); return; } );
 }
 

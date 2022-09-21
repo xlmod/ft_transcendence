@@ -21,7 +21,7 @@ export class ChannelDto {
 	name?: string
 	admin: string[]
 	mute: string[]
-	ban: bantime[]
+	ban: string[]
 	state: ChannelState
 	password?: string
 	owner?: User

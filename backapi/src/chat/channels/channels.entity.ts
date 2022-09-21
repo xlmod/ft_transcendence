@@ -17,8 +17,8 @@ export class Channel {
 	@Column('uuid', { array: true, default: [] })
 	mute: string[]
 
-	@Column('json', { array: true, default: [] })
-	ban: bantime[]
+	@Column('uuid', { array: true, default: [] })
+	ban: string[]
 
 	@Column({ nullable: false, default: ChannelState.public })
 	state: ChannelState

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 
-import { AuthContext } from '../../services/auth.service';
+import { AuthContext, useAuth } from '../../services/auth.service';
 import { IUser, getFriends, getBlocked, getUser } from './requester';
 import { MenuUsers } from './menu_users';
 import {game_socket} from '../../socket';
@@ -18,11 +18,14 @@ interface IProps {
 
 export function Pseudo( props: IProps )
 {
-	const {checkLogin} = useContext( AuthContext );
+	const {checkLogin} = useAuth();
 	const [isFocus, setFocus] = useState( false );
 	const [status, setStatus] = useState<string>("");
 
-	const pseudoUUID = window.crypto.randomUUID();
+	
+	const rnd = new Uint8Array(18);
+	window.crypto.getRandomValues(rnd);
+	const pseudoUUID = rnd.join("");
 
 	useEffect(() => {
 		game_socket.socket.on(`update_${pseudoUUID}`, async () => {
