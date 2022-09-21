@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import { IUser, getUser, putFriend, patchBlock, getFriends, getBlocked } from '../utils/requester';
 import { Gameinvite } from '../game/gameinvite';
@@ -21,6 +21,8 @@ export function MenuUsers( props: IProps )
 	const [_isBlocked, setBlocked] = useState< boolean >( false );
 	const [editFriend, setEditFriend] = useState< boolean >( false );
 	const [editBlock, setEditBlock] = useState< boolean >( false );
+
+	const navigate = useNavigate();
 
 	const waitMe = async () => {
 		const _me :IUser = await getUser("");
@@ -88,7 +90,7 @@ export function MenuUsers( props: IProps )
 				</NavLink>
 				<button
 					className="nav-users"
-					onClick={ () => { chat_socket.socket.emit("create-dm", {name: props.pseudo}, (response: any) => {console.log(response)}) } }>
+					onClick={ () => { chat_socket.socket.emit("create-dm", {name: props.pseudo}, (response: any) => {if (!response.err) {chat_socket.socket.emit("autoload-room", {dm: true, id: response.channel_id}) ; navigate("/chat")}}) } }>
 					Send message
 				</button>
 				<button
