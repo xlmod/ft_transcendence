@@ -10,12 +10,12 @@ export interface AuthState {
     isTFA: boolean,
 	isLoggedIn : boolean,
 	checkLogin : any,
-	waitPostTFACode: any,
+	waitPostTFACode: ( _code :string )=>Promise<boolean>,
 	logout : any
 }
 
 export const AuthContext:any = React.createContext<AuthState|null>(null);
-export const useAuth: any = () => useContext(AuthContext);
+export const useAuth = ():AuthState => useContext(AuthContext);
 
 export class AuthProvider extends Component<PropsWithChildren, AuthState> {
 	constructor(props: any) {
@@ -98,6 +98,9 @@ export class AuthProvider extends Component<PropsWithChildren, AuthState> {
 	waitPostTFACode = async( _code :string ) => {
 		const _auth :boolean = await postTFACode( _code );
 		this.setState( {isTFA : !_auth, isLoggedIn: _auth} );
+		if (!_auth)
+			return false;
+		return true;
 	};
 
     render() {

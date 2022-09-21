@@ -46,7 +46,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
 			try {
-				const token = await this.authService.getAccessToken(socket.handshake.headers?.cookie);
+				const token = this.authService.getAccessToken(socket.handshake.headers?.cookie);
 				const user = await this.authService.JwtVerify(token);
 				const newSet: Set<Socket> = this.users.get(user.id) || new Set<Socket>();
 				newSet.add(socket);
@@ -182,14 +182,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleUpdateRoom(
 		@ConnectedSocket() client: Socket, 
 		@MessageBody("id") id: string,
-		@MessageBody("updata") updata: Partial<ChannelUpateDto>
+		@MessageBody("name") name: string,
+		@MessageBody("state") state: string,
+		@MessageBody("password") password: string | null,
 	): Promise<{err: boolean, channel: Channel}> {
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!channel)
 			return ({err: true, channel: undefined});
-		await this.channelService.update(user, channel, updata);
+		if (state !== "public"
+			&& state !== "private"
+			&& state !== "protected"
+			&& state !== "procated")
+			return ({err: true, channel: undefined});
+		await this.channelService.update(user, channel, {name: name, state: state as ChannelState, password:password});
 		this.server.in(`${channel.id}`).emit("update_room_list");
+		return ({err: false, channel: channel});
 	}
 
 	@SubscribeMessage('leave-room')
@@ -242,7 +250,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!(await this.channelService.banUser(user, target, channel)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
-		this.server.in(`${channel.id}`).emit("update_room", channel);
+		this.users.get(user.id).forEach((socket)=>{
+			socket.emit("update_room_list");
+		});
+		this.server.in(`${channel.id}`).emit("update_members_list");
 		return ({err:false, data: `User banned!`});
 	}
 

@@ -17,7 +17,7 @@ import {chat_socket} from '../../socket';
 export function Chat()
 : JSX.Element
 {
-	const {checkLogin, userData} = useAuth();
+	const {checkLogin} = useAuth();
 	const [actualRoom, setActualRoom] = useState< IChannel | null >( null );
 	const [joinedRooms, setJoinedRooms] = useState< IChannel[] >([]);
 	const [connectedUsers, setConnectedUsers] = useState< string[] >([]);
@@ -226,7 +226,7 @@ export function Chat()
 							<ul className="chat-list">
 								{ joinedRooms.filter( hein => {
 									return hein.state === "dm" } ).map( room => (
-										<li onClick={() => {changeRoom(room)} }>{room.members.find(member => member.pseudo !== userData.pseudo)?.pseudo}</li>
+										<li onClick={() => {changeRoom(room)} }>{room.members.find(member => member.pseudo !== me?.pseudo)?.pseudo}</li>
 								) ) }
 							</ul>
 						</div>

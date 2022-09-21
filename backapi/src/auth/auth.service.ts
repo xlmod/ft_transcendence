@@ -12,7 +12,7 @@ export class AuthService {
 	  private jwtService: JwtService,
   ) {}
 
-	async login(user: CreateUserDto): Promise<User> {
+	async loginGuest(user: CreateUserDto): Promise<User> {
 		try {
 			await this.userService.findByEmail(user.email);
 		} catch(error) {
@@ -22,11 +22,13 @@ export class AuthService {
 		}
 	}
 
-	// For Later
-	async login42(user: CreateUserDto): Promise<User> {
+	async login(user: CreateUserDto): Promise<User> {
 		try {
 			await this.userService.findByEmail(user.email);
 		} catch(error) {
+			const users = await this.userService.GetUsers();
+			if (users.find(curr => curr.pseudo === user.pseudo))
+				user.pseudo = await this.userService.randomRandom();
 			await this.userService.create(user);
 			const { id, avatar } = await this.userService.findByEmail(user.email);
 			download(avatar, id);
@@ -47,18 +49,16 @@ export class AuthService {
 	}
 
 	getAccessToken(cookiestring: string): string {
-		if (!cookiestring)
-			return undefined;
-		const cookies = cookiestring.split(';')?.map((cookie) => cookie.trimStart().split('='));
+		const cookies = cookiestring?.split(';')?.map((cookie) => cookie.trimStart().split('='));
 		if (!cookies)
 			return undefined;
 		const token = cookies.filter(cookie => {
 			if (cookie[0] === 'access_token')
 				return true;
 			return false;
-		})[0];
+		});
 		if (!token)
 			return undefined;
-		return token[1];
+		return token[0][1];
 	}
 }
