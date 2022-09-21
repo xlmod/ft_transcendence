@@ -68,9 +68,10 @@ export class UserService {
 		}
 		if (data.pseudo) {
 			const user = await this.findByPseudo(data.pseudo);
-			if (user || (user && user.pseudo !== data.pseudo)) {
+			if (user || (user && user.pseudo !== data.pseudo))
 				throw new ConflictException('Pseudo already exists');
-			}
+			if (data.pseudo.length > 10)
+				throw new BadRequestException('Pseudo too large');
 			data.pseudo = data.pseudo.toLowerCase();
 		}
 		for (const key in data) {

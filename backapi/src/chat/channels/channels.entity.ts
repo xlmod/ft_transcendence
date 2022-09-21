@@ -8,7 +8,7 @@ export class Channel {
 	@PrimaryGeneratedColumn()
 	readonly id: number
 
-	@Column({ nullable: true, unique: true, default: null, length: 15 })
+	@Column({ nullable: true, unique: true, default: null })
 	name: string
 
 	@Column('uuid', { array: true, default: [] })
