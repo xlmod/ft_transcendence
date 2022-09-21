@@ -194,7 +194,7 @@ export function Chat()
 							<ul className="chat-list">
 								{ joinedRooms.filter( hein => {
 									return hein.state === "dm" } ).map( room => (
-										<li onClick={() => {changeRoom(room)} }>{room.members.find(member => member.pseudo === userData.pseudo)?.pseudo}</li>
+										<li onClick={() => {changeRoom(room)} }>{room.members.find(member => member.pseudo !== userData.pseudo)?.pseudo}</li>
 								) ) }
 							</ul>
 						</div>

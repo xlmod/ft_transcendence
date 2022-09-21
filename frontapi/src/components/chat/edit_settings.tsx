@@ -8,6 +8,7 @@ import { Textinput } from '../utils/textinput';
 import { ToggleSwitch } from '../utils/toggleswitch';
 
 import './edit_settings.css'
+import { chat_socket } from "../../socket";
 
 interface IProps {
 	close :( update :boolean ) => void,
@@ -48,6 +49,7 @@ export function EditSettings ( props :IProps ) {
 	};
 
 	const adminChange = async() => {
+		// chat_socket.socket.emit("set-admin", {})
 		return ;
 	};
 

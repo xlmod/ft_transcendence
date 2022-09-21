@@ -18,7 +18,15 @@ export class ChatController {
 	@Get('all')
 	async getAllRoom(@Res({ passthrough: true }) res: Response) {
 		const user: User = await this.userService.findById(res.locals.uuid);
-		const channels = await this.channelService.findChannelsByUser(user);
+		let channels =  (await this.channelService.findChannelsByUser(user));
+		let i=0;
+		for (const chat of channels)
+		{
+			let tmp = (await this.channelService.findUserListByChannel(chat));
+			if (chat.state === ChannelState.dm)
+				channels[i] =  tmp;
+			++i;
+		}
 		if (!user || !channels)
 			throw new NotFoundException('User or Channel not found in db');
 		return channels;

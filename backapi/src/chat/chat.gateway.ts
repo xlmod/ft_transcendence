@@ -193,11 +193,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('ban-user')
 	async handleBanUser(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.banUser(channel, user, target)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
@@ -208,11 +208,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('unban-user')
 	async handleUnbanUser(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unbanUser(channel, user, target)))
 			return ({err: true, data:`You can't unban this user from the channel!`});
@@ -223,11 +223,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('set-admin')
 	async handleSetAdmin(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.setAdmin(channel, user, target)))
 			return ({err: true, data:`You can't set the user admin on this channel!`});
@@ -238,11 +238,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('unset-admin')
 	async handleUnsetAdmin(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unsetAdmin(channel, user, target)))
 			return ({err: true, data:`You can't unset the user admin on this channel!`});
@@ -253,11 +253,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('mute-user')
 	async handleMuteUser(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.muteUser(channel, user, target)))
 			return ({err: true, data:`You can't mute the user on this channel!`});
@@ -268,11 +268,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('unmute-user')
 	async handleUnmuteUser(
 		@ConnectedSocket() client: Socket,
-		@MessageBody("name") name: string,
+		@MessageBody("id") id: string,
 		@MessageBody("uid") uid: string,
 	): Promise<{err: boolean, data: string}> {
 		const user: User = await this.chatService.getUserBySocket(client);
-		const channel: Channel = await this.channelService.findByChatName(name);
+		const channel: Channel = await this.channelService.findById(+id);
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.chatService.unmuteUser(channel, user, target)))
 			return ({err: true, data:`You can't unmute the user on this channel!`});
