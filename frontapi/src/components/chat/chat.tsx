@@ -71,6 +71,12 @@ export function Chat()
 	};
 
 	const quitChannel = async () => {
+		chat_socket.socket.emit("leave-room", {name: actualRoom?.name});
+		setActualRoom( null );
+	};
+
+	const deleteDM = async () => {
+		
 		setActualRoom( null );
 	};
 
@@ -198,8 +204,10 @@ export function Chat()
 					</div>
 					<div id="chat-content">
 						<div id="chat-header">
-							{ actualRoom && <Button id="quit" value="quit" fontSize={0.6}
+						{ actualRoom && actualRoom?.state !== "dm" && <Button id="quit" value="quit" fontSize={0.6}
 								onClick={quitChannel} /> }
+						{ actualRoom && actualRoom?.state === "dm" && <Button id="quit" value="delete" fontSize={0.6}
+						onClick={deleteDM} /> }
 							<div id="chat-name">
 								{ actualRoom ? actualRoom.name : "welcome" }
 							</div>

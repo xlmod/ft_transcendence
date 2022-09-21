@@ -4,7 +4,7 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { bantime, ChannelState } from "../models/status.enums";
-import { ChannelDto, ChannelUpateDto, CreateChannelDto } from "./channels.dto";
+import { ChannelUpateDto, CreateChannelDto } from "./channels.dto";
 import { Channel } from "./channels.entity";
 import * as bcrypt from 'bcrypt';
 import { MessageService } from "../messages/messages.service";
@@ -45,6 +45,8 @@ export class ChannelService {
 	}
 
 	async findChannelsByUser(user: User): Promise<Channel[]> {
+		if (!user)
+			return [];
 		const id = user.id;
 		const chats = await this.channelRepository
 				.createQueryBuilder('channels')
@@ -54,23 +56,17 @@ export class ChannelService {
 		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
 	}
 
-	async findChannelsObjByUser(user: User): Promise<Channel[]> {
-		const id = user.id;
-		const chats = await this.channelRepository
+	async findUserListByChannel(chat: Channel) {
+		if (!chat)
+			return null;
+		const id = chat.id;
+		return (await this.channelRepository
 				.createQueryBuilder('channels')
 				.leftJoinAndSelect('channels.members', 'users')
-				.where('users.id = :id', {id})
-				.getMany();
-		return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
+				.where('channels.id = :id', {id})
+				.getMany()
+			).find(wllh => wllh.id === chat.id);
 	}
-
-	// async findChatInfoByUser(user: User): Promise<Channel[]> {
-	// 	const chats = await this.channelRepository.find({
-	// 		relations: ['members'],
-	// 		where: { members: user },
-	// 	}).catch(() => {return new Array()});
-	// 	return chats.sort((a, b) => {return b.UpdatedAt.getTime() - a.UpdatedAt.getTime()});
-	// }
 
 	async update(owner: User, chat: Channel, toup: Partial<ChannelUpateDto>) {
 		if (!owner || !chat)
@@ -104,15 +100,16 @@ export class ChannelService {
 			...channel,
 			owner: user,
 			messages: new Array(),
-			members: [user],
+			members: new Array(),
 		});
+		chat.members.push(user);
 		return await this.channelRepository.save(chat);
 	}
 
 	async createDMsg(user: User, to: User): Promise<Channel> {
-		if (user.blocks.filter(id => id === to.id).length)
+		if (user.blocks?.filter(id => id === to.id).length)
 			throw new UnauthorizedException('You have bloked this user');
-		if (to.blocks.filter(id => id === to.id).length)
+		if (to.blocks?.filter(id => id === to.id).length)
 			throw new UnauthorizedException('This User has blocked you');
 		return await this.channelRepository.save(this.channelRepository.create({
 			state: ChannelState.dm,
@@ -124,8 +121,8 @@ export class ChannelService {
 	async joinChannel(toadd: User, chat: Channel, password?: string): Promise<Channel> {
 		if (!toadd || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
-		const there = channel.members.find(curr => curr === toadd);
+		const channel = (await this.findUserListByChannel(chat));
+		const there = channel.members.find(curr => curr.id === toadd.id);
 		if (there && channel.state === ChannelState.dm)
 			return channel;
 		if (channel.state === ChannelState.protected || channel.state === ChannelState.procated) {
@@ -146,37 +143,37 @@ export class ChannelService {
 	async leaveChannel(toleave: User, chat: Channel) {
 		if (!toleave || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		channel.members = channel.members.filter(user => toleave.id !== user.id);
-		if (!channel.members) {
-			await this.delete(channel.owner, channel);
+		if (!channel.members.length) {
+			await this.delete(chat.owner, channel);
 			return null;
 		}
-		if (toleave === channel.owner) {
+		if (toleave.id === chat.owner.id) {
 			for (const user of channel.members) {
 				const isBan: boolean = (channel.ban && !channel.ban.find(banned => banned.uuid === user.id));
 				if (isBan) {
 					channel.owner = user;
 				}
-				if (channel.admin && (!isBan || !channel.ban)) {
+				if (channel.admin.length && (!isBan || !channel.ban)) {
 					channel.owner = user;
 					break ;
 				}
 			}
-			if (channel.owner === toleave) {
+			if (chat.owner.id === toleave.id) {
 				channel.owner = channel.members[0];
 				channel.mute = channel.mute.filter(id => id !== channel.members[0].id);
 				channel.ban = channel.ban.filter(banned => banned.uuid !== channel.members[0].id);
 			}
 		}
-		if (channel.admin)
+		if (channel.admin.length)
 			channel.admin = channel.admin.filter(id => id !== toleave.id);
 		return await this.channelRepository.save(channel);
 	}
 
-	async getUserList(chat: Channel) {
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
-		return channel.members.map(user => new UserDto(user));
+	async getMembersChannel(chat: Channel) {
+		const channel = (await this.findUserListByChannel(chat));
+		return channel.members;
 	}
 
 	async getAdminList(chat: Channel) {
@@ -206,7 +203,7 @@ export class ChannelService {
 	async setAdmin(from: User, toadmin: User, chat: Channel) {
 		if (!from || !toadmin || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === toadmin))
 			throw new NotFoundException('This user is not there');
 		const isAdmin = channel.admin.find(id => id === toadmin.id);
@@ -224,7 +221,7 @@ export class ChannelService {
 	async unsetAdmin(from: User, unset: User, chat: Channel) {
 		if (!from || !unset || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === unset))
 			throw new NotFoundException('This user is not there');
 		const isAdmin = channel.admin.find(id => id === unset.id);
@@ -238,14 +235,21 @@ export class ChannelService {
 		return await this.channelRepository.save(channel);
 	}
 
-	async sendMsg(user: User, chat: Channel, msg: CreateMsgDto) {
-		
+	async sendMsg(user: User, chat: Channel, msg: string) {
+		await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
+		return {channel: chat, msg: msg, user: user.pseudo};
+	}
+
+	async getMsg(chat: Channel) {
+		try {
+			return await this.messageService.getAllMsgByChannel(chat);
+		} catch(e) { throw e; }
 	}
 
 	async muteUser(from: User, tomute: User, chat: Channel) {
 		if (!from || !tomute || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === tomute))
 			throw new NotFoundException('This user is not there');
 		if (channel.owner === tomute)
@@ -261,7 +265,7 @@ export class ChannelService {
 	async unmuteUser(from: User, tofree: User, chat: Channel) {
 		if (!from || !tofree || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === tofree))
 			throw new NotFoundException('This user is not there');
 		if (!channel.mute.find(id =>  id === tofree.id))
@@ -277,7 +281,7 @@ export class ChannelService {
 	async banUser(from: User, toban: User, chat: Channel, until: Date) {
 		if (!from || !toban || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === toban))
 			throw new NotFoundException('This user is not there');
 		if (channel.owner === toban)
@@ -287,7 +291,7 @@ export class ChannelService {
 		if (channel.ban.find(ban => ban.uuid === toban.id))
 			throw new UnauthorizedException('Already banned');
 		const since = new Date;
-		channel.ban.push({uuid: toban.id, since: since, until: until } as bantime);
+		channel.ban.push({uuid: toban.id, since: since, until: new Date(since.getTime() + 30*60000) } as bantime);
 		setTimeout(async () => {
 			channel.ban = channel.ban.filter(user => user.uuid !== toban.id);
 			await this.channelRepository.save(channel);
@@ -298,7 +302,7 @@ export class ChannelService {
 	async unbanUser(from: User, unban: User, chat: Channel) {
 		if (!from || !unban || !chat)
 			throw new NotFoundException('User or Channel not found');
-		const channel = (await this.findChannelsByUser(chat.owner)).find(wllh => wllh.id === chat.id);
+		const channel = (await this.findUserListByChannel(chat));
 		if (!channel.members.find(user =>  user === unban))
 			throw new NotFoundException('This user is not there');
 		if (channel.owner === unban)
@@ -330,12 +334,5 @@ export class ChannelService {
 			throw new NotFoundException('DM not found');
 		this.channelRepository.delete(todel.id);
 		return this.findChannelsByUser(user);
-	// 	const dm = await this.channelRepository.findOne({
-	// 		relations: ['users'],
-	// 		where: {
-	// 			users: user, to,
-	// 			state: ChannelState.dm,
-	// 		},
-	// 	});  // to test later
 	}
 }
