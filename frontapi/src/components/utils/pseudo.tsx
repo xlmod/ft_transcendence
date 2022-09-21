@@ -22,7 +22,11 @@ export function Pseudo( props: IProps )
 	const [isFocus, setFocus] = useState( false );
 	const [status, setStatus] = useState<string>("");
 
-	const pseudoUUID = window.crypto.randomUUID();
+	
+	const rnd = new Uint8Array(18);
+	window.crypto.getRandomValues(rnd);
+	const pseudoUUID = rnd.join("");
+	console.log(pseudoUUID)
 
 	useEffect(() => {
 		game_socket.socket.on(`update_${pseudoUUID}`, async () => {

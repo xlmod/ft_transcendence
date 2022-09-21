@@ -30,9 +30,14 @@ export function Chat()
 	const [joinRoom, setJoinRoom] = useState< boolean >( false );
 	const [editSettings, setEditSettings] = useState< boolean >( false );
 	const [me, setMe] = useState<IUser>();
+	const [members, setMembers] = useState< IUser[] >([]);
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
+
+	const rnd = new Uint8Array(18);
+	window.crypto.getRandomValues(rnd);
+	const pseudoUUID = rnd.join("");
 
 	const inputChange = (event: any) => {
 		let value: string = event.target.value;
@@ -51,7 +56,6 @@ export function Chat()
 				return ;
 			input.value = "";
 			if (actualRoom) {
-				console.log(actualRoom);
 				chat_socket.socket.emit("send-message", {name: actualRoom.name, msg: value});
 			}
 		}
@@ -86,14 +90,38 @@ export function Chat()
 		});
 	};
 
+	const reloadMembers = async (room: IChannel) => {
+		chat_socket.socket.emit("get-members", {name: room.name}, (response: any) => {
+			if (response.err)
+				return ;
+			setMembers(response.members);
+			console.log(response);
+			updateState({});
+		});
+
+	};
+
 	const changeRoom = async (room: IChannel) => {
 		setActualRoom(room);
 		await reloadMsg(room);
+		await reloadMembers(room);
+		updateState({});
 	};
 
 	const getMyUser = async () => {
 		setMe(await getUser(""));
 	};
+
+	useEffect( () => {
+		chat_socket.socket.off("update_msg_list");
+		chat_socket.socket.on("update_msg_list", (channel) => {
+			console.log(actualRoom);
+			if (channel.name === actualRoom?.name) {
+				if (actualRoom)
+					reloadMsg(actualRoom);
+			}
+		});
+	}, [actualRoom] );
 
 	useEffect( () => {
 	checkLogin();
@@ -108,18 +136,12 @@ export function Chat()
 
 	useEffect( () => {
 
-		chat_socket.socket.on("update_msg_list", (channel) => {
-			if (channel.name === actualRoom?.name) {
-				if (actualRoom)
-					reloadMsg(actualRoom);
-			}
-		});
-
+		
 		chat_socket.socket.on("update_room_list", () => {
 			waitChannelsJoined();
 		});
 
-		game_socket.socket.on( "update_userstatus_reload", async () => {
+		game_socket.socket.on(`update_${pseudoUUID}`, async () => {
 			const allUsers = await getAllUsers();
 			let _arrayConnected :string[] = [];
 			let _connected :IUser;
@@ -131,12 +153,12 @@ export function Chat()
 			setConnectedUsers( _arrayConnected );
 		} );
 
-		game_socket.socket.emit( "get_update_status" );
+		game_socket.socket.emit("get_update_status", {uuid: pseudoUUID});
 		getMyUser();
 
 		return () => {
-			game_socket.socket.off( "update_userstatus_reload" );
-			chat_socket.socket.off("update_msg_list");
+			game_socket.socket.emit("remove_update_status", {uuid: pseudoUUID});
+			game_socket.socket.off(`update_${pseudoUUID}`);
 			chat_socket.socket.off("update_room_list");
 		};
 	}, [] );
@@ -243,7 +265,7 @@ export function Chat()
 							<div className="chat-title">Members</div>
 							<ul className="chat-list" >
 								{ actualRoom &&
-									actualRoom.members.map( member => (
+									members.map( member => (
 										<Pseudo pseudo={ member.pseudo?member.pseudo:"undefined" }
 											isDeleted={false}
 											pseudoClassName="members" menuClassName="menu-members" />
