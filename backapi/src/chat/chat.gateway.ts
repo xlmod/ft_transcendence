@@ -206,7 +206,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!(await this.channelService.banUser(user, target, channel)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
-		this.server.in(`${channel.id}`).emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_room", channel);
 		return ({err:false, data: `User banned!`});
 	}
 
@@ -221,7 +221,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target: User = await this.userService.findById(uid);
 		if (!(await this.channelService.manageAdmin(user, target, channel)))
 			return ({err: true, data:`You can't set the user admin on this channel!`});
-		this.server.in(`${channel.id}`).emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_room", channel);
 		return ({err:false, data: `User set admin!`});
 	}
 
@@ -236,7 +236,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!(await this.channelService.muteUser(user, target, channel)))
 			return ({err: true, data:`You can't mute the user on this channel!`});
-		this.server.in(`${channel.id}`).emit("update_room_list");
+		this.server.in(`${channel.id}`).emit("update_room", channel);
 		return ({err:false, data: `User mutted!`});
 	}
 

@@ -245,7 +245,7 @@ export function Chat()
 							{ msglist }
 						</div>
 						<form id="chat-form" onSubmit={ addMessage }>
-							<input id="chat-form-input" type="text" name="message" placeholder="Type your message here" ref={ inRef } onChange={inputChange}/>
+							<input id="chat-form-input" type="text" autoComplete='off' name="message" placeholder="Type your message here" ref={ inRef } onChange={inputChange}/>
 							<input id="chat-form-submit" type="submit" value="Send"/>
 						</form>
 					</div>

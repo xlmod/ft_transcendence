@@ -28,6 +28,7 @@ export function Textinput(props: IProps) {
 			placeholder={props.placeholder}
 			value={props.value}
 			type={props.type?props.type:"text"}
+			autoComplete="off"
 		/>
 	);
 }

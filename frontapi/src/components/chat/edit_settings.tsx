@@ -48,18 +48,24 @@ export function EditSettings ( props :IProps ) {
 		props.close( false );
 	};
 
-	const adminChange = async() => {
-		// chat_socket.socket.emit("set-admin", {})
+	const adminChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-admin", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
 
-	const banChange = async() => {
+	const banChange = async(member:IUser) => {
+		setTimeout(() => {
+			props.room?.ban.filter(user=>user !== member.id)
+		}, 10000);
+		chat_socket.socket.emit("toggle-ban", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
 
-	const muteChange = async() => {
+	const muteChange = async(member:IUser) => {
+		chat_socket.socket.emit("toggle-mute", {id:props.room?.id, uid: member.id}, (response: any) => {console.log(response)});
 		return ;
 	};
+
 
 	return (
 		<section id="edit-settings-section">
@@ -110,19 +116,19 @@ export function EditSettings ( props :IProps ) {
 								<div className="pseudo">{ member.pseudo }</div>
 								<div className="controls">
 									<Button className={`admin ${props.room?.admin.find( admin => (
-										admin.id === member.id ) )
+										admin === member.id ) )
 											? "selected" : "unselected" }`}
 										value="adm" fontSize={0.8}
-										onClick={adminChange} />
+										onClick={()=>adminChange(member)} />
 									<Button className={`ban ${props.room?.ban.find( ban => (
-										ban.id === member.id ) )
+										ban === member.id ) )
 											? "selected" : "unselected" }`}
 										 value="ban" fontSize={0.8}
-										onClick={banChange} />
+										onClick={()=>banChange(member)} />
 									<Button className={`mute ${props.room?.mute.find( mute => (
-										mute.id === member.id ) )
+										mute === member.id ) )
 											? "selected" : "unselected" }`} value="mut" fontSize={0.8}
-										onClick={muteChange} />
+										onClick={()=>muteChange(member)} />
 								</div>
 							</div>
 						) ) }

@@ -136,9 +136,9 @@ export class ChannelService {
 				throw new UnauthorizedException('Wrong password');
 		}
 		if (there) {
-			const isBan: bantime = channel.ban.find(uid => {return (uid.uuid === toadd.id && uid.until.getTime() > Date.now())});
+			const isBan: string = channel.ban.find(uid => {return (uid === toadd.id);});
 			if (isBan)
-				throw new UnauthorizedException(`You were ban until ${isBan.until}`);
+				throw new UnauthorizedException(`You are banned`);
 			return channel;
 		}
 		channel.members.push(toadd);
@@ -156,7 +156,7 @@ export class ChannelService {
 		}
 		if (toleave.id === chat.owner.id) {
 			for (const user of channel.members) {
-				const isBan: boolean = (channel.ban && !channel.ban.find(banned => banned.uuid === user.id));
+				const isBan: boolean = (channel.ban && !channel.ban.find(banned => banned === user.id));
 				if (isBan) {
 					channel.owner = user;
 				}
@@ -168,7 +168,7 @@ export class ChannelService {
 			if (chat.owner.id === toleave.id) {
 				channel.owner = channel.members[0];
 				channel.mute = channel.mute.filter(id => id !== channel.members[0].id);
-				channel.ban = channel.ban.filter(banned => banned.uuid !== channel.members[0].id);
+				channel.ban = channel.ban.filter(banned => banned !== channel.members[0].id);
 			}
 		}
 		if (channel.admin.length)
@@ -201,7 +201,7 @@ export class ChannelService {
 		let ret = new Array();
 		if (chat.ban.length)
 			for (const ban of chat.ban)
-				ret.push(await this.userService.findById(ban.uuid));
+				ret.push(await this.userService.findById(ban));
 		return ret;
 	}
 
@@ -226,7 +226,7 @@ export class ChannelService {
 	}
 
 	async sendMsg(user: User, chat: Channel, msg: string) {
-		if (chat.mute && chat.mute.find(id => id === user.id)) {
+		if (!chat.mute.length || chat.mute.find(id => id !== user.id)) {
 			await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
 			return {channel: chat, msg: msg, user: user.pseudo};
 		}
@@ -267,15 +267,14 @@ export class ChannelService {
 			throw new UnauthorizedException('You cannot ban the owner from his channel');
 		if (from.id !== chat.owner.id && !channel.admin.find(id => id === from.id))
 			throw new UnauthorizedException('Only Owner or Admin can ban');
-		if (channel.ban.find(ban => ban.uuid === toban.id)) {
-			channel.ban = channel.ban.filter(user => user.uuid !== toban.id);
+		if (channel.ban.find(ban => ban === toban.id)) {
+			channel.ban = channel.ban.filter(user => user !== toban.id);
 			return await this.channelRepository.save(channel);
 		}
-		const since = new Date;
-		const until = 30*60000;
-		channel.ban.push({uuid: toban.id, since: since, until: new Date(since.getTime() + until) } as bantime);
+		const until = 10000;
+		channel.ban.push(toban.id)
 		setTimeout(async () => {
-			channel.ban = channel.ban.filter(user => user.uuid !== toban.id);
+			channel.ban = channel.ban.filter(user => user !== toban.id);
 			await this.channelRepository.save(channel);
 		}, until);
 		return await this.channelRepository.save(channel);
