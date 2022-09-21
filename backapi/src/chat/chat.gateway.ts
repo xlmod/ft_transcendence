@@ -46,7 +46,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	afterInit(server: Server) {
 		server.use(async (socket, next) => {
 			try {
-				const token = await this.authService.getAccessToken(socket.handshake.headers?.cookie);
+				const token = this.authService.getAccessToken(socket.handshake.headers?.cookie);
 				const user = await this.authService.JwtVerify(token);
 				const newSet: Set<Socket> = this.users.get(user.id) || new Set<Socket>();
 				newSet.add(socket);
@@ -242,7 +242,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!(await this.channelService.banUser(user, target, channel)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
-		this.server.in(`${channel.id}`).emit("update_room", channel);
+		this.users.get(user.id).forEach((socket)=>{
+			socket.emit("update_room_list");
+		});
+		this.server.in(`${channel.id}`).emit("update_members_list");
 		return ({err:false, data: `User banned!`});
 	}
 

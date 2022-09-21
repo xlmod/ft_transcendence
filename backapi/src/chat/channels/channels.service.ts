@@ -76,6 +76,8 @@ export class ChannelService {
 			const channel = await this.findByChatName(toup.name);
 			if (channel && channel.name !== toup.name)
 				throw new BadRequestException('Channel Names already use');
+			if (toup.name.length > 15)
+				throw new BadRequestException('Pseudo too large');
 			chat.name = toup.name.toLowerCase();
 		}
 		if (((chat.state === ChannelState.procated || chat.state === ChannelState.protected) ||
@@ -83,8 +85,10 @@ export class ChannelService {
 		&& toup.password) {
 			if (toup.password === '' || toup.password === null || toup.password === undefined)
 				throw new BadRequestException('Password cannot empty');
-			chat.password = toup.password;
+			chat.password = await bcrypt.hash(toup.password, 10);
 		}
+		if (toup.state)
+			chat.state = toup.state;
 		// chat.UpdatedAt = new Date();
 		await this.channelRepository.update(chat.id, chat);
 	}
@@ -282,6 +286,7 @@ export class ChannelService {
 		}
 		const until = 10000;
 		channel.ban.push(toban.id)
+		channel.members = channel.members.filter(curr => curr.id !== toban.id);
 		setTimeout(async () => {
 			channel.ban = channel.ban.filter(user => user !== toban.id);
 			await this.channelRepository.save(channel);
