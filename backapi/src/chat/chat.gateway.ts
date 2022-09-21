@@ -15,6 +15,7 @@ import { User } from '@/user/user.entity';
 import {ChatService} from './chat.service';
 import {Channel} from './channels/channels.entity';
 import {MsgDto} from './messages/messages.dto';
+import {UserDto} from '@/user/user.dto';
 import {UserService} from '@/user/user.service';
 import {ChannelService} from './channels/channels.service';
 import {MessageService} from './messages/messages.service';
@@ -253,6 +254,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!channel)
 			return ({err: true, msg: undefined});
 		return ({err: false, msg: msg});
+	}
+
+	@SubscribeMessage('get-members')
+	async handleGetMembers(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("name") name: string,
+	): Promise<{err: boolean, members: UserDto[]}> {
+		const channel: Channel = await this.channelService.findByChatName(name);
+		if (!channel)
+			return ({err: true, members: undefined});
+		const members: UserDto[] = await this.channelService.getUserList(channel);
+		if (!channel)
+			return ({err: true, members: undefined});
+		return ({err: false, members: members});
 	}
 
 }
