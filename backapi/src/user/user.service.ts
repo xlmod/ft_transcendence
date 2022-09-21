@@ -81,7 +81,6 @@ export class UserService {
 			}
 		}
 		user.UpdatedAt = new Date();
-		// console.log(user.UpdatedAt.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
 		await this.userRepository.update(id, user);
 	}
 
