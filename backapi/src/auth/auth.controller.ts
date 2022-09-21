@@ -23,8 +23,8 @@ export class AuthController {
 		@Req() req,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const user = await this.authService.login42(req.user);
-		if (user === undefined)
+		const user = await this.authService.login(req.user);
+		if (!user)
 			res.status(401).redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}`);
 		if (user.TwoFactorAuthToggle) {
 			const tfa = this.jwtService.sign({uuid: user.id});
@@ -52,9 +52,9 @@ export class AuthController {
 			firstName: ggab,
 			lastName: ggab+'1',
 			email: ggab+'@local.42.fr',
-			pseudo: 'random' + ggab
+			pseudo: 'rgfdgdfgg' + ggab
 		}
-		const guest = await this.authService.login(user);
+		const guest = await this.authService.loginGuest(user);
 		const jtoken = this.jwtService.sign({ uuid: guest.id, tfa: guest.TwoFactorAuthToggle });
 		res.cookie('access_token', jtoken, {
 			httpOnly: true,
