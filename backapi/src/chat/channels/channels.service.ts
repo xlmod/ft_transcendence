@@ -3,7 +3,7 @@ import { UserService } from "@/user/user.service";
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { bantime, ChannelState } from "../models/status.enums";
+import { ChannelState } from "../models/status.enums";
 import { ChannelUpateDto, CreateChannelDto } from "./channels.dto";
 import { Channel } from "./channels.entity";
 import * as bcrypt from 'bcrypt';
@@ -139,12 +139,11 @@ export class ChannelService {
 			if (!isMatch)
 				throw new UnauthorizedException('Wrong password');
 		}
-		if (there) {
-			const isBan: string = channel.ban.find(uid => {return (uid === toadd.id);});
-			if (isBan)
-				throw new UnauthorizedException(`You are banned`);
+		if (there)
 			return channel;
-		}
+		const isBan: string = channel.ban.find(uid => {return (uid === toadd.id);});
+		if (isBan)
+			throw new UnauthorizedException(`You are banned`);
 		channel.members.push(toadd);
 		return await this.channelRepository.save(channel);
 	}
@@ -239,6 +238,8 @@ export class ChannelService {
 			if (user.blocks && user.blocks.find(blockedId => blockedId === otherUser.id) !== undefined)
 				return null;
 		}
+		if (chat.ban && chat.ban.filter(id => id === user.id).length)
+			return null;
 		if (!chat.mute.length || chat.mute.find(id => id !== user.id)) {
 			await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
 			return {channel: chat, msg: msg, user: user.pseudo};
@@ -248,7 +249,7 @@ export class ChannelService {
 
 	async getMsg(chat: Channel) {
 		try {
-			return await this.messageService.getAllMsgByChannel(chat);
+			return (await this.messageService.getAllMsgByChannel(chat)).splice(0, 75);
 		} catch(e) { throw e; }
 	}
 

@@ -2,13 +2,12 @@ import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 import { Controller, Get, NotFoundException, Res, UseGuards } from '@nestjs/common';
-import {Channel} from 'diagnostics_channel';
 import { Response } from 'express';
 import { ChannelService } from './channels/channels.service';
-import {ChannelState} from './models/status.enums';
+import { ChannelState } from './models/status.enums';
 
 @Controller('chat')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ChatController {
 	constructor(
 		private channelService: ChannelService,

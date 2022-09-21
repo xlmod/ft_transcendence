@@ -1,5 +1,3 @@
-export type bantime = { uuid: string, since: Date, until: Date }; 
-
 export enum UserStatus {
 	online = 'online',
 	offline = 'offline',

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from "class-validator";
-import { bantime, ChannelState } from "../models/status.enums";
+import { ChannelState } from "../models/status.enums";
 import { User } from '@/user/user.entity'
 import { MsgDto } from '@/chat/messages/messages.dto'
 import { Channel } from "./channels.entity";

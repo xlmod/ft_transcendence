@@ -1,7 +1,7 @@
 import { User } from "@/user/user.entity";
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Message } from "../messages/messages.entity";
-import { bantime, ChannelState } from "../models/status.enums";
+import { ChannelState } from "../models/status.enums";
 
 @Entity('channels')
 export class Channel {

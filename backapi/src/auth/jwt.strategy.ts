@@ -1,13 +1,10 @@
-import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Request } from "express";
-import { UserDto } from "src/user/user.dto";
 import { UserService } from "src/user/user.service";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { User } from "src/user/user.entity";
 
-// Maybe move interface
 export default interface TokenPayload {
 	uuid: string;
 	tfa: boolean;
