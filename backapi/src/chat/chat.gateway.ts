@@ -82,7 +82,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.users.forEach((key, value) => {
 			if (key.has(client))
 			{
-				key.forEach(client_socket =>{
+				key.forEach(client_socket => {
 					if (client_socket.id != client.id)
 						client_socket.disconnect(true);
 				});

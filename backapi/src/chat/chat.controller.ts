@@ -22,8 +22,10 @@ export class ChatController {
 		let i=0;
 		for (const chat of channels) {
 			let tmp = (await this.channelService.findUserListByChannel(chat));
+			let tmpOwnerChannel = this.channelService.findById(chat.id);
 			if (chat.state === ChannelState.dm)
 				channels[i] =  tmp;
+			channels[i].owner = (await tmpOwnerChannel).owner;
 			++i;
 		}
 		if (!user || !channels)
