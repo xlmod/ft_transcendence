@@ -20,8 +20,7 @@ export class ChatController {
 		const user: User = await this.userService.findById(res.locals.uuid);
 		let channels =  (await this.channelService.findChannelsByUser(user));
 		let i=0;
-		for (const chat of channels)
-		{
+		for (const chat of channels) {
 			let tmp = (await this.channelService.findUserListByChannel(chat));
 			if (chat.state === ChannelState.dm)
 				channels[i] =  tmp;
