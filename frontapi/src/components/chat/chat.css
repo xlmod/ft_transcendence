@@ -145,13 +145,13 @@
 	justify-content: space-evenly;
 }
 
-#chat-joined-rooms li
+#chat-joined-rooms li, #chat-private-rooms li
 {
 	list-style: square;
 	cursor: pointer;
 }
 
-#chat-joined-rooms li:hover
+#chat-joined-rooms li:hover, #chat-private-rooms li:hover
 {
 	color: var(--cBackground );
 	background-color: var( --cNeon );
