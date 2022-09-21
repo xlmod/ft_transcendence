@@ -30,6 +30,7 @@ export function Chat()
 	const [editSettings, setEditSettings] = useState< boolean >( false );
 	const [me, setMe] = useState<IUser>();
 	const [members, setMembers] = useState< IUser[] >([]);
+	const [autoload, setAutoload] = useState<number>(-1);
 
 	let inRef = useRef<HTMLInputElement | null>(null);
 	let msgRef = useRef<HTMLDivElement | null>(null);
@@ -137,8 +138,8 @@ export function Chat()
 	}, [actualRoom] );
 
 	useEffect( () => {
-	checkLogin();
-	let msgdiv: HTMLDivElement | null = msgRef.current;
+		checkLogin();
+		let msgdiv: HTMLDivElement | null = msgRef.current;
 		if (msgdiv) {
 			msgdiv.scrollTop = msgdiv.scrollHeight;
 		}
@@ -147,8 +148,23 @@ export function Chat()
 		waitChannelsJoined();
 	}, [update] );
 
+	useEffect(() => {
+		if (autoload != -1) {
+			joinedRooms.forEach((channel) => {
+				if (channel.id === autoload) {
+					changeRoom(channel);
+					setAutoload(-1);
+				}
+			});
+		}
+	}, [joinedRooms]);
+
 	useEffect( () => {
 
+		chat_socket.socket.on("autoload_room", (roomid: number) => {
+			setAutoload(roomid);
+			updateState({});
+		});
 		
 		chat_socket.socket.on("update_room_list", () => {
 			waitChannelsJoined();
@@ -173,6 +189,7 @@ export function Chat()
 			game_socket.socket.emit("remove_update_status", {uuid: pseudoUUID});
 			game_socket.socket.off(`update_${pseudoUUID}`);
 			chat_socket.socket.off("update_room_list");
+			chat_socket.socket.off("autoload_room");
 		};
 	}, [] );
 

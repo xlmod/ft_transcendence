@@ -62,33 +62,42 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log(`Client connected: ${client.id}`);
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
-		channels?.forEach((elem: Channel) => {
-			this.users.get(user.id).forEach(socket => {
-				if (socket.id != client.id)
-					socket.join(`${elem.id}`);
-			})
-			client.join(`${elem.id}`);
-		});
+		if (channels !== undefined)
+		{
+			channels?.forEach((elem: Channel) => {
+				this.users.get(user.id).forEach(socket => {
+					if (socket.id != client.id)
+						socket.join(`${elem.id}`);
+				})
+				client.join(`${elem.id}`);
+			});
+		}
 	}
 
 	async handleDisconnect(client: Socket) {
 		const user = await this.chatService.getUserBySocket(client);
 		const channels = await this.channelService.findChannelsByUser(user);
-		channels?.forEach((elem: Channel) => {
-			this.users.get(user.id).forEach(client_socket =>{
-				client_socket.leave(`${elem.id}`);
-			});
-		});
-		this.users.forEach((key, value) => {
-			if (key.has(client))
-			{
-				key.forEach(client_socket => {
-					if (client_socket.id != client.id)
-						client_socket.disconnect(true);
+		if (channels !== undefined)
+		{
+			channels?.forEach((elem: Channel) => {
+				this.users.get(user.id).forEach(client_socket =>{
+					client_socket.leave(`${elem.id}`);
 				});
-				this.users.delete(value);
-			}
-		});
+			});
+		}
+		if (this.users === undefined)
+		{
+			this.users.forEach((key, value) => {
+				if (key.has(client))
+				{
+					key.forEach(client_socket => {
+						if (client_socket.id != client.id)
+							client_socket.disconnect(true);
+					});
+					this.users.delete(value);
+				}
+			});
+		}
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
@@ -96,15 +105,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleCreateDM(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("name") pseudo: string,
-	): Promise<{err: boolean, data: string}> {
+	): Promise<{err: boolean, data: string, channel_id: number}> {
 		const todm: User = await this.userService.findByPseudo(pseudo);
 		const user: User = await this.chatService.getUserBySocket(client);
 		const toclient = this.users.get(todm.id);
 		if (!todm)
-			return ({err: true, data:`User named ${pseudo} not exist!`});
+			return ({err: true, data:`User named ${pseudo} not exist!`, channel_id:undefined});
 		const channel = await this.channelService.createDMsg(user, todm);
 		if (!channel)
-			return ({err: true, data:`Channel creation did not succeed!`});
+			return ({err: true, data:`Channel creation did not succeed!`, channel_id: undefined});
 		this.users.get(user.id).forEach(socket_client=>{
 			socket_client.join(`${channel.id}`);
 			socket_client.emit("update_room_list");
@@ -113,7 +122,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			socket_client.join(`${channel.id}`);
 			socket_client.emit("update_room_list");
 		});
-		return ({err: false, data:`Channel created!`});
+		return ({err: false, data:`Channel created!`, channel_id: channel.id});
 	}
 
 	@SubscribeMessage("create-room")
@@ -324,4 +333,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		toclient.forEach(client_socket => {client_socket.emit("update_room_list")});
 		return ({err: false, data: 'Channel deleted !'});
 	}
+
+	@SubscribeMessage('autoload-room')
+	async handleAutoloadRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody('dm') is_dm: boolean,
+		@MessageBody('id') id: number,
+	) {
+		let channel: Channel = await this.channelService.findById(id);
+		console.log(channel);
+		if (channel == undefined)
+			return ;
+		client.emit("autoload_room", channel.id);
+	}
+
 }

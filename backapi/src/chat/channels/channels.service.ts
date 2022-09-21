@@ -226,6 +226,15 @@ export class ChannelService {
 	}
 
 	async sendMsg(user: User, chat: Channel, msg: string) {
+		if (chat.state === ChannelState.dm)
+		{
+			const channelMembers = await this.findUserListByChannel(chat);
+			const otherUser = channelMembers.members.find(member => member.id !== user.id);
+			if (otherUser.blocks.find(blockedId => blockedId === user.id) !== undefined)
+				return null;
+			if (user.blocks.find(blockedId => blockedId === otherUser.id) !== undefined)
+				return null;
+		}
 		if (!chat.mute.length || chat.mute.find(id => id !== user.id)) {
 			await this.messageService.createMsgDb({message: msg, user: user, channel: chat} as CreateMsgDto);
 			return {channel: chat, msg: msg, user: user.pseudo};
