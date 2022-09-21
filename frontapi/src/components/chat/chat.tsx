@@ -73,11 +73,13 @@ export function Chat()
 	const quitChannel = async () => {
 		chat_socket.socket.emit("leave-room", {id: actualRoom?.id});
 		setActualRoom( null );
+		setMsglist([null]);
 	};
 
 	const deleteDM = async () => {
 		chat_socket.socket.emit("quit-dm", {id: actualRoom?.id});
 		setActualRoom( null );
+		setMsglist([null]);
 	};
 
 	const reloadMsg = async (room: IChannel) => {
@@ -126,6 +128,12 @@ export function Chat()
 					reloadMsg(actualRoom);
 			}
 		});
+		chat_socket.socket.off("update_members_list");
+		chat_socket.socket.on("update_members_list", () => {
+			if (actualRoom)
+				reloadMembers(actualRoom);
+		});
+
 	}, [actualRoom] );
 
 	useEffect( () => {
