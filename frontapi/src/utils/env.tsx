@@ -1,2 +1,2 @@
-export const HOST: string = "localhost";
-export const PORT: number = 3333;
+export const HOST: string = (process.env.REACT_APP_HOST as string);
+export const PORT: number = +(process.env.REACT_APP_PORT_BACK as string);
