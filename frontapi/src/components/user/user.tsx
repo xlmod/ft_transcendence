@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../services/auth.service';
 
@@ -26,6 +27,8 @@ export function User() {
 	const [avatar, setAvatar] = useState< Blob >();
 	const { pseudo } = useParams();
 
+	const navigate = useNavigate();
+
 	const waitMe = async() => {
 		const _me :IUser = await getUser("");
 		setMe( _me );
@@ -33,6 +36,8 @@ export function User() {
 
 	const waitUserMatch = async( _pseudo :string ) => {
 		const _user :IUser = await getUser( _pseudo );
+		if (!_user)
+			navigate("/user");
 		const _matchHistory :IMatchHistory[] = await getMatchHistory( _pseudo!==""?_user.id:"");
 		const _avatar :Blob = await getAvatar( _user.id );
 		setUser( _user );
