@@ -210,7 +210,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user: User = await this.chatService.getUserBySocket(client);
 		const channel: Channel = await this.channelService.findById(+id);
 		try {
-			await this.channelService.leaveChannel(user, channel)
+			await this.channelService.leaveChannel(user, channel);
 		} catch { return ({err: true, data:`You can't leave the channel!`}); }
 		this.users.get(user.id).forEach(socket_client=>{
 			socket_client.leave(`${channel.id}`);
@@ -250,7 +250,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const channel: Channel = await this.channelService.findById(+id);
 		if (!(await this.channelService.banUser(user, target, channel)))
 			return ({err: true, data:`You can't ban this user from the channel!`});
-		this.users.get(user.id).forEach((socket)=>{
+		this.users.get(target.id).forEach((socket) => {
+			socket.leave(`${channel.id}`);
 			socket.emit("update_room_list");
 		});
 		this.server.in(`${channel.id}`).emit("update_members_list");

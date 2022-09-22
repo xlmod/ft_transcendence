@@ -1,5 +1,5 @@
 import { User } from "@/user/user.entity";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsString } from "class-validator";
 import { Channel } from "../channels/channels.entity";
 import { Message } from "./messages.entity";
 
